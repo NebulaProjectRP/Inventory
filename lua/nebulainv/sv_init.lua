@@ -15,7 +15,7 @@ hook.Add("DatabaseCreateTables", "NebulaInventory", function()
         name = "VARCHAR(32)",
         icon = "VARCHAR(128)",
         rarity = "TINYINT DEFAULT 1 NOT NULL",
-        type = "VARCHAR(16) DEFAULT suits NOT NULL",
+        type = "VARCHAR(16) DEFAULT 'suits' NOT NULL",
         class = "VARCHAR(32)",
         perm = "INT DEFAULT 0 NOT NULL"
     }, "id")
