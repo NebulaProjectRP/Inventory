@@ -9,27 +9,30 @@ function meta:takeItem(id, am)
     self:saveInventory()
 end
 
-function meta:loadItems()
+function meta:loadItems(data)
     self._inventory = {}
     self._loadout = {}
 
-    NebulaDriver:MySQLSelect("inventories", "steamid=" .. self:SteamID64(), function(data)
-        if not IsValid(self) then return end
-        if (data and data[1]) then
-            local inv = data[1].inventory
-            local load = data[1].loadout
+    if (data and data.items) then
+        local inv = data.items
+        local load = data.loadout
 
-            if (inv) then
-                self._inventory = util.JSONToTable(inv)
-            end
-
-            if (load) then
-                self._loadout = util.JSONToTable(load)
-            end
-
-            MsgN("[INV] Loaded inventory for " .. self:Nick() .. ":" .. self:SteamID64())
+        if (inv) then
+            self._inventory = util.JSONToTable(inv)
         end
-    end)
+
+        if (load) then
+            self._loadout = util.JSONToTable(load)
+        end
+
+        MsgC(Color(100, 255, 200),"[INV]", color_white, " Loaded inventory for " .. self:Nick() .. ":" .. self:SteamID64() .. "\n")
+    else
+        NebulaDriver:MySQLInsert("inventories", {
+            steamid = self:SteamID64(),
+            items = util.TableToJSON({}),
+            loadout = util.TableToJSON({})
+        })
+    end
 end
 
 function meta:useItem(id)

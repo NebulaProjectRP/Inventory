@@ -19,4 +19,9 @@ hook.Add("DatabaseCreateTables", "NebulaInventory", function()
         class = "VARCHAR(32)",
         perm = "INT DEFAULT 0 NOT NULL"
     }, "id")
+
+    NebulaDriver:MySQLHook("inventories", function(ply, data)
+        ply:loadItems(data)
+    end)
 end)
+
