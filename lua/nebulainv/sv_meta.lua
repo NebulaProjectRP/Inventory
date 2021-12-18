@@ -1,11 +1,68 @@
 local meta = FindMetaTable("Player")
 
 function meta:giveItem(id, am, fields)
+    am = am or 1
+    local isUnique = fields != nil
+    if not isUnique then
+        if (self._inventory[id]) then
+            self._inventory[id] = self._inventory[id] + am
+        else
+            self._inventory[id] = am
+        end
+
+        net.Start("Nebula.Inv:SyncItem")
+        net.WriteBool(false)
+        net.WriteUInt(id, 32)
+        net.WriteUInt(self._inventory[id], 32)
+        net.Send(self)
+    else
+        local hash = util.MD5(util.TableToJSON(fields))
+        local name = "unique_" .. id .. "_" .. hash
+        if (self._inventory[name]) then
+            self._inventory[name].amount = self._inventory[name].amount + am
+        else
+            self._inventory[name] = {
+                amount = am,
+                data = fields
+            }
+        end
+        
+        net.Start("Nebula.Inv:SyncItem")
+        net.WriteBool(true)
+        net.WriteString(name)
+        net.WriteUInt(self._inventory[name].amount, 16)
+        net.WriteTable(fields)
+        net.Send(self)
+    end
     self:saveInventory()
 end
 meta.addItem = meta.giveItem
 
 function meta:takeItem(id, am)
+    local isUnique = isstring(id)
+    if not isUnique then
+        self._inventory[id] = self._inventory[id] - am
+        if (self._inventory[id] <= 0) then
+            self._inventory[id] = nil
+        end
+
+        net.Start("Nebula.Inv:SyncItem")
+        net.WriteBool(false)
+        net.WriteUInt(id, 32)
+        net.WriteUInt(self._inventory[id], 32)
+        net.Send(self)
+    else
+        self._inventory[id].amount = self._inventory[id].amount - am
+        if (self._inventory[id].amount <= 0) then
+            self._inventory[id] = nil
+        end
+        net.Start("Nebula.Inv:SyncItem")
+        net.WriteBool(true)
+        net.WriteString(name)
+        net.WriteUInt(self._inventory[name].amount, 16)
+        net.WriteTable({})
+        net.Send(self)
+    end
     self:saveInventory()
 end
 
@@ -56,5 +113,6 @@ function meta:saveInventory()
     local timerID = self:SteamID64() .. "_inventory_save"
     timer.Create(timerID, 5, 1, function()
         if not IsValid(self) then return end
+        savePlayerInventory(self)
     end)
 end

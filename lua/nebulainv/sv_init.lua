@@ -2,6 +2,7 @@ util.AddNetworkString("Nebula.Inv:CreateItem")
 util.AddNetworkString("Nebula.Inv:UseItem")
 util.AddNetworkString("Nebula.Inv:DropItem")
 util.AddNetworkString("Nebula.Inv:RemoveItem")
+util.AddNetworkString("Nebula.Inv:AddItem")
 
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
