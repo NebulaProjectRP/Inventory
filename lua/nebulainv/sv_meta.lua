@@ -90,6 +90,10 @@ function meta:loadItems(data)
             loadout = util.TableToJSON({})
         })
     end
+
+    for k, v in pairs(NebulaInv.Items) do
+        NebulaInv:NetworkItem(k)
+    end
 end
 
 function meta:useItem(id)

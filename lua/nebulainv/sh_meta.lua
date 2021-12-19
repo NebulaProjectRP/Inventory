@@ -3,6 +3,15 @@ NebulaInv = NebulaInv or {
     Decryptors = {},
 }
 
+NebulaInv.Rarities = {
+    [1] = Color(148, 182, 190),
+    [2] = Color(51, 102, 214),
+    [3] = Color(164, 55, 207),
+    [4] = Color(95, 212, 59),
+    [5] = Color(218, 49, 105),
+    [6] = Color(251, 255, 43),
+}
+
 AddCSLuaFile("types/suits.lua")
 AddCSLuaFile("types/weapons.lua")
 include("types/suits.lua")
@@ -34,3 +43,13 @@ net.Receive("Nebula.Inv:AddItem", function(l, ply)
     end
 end)
 
+net.Receive("Nebula.Inv:NetworkItem", function()
+    NebulaInv.Items[net.ReadUInt(32)] = {
+        name = net.ReadString(),
+        icon = net.ReadString(),
+        rarity = net.ReadUInt(3),
+        class = net.ReadString(),
+        type = net.ReadString(),
+        perm = net.ReadBool()
+    }
+end)
