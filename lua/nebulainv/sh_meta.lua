@@ -44,8 +44,10 @@ net.Receive("Nebula.Inv:AddItem", function(l, ply)
 end)
 
 net.Receive("Nebula.Inv:NetworkItem", function()
-    NebulaInv.Items[net.ReadUInt(32)] = {
+    id = net.ReadUInt(32)
+    NebulaInv.Items[id] = {
         name = net.ReadString(),
+        id = id,
         icon = net.ReadString(),
         rarity = net.ReadUInt(3),
         class = net.ReadString(),
