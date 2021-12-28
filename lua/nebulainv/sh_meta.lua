@@ -12,10 +12,10 @@ NebulaInv.Rarities = {
     [6] = Color(251, 255, 43),
 }
 
-AddCSLuaFile("types/suits.lua")
-AddCSLuaFile("types/weapons.lua")
-include("types/suits.lua")
-include("types/weapons.lua")
+AddCSLuaFile("types/suit.lua")
+AddCSLuaFile("types/weapon.lua")
+include("types/suit.lua")
+include("types/weapon.lua")
 
 local meta = FindMetaTable("Player")
 
@@ -52,4 +52,5 @@ net.Receive("Nebula.Inv:NetworkItem", function()
         type = net.ReadString(),
         perm = net.ReadBool()
     }
+
 end)
