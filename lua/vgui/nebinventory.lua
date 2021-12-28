@@ -145,8 +145,16 @@ function PANEL:MakeGrid()
 
     for k, v in pairs(invData) do
         local btn = vgui.Create("nebula.item", self.Layout)
-        btn:SetItem(v.id)
+        btn:SetItem(v.id, true)
         btn:SetSize(64, 64)
+        btn.DoClick = function(s)
+            local menu = DermaMenu()
+            menu:AddOption("Use Item")
+            menu:AddOption("Delete Item")
+            menu:AddOption("Sell Item")
+            menu:AddOption("Cancel")
+            menu:Open()
+        end
         table.insert(self.ItemSpawned, btn)
     end
 end
