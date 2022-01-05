@@ -55,14 +55,19 @@ function PANEL:Init()
     self:Dock(FILL)
     self:InvalidateLayout(true)
 
-    self.Header = vgui.Create("DPanel", self)
+    self.Preview = vgui.Create("DPanel", self)
+    self.Preview:Dock(RIGHT)
+    self.Preview:SetWide(256)
+
+    self.Header = vgui.Create("Panel", self)
     self.Header:Dock(TOP)
-    self.Header:SetTall(48)
+    self.Header:SetTall(32)
+    self.Header:DockMargin(0, 0, 16, 16)
 
     self.ShowOnly = vgui.Create("nebula.combobox", self.Header)
     self.ShowOnly:Dock(LEFT)
     self.ShowOnly:SetWide(128)
-    self.ShowOnly:SetText("All")
+    self.ShowOnly:SetText("Show only:")
     self.ShowOnly.OnSelect = function(s, index, value)
         self:PopulateInventory()
     end
@@ -72,39 +77,51 @@ function PANEL:Init()
 
     self.OrderBy = vgui.Create("nebula.combobox", self.Header)
     self.OrderBy:Dock(RIGHT)
+    self.OrderBy:SetText("Sort by:")
     self.OrderBy:SetWide(128)
     self.OrderBy.OnSelect = function(s, index, value)
         self:PopulateInventory()
     end
-    for k, v in pairs(SortMode) do
+    for k, v in pairs(SortModes) do
         self.OrderBy:AddChoice(k)
     end
 
     self.Search = vgui.Create("nebula.textentry", self.Header)
     self.Search:Dock(FILL)
-    self.Search:DockMargin(8, 0, 8, 0)
+    self.Search:DockMargin(16, 0, 16, 0)
     self.Search:SetPlaceholderText("Search...")
     self.Search.OnEnter = function(s)
         self:PopulateInventory()
     end
 
-    self.Preview = vgui.Create("DPanel", self)
-    self.Preview:Dock(RIGHT)
-    self.Preview:SetWide(172)
-
+    self.LastPaint = SysTime()
     self.Model = vgui.Create("DModelPanel", self.Preview)
     self.Model:Dock(FILL)
     self.Model:SetModel(LocalPlayer():GetModel())
     self.Model:GetEntity():ResetSequence("menu_combine")
-    self.Model:SetFOV(45)
-    self.Model:SetCamPos(Vector(0, 45, 50))
-    self.Model:SetLookAt(Vector(0, 0, 45))
+    self.Model:SetFOV(28)
+    self.Model.LayoutEntity = function(s, ent)
+        ent:FrameAdvance( ( RealTime() - self.LastPaint ) )
+        self:ManipulateModel(ent)
+    end
+
+    local ent = self.Model:GetEntity()
+    local att = ent:LookupAttachment("eyes")
+    if (att) then
+        local attach = ent:GetAttachment(att)
+        if (attach) then
+            local ang = attach.Ang
+            local targetZ = attach.Pos.z / 1.5
+            self.Model:SetCamPos(attach.Pos + ang:Forward() * 65 + ang:Right() * -24 - Vector(0, 0, targetZ / 2))
+            self.Model:SetLookAt(Vector(attach.Pos.x, attach.Pos.y, targetZ * .8))
+        end
+    end
 
     self:CreateSlots()
 
     self.Content = vgui.Create("nebula.scroll", self)
     self.Content:Dock(FILL)
-    self.Content:DockMargin(0, 8, 8, 0)
+    self.Content:DockMargin(0, 0, 16, 0)
 
     self.Layout = vgui.Create("DIconLayout", self.Content)
     self.Layout:SetSpaceX(4)
@@ -115,8 +132,17 @@ function PANEL:Init()
     self:PopulateItems()
 end
 
-function PANEL:MakeGrid()
-    local inv = LocalPlayer():getInventory()
+function PANEL:ManipulateModel(ent)
+    local my = -.4 + gui.MouseY() / ScrH()
+    local mx = -.5 + gui.MouseX() / ScrW()
+    ent:SetEyeTarget(Vector(0, 0, 60 - my * 40))
+
+    local boneID = ent:LookupBone("ValveBiped.Bip01_Head1")
+    ent:ManipulateBoneAngles(boneID, Angle(0, -20 -my * 20, -25 + mx * 20))
+end
+
+function PANEL:PopulateItems()
+    local inv = LocalPlayer():getInventory() or {}
     local filter = ShowMode[self.ShowOnly:GetText() or "All"]
     local orderBy = SortModes[self.OrderBy:GetText() or "None"]
     local search = string.lower(self.Search:GetText())
@@ -129,7 +155,7 @@ function PANEL:MakeGrid()
 
     local invData = {}
     for k, v in pairs(inv) do
-        if not filter(v) or (search != "" and not string.find(string.lower(NebulaInv.Items[v.name]), search)) then
+        if filter and not filter(v) or (search != "" and not string.find(string.lower(NebulaInv.Items[v.name]), search)) then
             continue
         end
         table.insert(invData, {
@@ -160,22 +186,33 @@ function PANEL:MakeGrid()
 end
 
 function PANEL:CreateSlots()
-    local slots = vgui.Create("DIconLayout", self.Preview)
+    local slots = vgui.Create("DIconLayout", self.Model)
     slots:Dock(BOTTOM)
     slots:SetTall(172)
     slots:SetSpaceX(8)
     slots:SetSpaceY(8)
-    local size = (172 - 16) / 2
+    local size = (256 - 16) / 2
     for k = 1, 4 do
         local btn = vgui.Create("nebula.button", slots)
         btn:SetSize(size, size)
     end
 
-    self.PlayerSlot = vgui.Create("nebula.item", self.Preview)
-    self.PlayerSlot:Dock(BOTTOM)
-    self.PlayerSlot:SetTall(128)
-    self.PlayerSlot:Allows("model")
-    self.PlayerSlotDockMargin(100, 0, 8, 8)
+    self.PlayerSlot = vgui.Create("nebula.item", self.Model)
+    self.PlayerSlot:SetSize(size, size * 1.4)
+    self.PlayerSlot:Allow("model")
 end
 
-vgui.Register("nebula.inv.main", PANEL, "Panel")
+function PANEL:PerformLayout(w, h)
+    if (IsValid(self.PlayerSlot)) then
+        local w2, h2 = self.Preview:GetSize()
+        self.PlayerSlot:SetPos(w2 - self.PlayerSlot:GetWide() - 8, h2 - self.PlayerSlot:GetTall() * 2.4 - 20)
+    end
+end
+
+vgui.Register("nebula.f4.inventory", PANEL, "Panel")
+
+if IsValid(NebulaF4.Panel) then
+    NebulaF4.Panel:Remove()
+end
+
+vgui.Create("nebula.f4")

@@ -10,7 +10,7 @@ function meta:giveItem(id, am, fields)
             self._inventory[id] = am
         end
 
-        net.Start("Nebula.Inv:SyncItem")
+        net.Start("Nebula.Inv:AddItem")
         net.WriteBool(false)
         net.WriteUInt(id, 32)
         net.WriteUInt(self._inventory[id], 32)
@@ -27,13 +27,14 @@ function meta:giveItem(id, am, fields)
             }
         end
         
-        net.Start("Nebula.Inv:SyncItem")
+        net.Start("Nebula.Inv:AddItem")
         net.WriteBool(true)
         net.WriteString(name)
         net.WriteUInt(self._inventory[name].amount, 16)
         net.WriteTable(fields)
         net.Send(self)
     end
+    MsgN("Added item")
     self:saveInventory()
 end
 meta.addItem = meta.giveItem
@@ -89,10 +90,6 @@ function meta:loadItems(data)
             items = util.TableToJSON({}),
             loadout = util.TableToJSON({})
         })
-    end
-
-    for k, v in pairs(NebulaInv.Items) do
-        NebulaInv:NetworkItem(k)
     end
 end
 

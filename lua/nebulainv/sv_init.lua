@@ -4,6 +4,7 @@ util.AddNetworkString("Nebula.Inv:UseItem")
 util.AddNetworkString("Nebula.Inv:DropItem")
 util.AddNetworkString("Nebula.Inv:RemoveItem")
 util.AddNetworkString("Nebula.Inv:AddItem")
+util.AddNetworkString("Nebula.Inv:SyncItem")
 
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
@@ -66,6 +67,9 @@ function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRar
             perm = itemRarity == 6 and 1 or 0
         }, "id = " .. editID, function()
             owner:SendLua("Derma_Message('Item with id " .. editID .. " has been updated!', 'Nebula Inventory', 'OK')")
+            http.Post(NebulaAPI .. "items/update", {
+                key = "gonzo_made_it"
+            })
         end)
     else
         NebulaDriver:MySQLInsert("items", item, function()
@@ -74,6 +78,10 @@ function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRar
                 NebulaInv.Items[data[1].lastid] = item
                 self:NetworkItem(item.id)
                 owner:SendLua("Derma_Message('Item has been created with id " .. item.id .. "!', 'Nebula Inventory', 'OK')")
+
+                http.Post(NebulaAPI .. "items/update", {
+                    key = "gonzo_made_it"
+                })
             end)            
         end)
     end

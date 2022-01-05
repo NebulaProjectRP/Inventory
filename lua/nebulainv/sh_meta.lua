@@ -20,7 +20,7 @@ include("types/weapon.lua")
 local meta = FindMetaTable("Player")
 
 function meta:getInventory()
-
+    return (CLIENT and NebulaInv.Inventory or self._inventory) or {}
 end
 
 net.Receive("Nebula.Inv:AddItem", function(l, ply)
@@ -32,11 +32,12 @@ net.Receive("Nebula.Inv:AddItem", function(l, ply)
         NebulaInv.Inventory[net.ReadUInt(32)] = net.ReadUInt(16)
     else
         local id = net.ReadString()
+        local amount = net.ReadUInt(16)
         local data = net.ReadTable()
         if not NebulaInv.Inventory[id] then
             NebulaInv.Inventory[id] = {}
         end
-        NebulaInv.Inventory[id].amount = net.ReadUInt(16)
+        NebulaInv.Inventory[id].amount = amount
         if (table.Count(data) > 0) then
             NebulaInv.Inventory[id].data = data
         end
@@ -54,5 +55,21 @@ net.Receive("Nebula.Inv:NetworkItem", function()
         type = net.ReadString(),
         perm = net.ReadBool()
     }
+end)
 
+if SERVER then return end
+
+function NebulaInv:LoadItems()
+    http.Fetch(NebulaAPI .. "items", function(data)
+        NebulaInv.Items = util.JSONToTable(data)
+        http.Fetch(NebulaAPI .. "player?sid=" .. LocalPlayer():SteamID64(), function(data)
+            local inv = util.JSONToTable(data)
+            NebulaInv.Inventory = util.JSONToTable(inv.items)
+            NebulaInv.Loadout = util.JSONToTable(inv.loadout)
+        end)
+    end)
+end
+
+hook.Add("InitPostEntity", "NebulaInv.LoadItems", function()
+    NebulaInv:LoadItems()
 end)
