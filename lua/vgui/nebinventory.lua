@@ -122,6 +122,12 @@ function PANEL:Init()
     self.Content = vgui.Create("nebula.scroll", self)
     self.Content:Dock(FILL)
     self.Content:DockMargin(0, 0, 16, 0)
+    self.Content.PaintOver = function(s, w, h)
+        local childCount = #self.Layout:GetChildren()
+        if childCount == 0 then
+            draw.SimpleText("No items found.", NebulaUI:Font(30), w / 2, h / 2, Color(255, 255, 255, 73), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)    
+        end
+    end
 
     self.Layout = vgui.Create("DIconLayout", self.Content)
     self.Layout:SetSpaceX(4)
@@ -210,9 +216,3 @@ function PANEL:PerformLayout(w, h)
 end
 
 vgui.Register("nebula.f4.inventory", PANEL, "Panel")
-
-if IsValid(NebulaF4.Panel) then
-    NebulaF4.Panel:Remove()
-end
-
-vgui.Create("nebula.f4")
