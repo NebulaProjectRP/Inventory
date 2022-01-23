@@ -55,7 +55,7 @@ function PANEL:Init()
     self:Dock(FILL)
     self:InvalidateLayout(true)
 
-    self.Preview = vgui.Create("DPanel", self)
+    self.Preview = vgui.Create("Panel", self)
     self.Preview:Dock(RIGHT)
     self.Preview:SetWide(256)
 
