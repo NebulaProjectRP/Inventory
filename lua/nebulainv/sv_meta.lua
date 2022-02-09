@@ -34,7 +34,8 @@ function meta:giveItem(id, am, fields)
         net.WriteTable(fields)
         net.Send(self)
     end
-    MsgN("Added item")
+
+    MsgC(Color(0, 183, 255), "[INV] ", Color(255, 255, 255), self:Nick() .. " have received ", Color(255, 0, 0), am, Color(255, 255, 255), "x ", Color(255, 0, 0), id, "\n")
     self:saveInventory()
 end
 meta.addItem = meta.giveItem
