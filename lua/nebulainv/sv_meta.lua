@@ -1,6 +1,11 @@
 local meta = FindMetaTable("Player")
 
 function meta:giveItem(id, am, fields)
+
+    if (!NebulaInv.Items[id]) then
+        MsgN("[NebulaInv] Item "..id.." does not exist!")
+        return false
+    end
     am = am or 1
     local isUnique = fields != nil
     if not isUnique then
@@ -37,6 +42,8 @@ function meta:giveItem(id, am, fields)
 
     MsgC(Color(0, 183, 255), "[INV] ", Color(255, 255, 255), self:Nick() .. " have received ", Color(255, 0, 0), am, Color(255, 255, 255), "x ", Color(255, 0, 0), id, "\n")
     self:saveInventory()
+
+    return true
 end
 meta.addItem = meta.giveItem
 
@@ -51,17 +58,17 @@ function meta:takeItem(id, am)
         net.Start("Nebula.Inv:SyncItem")
         net.WriteBool(false)
         net.WriteUInt(id, 32)
-        net.WriteUInt(self._inventory[id], 32)
+        net.WriteUInt(self._inventory[id] or 0, 32)
         net.Send(self)
-    else
+    elseif (self._inventory[id]) then
         self._inventory[id].amount = self._inventory[id].amount - am
         if (self._inventory[id].amount <= 0) then
             self._inventory[id] = nil
         end
         net.Start("Nebula.Inv:SyncItem")
         net.WriteBool(true)
-        net.WriteString(name)
-        net.WriteUInt(self._inventory[name].amount, 16)
+        net.WriteString(id)
+        net.WriteUInt(self._inventory[id] and self._inventory[id].amount or 0, 16)
         net.WriteTable({})
         net.Send(self)
     end
@@ -94,12 +101,68 @@ function meta:loadItems(data)
     end
 end
 
-function meta:useItem(id)
+function meta:dropItem(id)
     self:saveInventory()
 end
 
-function meta:dropItem(id)
-    self:saveInventory()
+function meta:equipItem(kind, id, status)
+    if (status) then
+        local item = self._inventory[id]
+        if (!item) then
+            DarkRP.notify(self, 1, 4, "You don't have this item!")
+            return
+        end
+
+        local ref = NebulaInv:GetReference(id)
+
+        if not self._loadout then
+            self._loadout = {
+                [kind] = {}
+            }
+        end
+
+        if (istable(item)) then
+            self._loadout[kind] = table.Copy(item)
+            self._loadout[kind].id = id
+            self._loadout[kind].amount = 1
+        else
+            self._loadout[kind] = id
+        end
+
+        if (NebulaInv.Types[ref.type] and NebulaInv.Types[ref.type].OnEquip) then
+            NebulaInv.Types[ref.type].OnEquip(self, item, ref)
+        end
+
+        self:takeItem(id, 1)
+    else
+        if (self._loadout[kind]) then
+            self:giveItem(id, 1, istable(self._loadout[kind]) and self._loadout[kind].data or nil)
+            self._loadout[kind] = nil
+
+            local ref = NebulaInv:GetReference(id)
+            if (NebulaInv.Types[ref.type] and NebulaInv.Types[ref.type].OnEquip) then
+                NebulaInv.Types[ref.type].OnEquip(self, item, ref)
+            end
+        end
+    end
+
+    net.Start("Nebula.Inv:EquipItem")
+    net.WriteString(kind)
+    if (status) then
+        net.WriteBool(true)
+        local iscustom = istable(self._loadout[kind])
+        net.WriteBool(iscustom)
+        if (iscustom) then
+            net.WriteString(self._loadout[kind].id)
+            net.WriteUInt(self._loadout[kind].amount, 16)
+            net.WriteTable(self._loadout[kind].data)
+        else
+            net.WriteUInt(self._loadout[kind], 32)
+        end
+    else
+        net.WriteBool(false)
+    end
+    net.Send(self)
 end
 
 local function savePlayerInventory(ply)

@@ -52,12 +52,13 @@ local SortModes = {
 }
 
 function PANEL:Init()
+    NebulaInv.Panel = self
     self:Dock(FILL)
     self:InvalidateLayout(true)
 
     self.Preview = vgui.Create("Panel", self)
     self.Preview:Dock(RIGHT)
-    self.Preview:SetWide(256)
+    self.Preview:SetWide(352)
 
     self.Header = vgui.Create("Panel", self)
     self.Header:Dock(TOP)
@@ -99,7 +100,7 @@ function PANEL:Init()
     self.Model:Dock(FILL)
     self.Model:SetModel(LocalPlayer():GetModel())
     self.Model:GetEntity():ResetSequence("menu_combine")
-    self.Model:SetFOV(28)
+    self.Model:SetFOV(35)
     self.Model.LayoutEntity = function(s, ent)
         ent:FrameAdvance( ( RealTime() - self.LastPaint ) )
         self:ManipulateModel(ent)
@@ -177,13 +178,29 @@ function PANEL:PopulateItems()
 
     for k, v in pairs(invData) do
         local btn = vgui.Create("nebula.item", self.Layout)
-        btn:SetItem(v.id, true)
+        local res = btn:SetItem(v.id, true)
+        if (not res) then
+            btn:Remove()
+            continue
+        end
         btn:SetSize(64, 64)
         btn.DoClick = function(s)
             local menu = DermaMenu()
-            menu:AddOption("Use Item")
-            menu:AddOption("Delete Item")
-            menu:AddOption("Sell Item")
+            menu:AddOption("Use Item", function()
+                net.Start("Nebula.Inv:UseItem")
+                net.WriteString(v.id)
+                net.SendToServer()
+            end)
+            menu:AddOption("Delete Item", function()
+                net.Start("Nebula.Inv:DeleteItem")
+                net.WriteString(v.id)
+                net.SendToServer()
+            end)
+            menu:AddOption("Sell Item", function()
+                net.Start("Nebula.Inv:SellItem")
+                net.WriteString(v.id)
+                net.SendToServer()
+            end)
             menu:AddOption("Cancel")
             menu:Open()
         end
@@ -194,25 +211,129 @@ end
 function PANEL:CreateSlots()
     local slots = vgui.Create("DIconLayout", self.Model)
     slots:Dock(BOTTOM)
-    slots:SetTall(172)
+    local size = (352 - 16) / 3
+    slots:SetTall(size + 16)
     slots:SetSpaceX(8)
     slots:SetSpaceY(8)
-    local size = (256 - 16) / 2
-    for k = 1, 4 do
-        local btn = vgui.Create("nebula.button", slots)
+    for k = 1, 3 do
+        local btn = vgui.Create("nebula.item", slots)
         btn:SetSize(size, size)
+        btn:Allow("weapon", true)
     end
 
-    self.PlayerSlot = vgui.Create("nebula.item", self.Model)
-    self.PlayerSlot:SetSize(size, size * 1.4)
-    self.PlayerSlot:Allow("model")
+    local header = vgui.Create("Panel", self.Model)
+    header:Dock(BOTTOM)
+    header:SetTall(32)
+    header:DockMargin(0, 0, 0, 8)
+
+    local lbl = Label("Weapon loadouts", self.Model)
+    lbl:Dock(BOTTOM)
+    lbl:DockMargin(0, 0, 0, 4)
+    lbl:SetFont(NebulaUI:Font(16))
+
+    self.Equip = vgui.Create("nebula.button", header)
+    self.Equip:Dock(RIGHT)
+    self.Equip:SetWide(72)
+    self.Equip:SetText("Equip")
+    self.Equip.DoClick = function()
+    end
+
+    self.Save = vgui.Create("nebula.button", header)
+    self.Save:Dock(RIGHT)
+    self.Save:SetWide(72)
+    self.Save:SetText("Save")
+    self.Save:DockMargin(4, 0, 4, 0)
+    self.Save.DoClick = function()
+    end
+
+    self.Combo = vgui.Create("nebula.combobox", header)
+    self.Combo:Dock(FILL)
+
+    local side = vgui.Create("Panel", self.Model)
+    side:Dock(RIGHT)
+    side:SetWide(72)
+
+    self.PlayerSlot = vgui.Create("nebula.item", side)
+    self.PlayerSlot:SetSize(72, 72)
+    self.PlayerSlot:Dock(BOTTOM)
+    self.PlayerSlot:Allow("model", true)
+
+    self.HitSound = vgui.Create("nebula.item", side)
+    self.HitSound:SetSize(72, 72)
+    self.HitSound:Dock(BOTTOM)
+    self.HitSound:DockMargin(0, 8, 0, 8)
+    self.HitSound:Allow("hitmark", true)
+
+    self.VOX = vgui.Create("nebula.item", side)
+    self.VOX:SetSize(72, 72)
+    self.VOX:Dock(BOTTOM)
+    self.VOX:Allow("vox", true)
+
+    local loadout = NebulaInv.Loadout
+    if not loadout then return end
+
+    if (loadout.model) then
+        self.PlayerSlot:SetItem(istable(loadout.model) and loadout.model.id or loadout.model)
+    end
+
+    if (loadout.hitmark) then
+        self.HitSound:SetItem(istable(loadout.hitmark) and loadout.hitmark.id or loadout.hitmark)
+    end
+
+    if (loadout.vox) then
+        self.VOX:SetItem(istable(loadout.vox) and loadout.vox.id or loadout.vox)
+    end
 end
 
 function PANEL:PerformLayout(w, h)
-    if (IsValid(self.PlayerSlot)) then
-        local w2, h2 = self.Preview:GetSize()
-        self.PlayerSlot:SetPos(w2 - self.PlayerSlot:GetWide() - 8, h2 - self.PlayerSlot:GetTall() * 2.4 - 20)
-    end
+
 end
 
 vgui.Register("nebula.f4.inventory", PANEL, "Panel")
+
+net.Receive("Nebula.Inv:SyncItem", function()
+    local isUnique = net.ReadBool()
+    if (isUnique) then
+        local item = net.ReadString()
+        local amount = net.ReadUInt(16)
+        local data = net.ReadTable()
+        NebulaInv.Inventory[id] = amount > 0 and {
+            amount = amount,
+            data = data
+        } or nil
+    else
+        local id = net.ReadUInt(32)
+        local amount = net.ReadUInt(16)
+        NebulaInv.Inventory[id] = amount > 0 and amount or nil
+    end
+
+    if IsValid(NebulaInv.Panel) then
+        NebulaInv.Panel:PopulateItems()
+    end
+end)
+
+net.Receive("Nebula.Inv:EquipItem", function()
+    local kind = net.ReadString()
+    local isEquip = net.ReadBool()
+    local isCustom = net.ReadBool()
+
+    if not NebulaInv.Loadout then
+        NebulaInv.Loadout = {
+            [kind] = {}
+        }
+    end
+
+    if (isCustom) then
+        NebulaInv.Loadout[kind] = {
+            id = net.ReadString(),
+            amount = net.ReadUInt(16),
+            data = net.ReadTable()
+        }
+    else
+        NebulaInv.Loadout[kind] = net.ReadUInt(32)
+    end
+
+    if IsValid(NebulaInv.Panel) then
+        NebulaInv.Panel:PopulateItems()
+    end
+end)

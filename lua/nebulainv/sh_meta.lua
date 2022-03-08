@@ -1,6 +1,7 @@
 NebulaInv = NebulaInv or {
     Items = {},
     Decryptors = {},
+    Types = {}
 }
 
 NebulaInv.Rarities = {
@@ -12,15 +13,14 @@ NebulaInv.Rarities = {
     [6] = Color(251, 255, 43),
 }
 
-AddCSLuaFile("types/suit.lua")
-AddCSLuaFile("types/weapon.lua")
-include("types/suit.lua")
-include("types/weapon.lua")
-
 local meta = FindMetaTable("Player")
 
 function meta:getInventory()
     return (CLIENT and NebulaInv.Inventory or self._inventory) or {}
+end
+
+function meta:hasItem(id)
+    return self:getInventory()[id] != nil
 end
 
 net.Receive("Nebula.Inv:AddItem", function(l, ply)
@@ -56,6 +56,35 @@ net.Receive("Nebula.Inv:NetworkItem", function()
         perm = net.ReadBool()
     }
 end)
+
+function NebulaInv:GetReference(id)
+    if (string.StartWith(id, "unique_")) then
+        id = tonumber(string.Explode("_", id)[2])
+    end
+    return self.Items[id]
+end
+
+function NebulaInv:RegisterType(type, data)
+    if not self.Types then
+        self.Types = {}
+    end
+
+    if (not self.Types[type]) then
+        self.Types[type] = {}
+    end
+    self.Types[type] = data
+end
+
+local a, b = file.Find("nebulainv/types/*", "LUA")
+MsgC(Color(100, 100, 255), "[Nebula]",color_white, "Loading Type!\n", Color(100, 100, 100))
+for k, v in pairs(file.Find("nebulainv/types/*.lua", "LUA")) do
+    if SERVER then
+        AddCSLuaFile("nebulainv/types/" .. v)
+    end
+    include("nebulainv/types/" .. v)
+    MsgC("\tRegistering " .. string.sub(v, 1, #v - 4) .. "...\n")
+end
+MsgC(Color(100, 100, 255), "[Nebula]",color_white, "Finished loading Items Types!\n")
 
 if SERVER then return end
 

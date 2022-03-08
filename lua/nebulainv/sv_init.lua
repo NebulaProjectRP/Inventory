@@ -1,15 +1,17 @@
 util.AddNetworkString("Nebula.Inv:CreateItem")
 util.AddNetworkString("Nebula.Inv:NetworkItem")
 util.AddNetworkString("Nebula.Inv:UseItem")
-util.AddNetworkString("Nebula.Inv:DropItem")
+util.AddNetworkString("Nebula.Inv:DeleteItem")
+util.AddNetworkString("Nebula.Inv:SellItem")
 util.AddNetworkString("Nebula.Inv:RemoveItem")
 util.AddNetworkString("Nebula.Inv:AddItem")
 util.AddNetworkString("Nebula.Inv:SyncItem")
+util.AddNetworkString("Nebula.Inv:EquipItem")
 
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
-        items = "TEXT DEFAULT '{}' NOT NULL",
-        loadout = "TEXT DEFAULT '{}' NOT NULL",
+        items = "TEXT NOT NULL",
+        loadout = "TEXT NOT NULL",
         steamid = "VARCHAR(22)"
     }, "steamid", function()
         NebulaDriver:MySQLQuery("SELECT * FROM items;", function(data)
@@ -87,6 +89,36 @@ function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRar
     end
 end
 
+function NebulaInv:LoadItems()
+    MsgC(Color(200, 200, 0), "[Nebula] Loading items...\n")
+    NebulaDriver:MySQLSelect("items", nil, function(data)
+        self.Cases = {}
+        local tempCases = {}
+        for k, v in pairs(data) do
+            self.Items[v.id] = v
+            if (v.type == "case") then
+                local data = util.JSONToTable(v.data)
+                tempCases[v.id] = v
+            end
+        end
+
+        for k, v in pairs(tempCases) do
+            local item = self.Items[k]
+            table.insert(self.Cases, {
+                rarity = item.rarity,
+                chances = v.chances,
+                content = v.content
+            })
+        end
+
+        MsgC(Color(0, 200, 0), "[Nebula] Items loaded succesfully!\n")
+    end)
+end
+
+if (NebulaDriver) then
+    NebulaInv:LoadItems()
+end
+
 net.Receive("Nebula.Inv:CreateItem", function(l, ply)
     if (!ply:IsAdmin()) then return end
 
@@ -99,4 +131,47 @@ net.Receive("Nebula.Inv:CreateItem", function(l, ply)
     local itemClass = net.ReadString()
 
     NebulaInv:CreateItem(ply, isEdit, editID, itemName, itemIcon, itemRarity, itemType, itemClass)
+end)
+
+net.Receive("Nebula.Inv:UseItem", function(l, ply)
+    local itemID = net.ReadString()
+    local id
+    if (string.StartWith(itemID, "unique")) then
+        id = tonumber(string.Explode("_", itemID, false)[2])
+        if (not ply._inventory[itemID]) then
+            DarkRP.notify(ply, 1, 4, "You don't have this item!")
+            return
+        end
+    else
+        if (not ply._inventory[tonumber(itemID)]) then
+            DarkRP.notify(ply, 1, 4, "You don't have this item!")
+            return
+        end
+        id = tonumber(itemID)
+    end
+
+    local item = NebulaInv.Items[id]
+    
+    if not item then
+        DarkRP.notify(ply, 1, 4, "This item not longer exists!")
+        return
+    end
+    local resolver = NebulaInv.Types[NebulaInv.Items[id].type]
+    if (!resolver) then
+        DarkRP.notify(ply, 1, 4, "This item is not usable!")
+        return
+    end
+
+    local result = resolver:OnUse(ply, item)
+    if (result == true) then
+        ply:takeItem(tonumber(itemID) and tonumber(itemID) or itemID, 1)
+    end
+end)
+
+net.Receive("Nebula.Inv:EquipItem", function(l, ply)
+    local kind = net.ReadString()
+    local id = net.ReadString()
+    local status = net.ReadBool()
+
+    ply:equipItem(kind, id, status)
 end)
