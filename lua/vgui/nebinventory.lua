@@ -101,6 +101,11 @@ function PANEL:Init()
     self.Model:SetModel(LocalPlayer():GetModel())
     self.Model:GetEntity():ResetSequence("menu_combine")
     self.Model:SetFOV(35)
+    self.Model.PreDrawModel = function(s, ent)
+        if (self:GetAlpha() != 255) then
+            return false
+        end
+    end
     self.Model.LayoutEntity = function(s, ent)
         ent:FrameAdvance( ( RealTime() - self.LastPaint ) )
         self:ManipulateModel(ent)
