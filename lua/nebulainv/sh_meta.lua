@@ -95,9 +95,11 @@ function NebulaInv:LoadItems()
         MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading player items...\n")
         http.Fetch(NebulaAPI .. "players/" .. LocalPlayer():SteamID64(), function(data)
             MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Finished downloading items!\n")
-            local inv = util.JSONToTable(data)
+            local json = util.JSONToTable(data)
+            local inv = json.inventory or {}
             NebulaInv.Inventory = util.JSONToTable(inv.items)
             NebulaInv.Loadout = util.JSONToTable(inv.loadout)
+            LocalPlayer():loadMining(json.mining or {})
         end)
     end)
 end
