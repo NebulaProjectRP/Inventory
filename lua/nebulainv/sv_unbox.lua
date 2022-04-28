@@ -1,52 +1,27 @@
-require("securerandom")
-
-NebulaInv.Cases = {}
-
-local function addCase(id, rarity)
-    local r = 6 - rarity
-    local data = {
-        rarity = rarity,
-        chances = math.Round(random.Number(r * 5, r * 10)),
-        content = math.random(1, 50)
+if file.Exists("lua/bin/gmsv_securerandom_linux.dll", "MOD") then
+    require("securerandom")
+else
+    random = {
+        Number = function(a, b)
+            return math.Rand(a, b)
+        end
     }
-    table.insert(NebulaInv.Cases[id], data)
-end
-
-for k = 1, 3 do
-    NebulaInv.Cases[k] = {}
-    for i = 1, math.random(10, 15) do
-        addCase(k, 1)
-    end
-
-    for i = 1, math.random(5, 10) do
-        addCase(k, 2)
-    end
-
-    for i = 1, math.random(1, 5) do
-        addCase(k, 3)
-    end
-
-    for i = 1, math.random(1, 2) do
-        addCase(k, 4)
-    end
-
-    addCase(k, 5)
 end
 
 NebulaInv.TotalCache = {}
 function NebulaInv:Unbox(ply, case_id)
     luck = math.Clamp(ply.luckValue or 0, -100, 100)
     
-    local case = self.Cases[case_id]
+    local case = self.Items[case_id].extraData.cases
     if not case then
-        MsgN("[NebulaInv] Case not found: " .. case_id)
+        MsgN("[NebulaInv] Case has not been configurated: " .. case_id)
         return false
     end
 
     if not self.TotalCache[case_id] then
         self.TotalCache[case_id] = 0
         for k, v in pairs(case) do
-            self.TotalCache[case_id] = self.TotalCache[case_id] + v.chances
+            self.TotalCache[case_id] = self.TotalCache[case_id] + v
         end
     end
     
@@ -56,20 +31,22 @@ function NebulaInv:Unbox(ply, case_id)
     local total = 0
     local winner, id
 
-    for k, v in SortedPairsByMemberValue(case, "chances", true) do
-        total = total + v.chances
+    for k, v in SortedPairsByValue(case, true) do
+        total = total + v
         if (ran <= total) then
             winner = v
             break
         end
     end
 
-    if (winner.rarity < 3) then
-        ply.luckValue = (ply.luckValue or 0) + (2.5 + 3 - winner.rarity)
-    elseif (winner.rarity == 5) then
-        ply.luckValue = 0
-    elseif (winner.rarity == 4) then
+    local parity = ran / maxItems
+
+    if (parity < .4) then
+        ply.luckValue = (ply.luckValue or 0) + (2.5 + 5 * (1 - parity))
+    elseif (parity < .75) then
         ply.luckValue = ply.luckValue / 2
+    elseif (parity < 1) then
+        ply.luckValue = 0
     end
     
     ply.luckValue = math.Clamp(ply.luckValue, -100, 100)

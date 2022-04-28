@@ -7,7 +7,6 @@ util.AddNetworkString("Nebula.Inv:RemoveItem")
 util.AddNetworkString("Nebula.Inv:AddItem")
 util.AddNetworkString("Nebula.Inv:SyncItem")
 util.AddNetworkString("Nebula.Inv:EquipItem")
-
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
         items = "TEXT NOT NULL",
@@ -26,6 +25,7 @@ hook.Add("DatabaseCreateTables", "NebulaInventory", function()
         rarity = "TINYINT DEFAULT 1 NOT NULL",
         type = "VARCHAR(16) DEFAULT 'suits' NOT NULL",
         class = "VARCHAR(32)",
+        extraData = "TEXT NOT NULL",
         perm = "INT DEFAULT 0 NOT NULL"
     }, "id")
 
@@ -44,17 +44,19 @@ function NebulaInv:NetworkItem(id)
     net.WriteString(item.class)
     net.WriteString(item.type)
     net.WriteBool(item.perm == 1)
+    net.WriteTable(item.extraData)
     net.Broadcast()
 end
 
-function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRarity, itemType, itemClass)
+function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRarity, itemType, itemClass, extraData)
     local item = {
         name = itemName,
         icon = itemIcon,
         rarity = itemRarity,
         type = itemType,
         class = itemClass,
-        perm = itemRarity == 6 and 1 or 0
+        perm = itemRarity == 6 and 1 or 0,
+        extraData = extraData
     }
 
     if isEdit then
@@ -66,15 +68,19 @@ function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRar
             rarity = itemRarity,
             type = itemType,
             class = itemClass,
-            perm = itemRarity == 6 and 1 or 0
+            perm = itemRarity == 6 and 1 or 0,
+            extraData = util.TableToJSON(extraData)
         }, "id = " .. editID, function()
             owner:SendLua("Derma_Message('Item with id " .. editID .. " has been updated!', 'Nebula Inventory', 'OK')")
+            BroadcastLua("NebulaInv:LoadItems()")
             http.Post(NebulaAPI .. "items/update", {
                 key = "gonzo_made_it"
             })
         end)
     else
-        NebulaDriver:MySQLInsert("items", item, function()
+        local safeCopy = table.Copy(item)
+        safeCopy.extraData = util.TableToJSON(safeCopy.extraData)
+        NebulaDriver:MySQLInsert("items", safeCopy, function()
             NebulaDriver:MySQLQuery("SELECT LAST_INSERT_ID() AS lastid", function(data)
                 item.id = data[1].lastid
                 NebulaInv.Items[data[1].lastid] = item
@@ -84,7 +90,7 @@ function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRar
                 http.Post(NebulaAPI .. "items/update", {
                     key = "gonzo_made_it"
                 })
-            end)            
+            end)
         end)
     end
 end
@@ -97,7 +103,7 @@ function NebulaInv:LoadItems()
         for k, v in pairs(data) do
             self.Items[v.id] = v
             if (v.type == "case") then
-                local data = util.JSONToTable(v.data)
+                local data = util.JSONToTable(v.extraData)
                 tempCases[v.id] = v
             end
         end
@@ -129,8 +135,10 @@ net.Receive("Nebula.Inv:CreateItem", function(l, ply)
     local itemRarity = net.ReadUInt(3)
     local itemType = net.ReadString()
     local itemClass = net.ReadString()
+    local itemExtraData = net.ReadTable()
 
-    NebulaInv:CreateItem(ply, isEdit, editID, itemName, itemIcon, itemRarity, itemType, itemClass)
+    MsgN("Hello?")
+    NebulaInv:CreateItem(ply, isEdit, editID, itemName, itemIcon, itemRarity, itemType, itemClass, itemExtraData)
 end)
 
 net.Receive("Nebula.Inv:UseItem", function(l, ply)

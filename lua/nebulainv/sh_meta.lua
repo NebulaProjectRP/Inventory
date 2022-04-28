@@ -1,7 +1,8 @@
 NebulaInv = NebulaInv or {
     Items = {},
     Decryptors = {},
-    Types = {}
+    Types = {},
+    Market = {}
 }
 
 NebulaInv.Rarities = {
@@ -53,7 +54,8 @@ net.Receive("Nebula.Inv:NetworkItem", function()
         rarity = net.ReadUInt(3),
         class = net.ReadString(),
         type = net.ReadString(),
-        perm = net.ReadBool()
+        perm = net.ReadBool(),
+        extraData = net.ReadTable()
     }
 end)
 
@@ -92,6 +94,11 @@ function NebulaInv:LoadItems()
     MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading items database...\n")
     http.Fetch(NebulaAPI .. "items", function(data)
         NebulaInv.Items = util.JSONToTable(data)
+        for k, v in pairs(NebulaInv.Items) do
+            if (isstring(v.extraData)) then
+                v.extraData = util.JSONToTable(v.extraData)
+            end
+        end
         MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading player items...\n")
         http.Fetch(NebulaAPI .. "players/" .. LocalPlayer():SteamID64(), function(data)
             MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Finished downloading items!\n")

@@ -89,6 +89,25 @@ function meta:loadItems(data)
 
         if (load) then
             self._loadout = util.JSONToTable(load)
+            for k, v in pairs(self._loadout) do
+                net.Start("Nebula.Inv:EquipItem")
+                net.WriteString(k)
+                if (status) then
+                    net.WriteBool(true)
+                    local iscustom = istable(v)
+                    net.WriteBool(iscustom)
+                    if (iscustom) then
+                        net.WriteString(v.id)
+                        net.WriteUInt(v.amount, 16)
+                        net.WriteTable(v.data)
+                    else
+                        net.WriteUInt(v, 32)
+                    end
+                else
+                    net.WriteBool(false)
+                end
+                net.Send(self)
+            end
         end
 
         MsgC(Color(100, 255, 200),"[INV]", color_white, " Loaded inventory for " .. self:Nick() .. ":" .. self:SteamID64() .. "\n")
@@ -107,6 +126,9 @@ end
 
 function meta:equipItem(kind, id, status)
     if (status) then
+        if (tonumber(id)) then
+            id = tonumber(id)
+        end
         local item = self._inventory[id]
         if (!item) then
             DarkRP.notify(self, 1, 4, "You don't have this item!")
@@ -130,7 +152,7 @@ function meta:equipItem(kind, id, status)
         end
 
         if (NebulaInv.Types[ref.type] and NebulaInv.Types[ref.type].OnEquip) then
-            NebulaInv.Types[ref.type].OnEquip(self, item, ref)
+            NebulaInv.Types[ref.type]:OnEquip(self, ref)
         end
 
         self:takeItem(id, 1)

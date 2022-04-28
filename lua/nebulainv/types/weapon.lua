@@ -8,6 +8,20 @@ function DEF:OnEquip(ply, item)
     return true
 end
 
+function DEF:CreateEditor(panel, container, data)
+    panel:AddControl("DLabel", {
+        Text = "Entity/Weapon Class",
+        Font = NebulaUI:Font(20),
+        TextColor = color_white,
+        Tall = 20,
+    })
+    panel.ClassName = panel:AddControl("nebula.textentry", {
+        PlaceholderText = "weapon_physgun",
+        Text = data.class or "",
+        Tall = 28,
+    })
+end
+
 function DEF:OnUnequip(ply, item)
     local hasWeapon = ply:HasWeapon(item.class)
     if (not hasWeapon) then return false end

@@ -47,7 +47,7 @@ local SortModes = {
         return a.rarity < b.rarity
     end,
     ["Amount"] = function(a, b, c, d)
-        return c == d and a.name < b.name or c < d
+        return c == d and a.name < b.name or c > d
     end,
 }
 
@@ -70,7 +70,7 @@ function PANEL:Init()
     self.ShowOnly:SetWide(128)
     self.ShowOnly:SetText("Show only:")
     self.ShowOnly.OnSelect = function(s, index, value)
-        self:PopulateInventory()
+        self:PopulateItems()
     end
     for k, v in pairs(ShowMode) do
         self.ShowOnly:AddChoice(k)
@@ -81,7 +81,7 @@ function PANEL:Init()
     self.OrderBy:SetText("Sort by:")
     self.OrderBy:SetWide(128)
     self.OrderBy.OnSelect = function(s, index, value)
-        self:PopulateInventory()
+        self:PopulateItems()
     end
     for k, v in pairs(SortModes) do
         self.OrderBy:AddChoice(k)
@@ -91,8 +91,9 @@ function PANEL:Init()
     self.Search:Dock(FILL)
     self.Search:DockMargin(16, 0, 16, 0)
     self.Search:SetPlaceholderText("Search...")
-    self.Search.OnEnter = function(s)
-        self:PopulateInventory()
+    self.Search:SetUpdateOnType(true)
+    self.Search.OnValueChange = function(s)
+        self:PopulateItems()
     end
 
     self.LastPaint = SysTime()
@@ -128,6 +129,7 @@ function PANEL:Init()
     self.Content = vgui.Create("nebula.scroll", self)
     self.Content:Dock(FILL)
     self.Content:DockMargin(0, 0, 16, 0)
+    self.Content:GetCanvas():DockPadding(8, 8, 8, 8)
     self.Content.PaintOver = function(s, w, h)
         local childCount = #self.Layout:GetChildren()
         if childCount == 0 then
@@ -136,8 +138,8 @@ function PANEL:Init()
     end
 
     self.Layout = vgui.Create("DIconLayout", self.Content)
-    self.Layout:SetSpaceX(4)
-    self.Layout:SetSpaceY(4)
+    self.Layout:SetSpaceX(8)
+    self.Layout:SetSpaceY(8)
     self.Layout:Dock(FILL)
 
     self.ItemSpawned = {}
@@ -167,14 +169,17 @@ function PANEL:PopulateItems()
 
     local invData = {}
     for k, v in pairs(inv) do
-        if filter and not filter(v) or (search != "" and not string.find(string.lower(NebulaInv.Items[v.name]), search)) then
+        local item = NebulaInv.Items[k]
+        if filter and not filter(item) or (search != "" and not string.find(string.lower(item.name), search, 0, true)) then
             continue
         end
         table.insert(invData, {
             amount = istable(v) and v.amount or v,
-            id = k
+            id = k,
+            type = item.type
         })
     end
+
     table.sort(invData, function(a, b)
         if orderBy then
             return orderBy(NebulaInv.Items[a.id], NebulaInv.Items[b.id], a.amount, b.amount)
@@ -188,7 +193,8 @@ function PANEL:PopulateItems()
             btn:Remove()
             continue
         end
-        btn:SetSize(64, 64)
+        btn:SetSize(96, 96)
+        btn:Droppable("Receiver." .. v.type)
         btn.DoClick = function(s)
             local menu = DermaMenu()
             menu:AddOption("Use Item", function()
@@ -220,10 +226,12 @@ function PANEL:CreateSlots()
     slots:SetTall(size + 16)
     slots:SetSpaceX(8)
     slots:SetSpaceY(8)
+    self.WeaponSlots = {}
     for k = 1, 3 do
         local btn = vgui.Create("nebula.item", slots)
         btn:SetSize(size, size)
         btn:Allow("weapon", true)
+        table.insert(self.WeaponSlots, btn)
     end
 
     local header = vgui.Create("Panel", self.Model)
@@ -287,6 +295,10 @@ function PANEL:CreateSlots()
 
     if (loadout.vox) then
         self.VOX:SetItem(istable(loadout.vox) and loadout.vox.id or loadout.vox)
+    end
+
+    if (loadout.weapon) then
+        self.WeaponSlots[1]:SetItem(istable(loadout.weapon) and loadout.weapon.id or loadout.weapon)
     end
 end
 

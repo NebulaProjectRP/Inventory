@@ -13,4 +13,17 @@ function DEF:OnUnequip(ply, item)
     return true
 end
 
+function DEF:CreateEditor(panel, container, data)
+    panel:AddControl("DLabel", {
+        Text = "Soundtrack Sample",
+        Font = NebulaUI:Font(20),
+        TextColor = color_white,
+        Tall = 20,
+    })
+    panel.ClassName = panel:AddControl("nebula.textentry", {
+        PlaceholderText = "nebula_feedback/lua/autorun/sh_vox.lua | 'Quake'",
+        Tall = 28,
+    })
+end
+
 NebulaInv:RegisterType("vox", DEF)

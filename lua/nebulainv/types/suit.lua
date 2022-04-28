@@ -13,4 +13,17 @@ function DEF:OnUse(ply, item)
     return true
 end
 
+function DEF:CreateEditor(panel, container, data)
+    panel:AddControl("DLabel", {
+        Text = "Suit Name",
+        Font = NebulaUI:Font(20),
+        TextColor = color_white,
+        Tall = 20,
+    })
+    panel.ClassName = panel:AddControl("nebula.textentry", {
+        PlaceholderText = "The Ballz Squater",
+        Tall = 28,
+    })
+end
+
 NebulaInv:RegisterType("suit", DEF)

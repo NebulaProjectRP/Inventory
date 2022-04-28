@@ -13,4 +13,17 @@ function DEF:OnUnequip(ply, item)
     return true
 end
 
+function DEF:CreateEditor(panel, container, data)
+    panel:AddControl("DLabel", {
+        Text = "Hitsound ID",
+        Font = NebulaUI:Font(20),
+        TextColor = color_white,
+        Tall = 20,
+    })
+    panel.ClassName = panel:AddControl("nebula.textentry", {
+        PlaceholderText = "something_something",
+        Tall = 28,
+    })
+end
+
 NebulaInv:RegisterType("hitmark", DEF)
