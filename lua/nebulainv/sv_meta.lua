@@ -75,6 +75,20 @@ function meta:takeItem(id, am)
     self:saveInventory()
 end
 
+function meta:holsterWeapons()
+    for slot, v in pairs(self._loadout) do
+        local itemId = istable(v) and v.id or v
+        local item = NebulaInv.Items[itemId]
+        if not item then continue end
+
+        self:giveItem(itemId, istable(v) and v.amount or 1, istable(v) and v or nil)
+        self:StripWeapon(item.class)
+        self._loadout[slot] = nil
+    end
+
+    self:networkLoadout()
+end
+
 function meta:loadItems(data)
     self._inventory = {}
     self._loadout = {}
@@ -89,25 +103,7 @@ function meta:loadItems(data)
 
         if (load) then
             self._loadout = util.JSONToTable(load)
-            for k, v in pairs(self._loadout) do
-                net.Start("Nebula.Inv:EquipItem")
-                net.WriteString(k)
-                if (status) then
-                    net.WriteBool(true)
-                    local iscustom = istable(v)
-                    net.WriteBool(iscustom)
-                    if (iscustom) then
-                        net.WriteString(v.id)
-                        net.WriteUInt(v.amount, 16)
-                        net.WriteTable(v.data)
-                    else
-                        net.WriteUInt(v, 32)
-                    end
-                else
-                    net.WriteBool(false)
-                end
-                net.Send(self)
-            end
+            self:networkLoadout()
         end
 
         MsgC(Color(100, 255, 200),"[INV]", color_white, " Loaded inventory for " .. self:Nick() .. ":" .. self:SteamID64() .. "\n")
@@ -120,15 +116,54 @@ function meta:loadItems(data)
     end
 end
 
+function meta:networkLoadout(kind, status)
+    local function proccessItem(k, v)
+        net.Start("Nebula.Inv:EquipItem")
+        net.WriteString(k)
+        if (status) then
+            net.WriteBool(true)
+            local iscustom = istable(v)
+            net.WriteBool(iscustom)
+            if (iscustom) then
+                net.WriteString(v.id)
+                net.WriteUInt(v.amount, 16)
+                net.WriteTable(v.data)
+            else
+                net.WriteUInt(v, 32)
+            end
+        else
+            net.WriteBool(false)
+        end
+        net.Send(self)
+    end
+
+    if (kind) then
+        proccessItem(kind, self._loadout[kind], status)
+        return
+    end
+
+    for k, v in pairs(self._loadout or {}) do
+        proccessItem(k, v, true)
+    end
+end
+
 function meta:dropItem(id)
     self:saveInventory()
 end
 
 function meta:equipItem(kind, id, status)
+    local slot
     if (status) then
         if (tonumber(id)) then
             id = tonumber(id)
+        else
+            local exp = string.Explode(":", id)
+            if (#exp > 0) then
+                id = tonumber(exp[1])
+                slot = exp[2]
+            end
         end
+
         local item = self._inventory[id]
         if (!item) then
             DarkRP.notify(self, 1, 4, "You don't have this item!")
@@ -137,6 +172,10 @@ function meta:equipItem(kind, id, status)
 
         local ref = NebulaInv:GetReference(id)
 
+        if (slot) then
+            kind = kind .. ":" .. slot
+        end
+        
         if not self._loadout then
             self._loadout = {
                 [kind] = {}
@@ -168,23 +207,7 @@ function meta:equipItem(kind, id, status)
         end
     end
 
-    net.Start("Nebula.Inv:EquipItem")
-    net.WriteString(kind)
-    if (status) then
-        net.WriteBool(true)
-        local iscustom = istable(self._loadout[kind])
-        net.WriteBool(iscustom)
-        if (iscustom) then
-            net.WriteString(self._loadout[kind].id)
-            net.WriteUInt(self._loadout[kind].amount, 16)
-            net.WriteTable(self._loadout[kind].data)
-        else
-            net.WriteUInt(self._loadout[kind], 32)
-        end
-    else
-        net.WriteBool(false)
-    end
-    net.Send(self)
+    self:networkLoadout(kind, status)
 end
 
 local function savePlayerInventory(ply)

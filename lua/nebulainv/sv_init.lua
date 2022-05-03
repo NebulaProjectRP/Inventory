@@ -7,6 +7,8 @@ util.AddNetworkString("Nebula.Inv:RemoveItem")
 util.AddNetworkString("Nebula.Inv:AddItem")
 util.AddNetworkString("Nebula.Inv:SyncItem")
 util.AddNetworkString("Nebula.Inv:EquipItem")
+util.AddNetworkString("Nebula.Inv:HolsterEquipment")
+
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
         items = "TEXT NOT NULL",
@@ -182,4 +184,8 @@ net.Receive("Nebula.Inv:EquipItem", function(l, ply)
     local status = net.ReadBool()
 
     ply:equipItem(kind, id, status)
+end)
+
+net.Receive("Nebula.Inv:HolsterEquipment", function(l, ply)
+    ply:holsterWeapons()
 end)

@@ -220,6 +220,12 @@ function PANEL:PopulateItems()
 end
 
 function PANEL:CreateSlots()
+    
+    local header = vgui.Create("Panel", self.Model)
+    header:Dock(BOTTOM)
+    header:SetTall(32)
+    header:DockMargin(0, 8, 0, 0)
+
     local slots = vgui.Create("DIconLayout", self.Model)
     slots:Dock(BOTTOM)
     local size = (352 - 16) / 3
@@ -227,40 +233,31 @@ function PANEL:CreateSlots()
     slots:SetSpaceX(8)
     slots:SetSpaceY(8)
     self.WeaponSlots = {}
+
+    local lbl = Label("Equipped Weapons:", self.Model)
+    lbl:Dock(BOTTOM)
+    lbl:DockMargin(0, 4, 0, 4)
+    lbl:SetFont(NebulaUI:Font(16))
+
     for k = 1, 3 do
         local btn = vgui.Create("nebula.item", slots)
         btn:SetSize(size, size)
-        btn:Allow("weapon", true)
+        btn:Allow("weapon", true, self.WeaponSlots)
+        btn.subslot = k
         table.insert(self.WeaponSlots, btn)
     end
 
-    local header = vgui.Create("Panel", self.Model)
-    header:Dock(BOTTOM)
-    header:SetTall(32)
-    header:DockMargin(0, 0, 0, 8)
-
-    local lbl = Label("Weapon loadouts", self.Model)
-    lbl:Dock(BOTTOM)
-    lbl:DockMargin(0, 0, 0, 4)
-    lbl:SetFont(NebulaUI:Font(16))
-
-    self.Equip = vgui.Create("nebula.button", header)
-    self.Equip:Dock(RIGHT)
-    self.Equip:SetWide(72)
-    self.Equip:SetText("Equip")
-    self.Equip.DoClick = function()
+    self.Holster = vgui.Create("nebula.button", header)
+    self.Holster:Dock(FILL)
+    self.Holster:SetText("Return Weapons to inventory")
+    self.Holster.DoClick = function()
+        net.Start("Nebula.Inv:HolsterEquipment")
+        net.SendToServer()
+        for k = 1, 3 do
+            NebulaInv.Loadout = {}
+            self.WeaponSlots[k]:SetItem(nil)
+        end
     end
-
-    self.Save = vgui.Create("nebula.button", header)
-    self.Save:Dock(RIGHT)
-    self.Save:SetWide(72)
-    self.Save:SetText("Save")
-    self.Save:DockMargin(4, 0, 4, 0)
-    self.Save.DoClick = function()
-    end
-
-    self.Combo = vgui.Create("nebula.combobox", header)
-    self.Combo:Dock(FILL)
 
     local side = vgui.Create("Panel", self.Model)
     side:Dock(RIGHT)
@@ -297,8 +294,10 @@ function PANEL:CreateSlots()
         self.VOX:SetItem(istable(loadout.vox) and loadout.vox.id or loadout.vox)
     end
 
-    if (loadout.weapon) then
-        self.WeaponSlots[1]:SetItem(istable(loadout.weapon) and loadout.weapon.id or loadout.weapon)
+    for k = 1, 3 do
+        local ld = loadout["weapon:" .. k]
+        if (!ld) then continue end
+        self.WeaponSlots[k]:SetItem(istable(ld) and ld.id or ld)
     end
 end
 
