@@ -196,12 +196,13 @@ function PANEL:PopulateItems()
         btn:SetSize(96, 96)
         btn:Droppable("Receiver." .. v.type)
         btn.DoClick = function(s)
+
             local menu = DermaMenu()
-            menu:AddOption("Use Item", function()
-                net.Start("Nebula.Inv:UseItem")
-                net.WriteString(v.id)
-                net.SendToServer()
-            end)
+            
+            if (NebulaInv.Types[v.type].OpenMenu) then
+                NebulaInv.Types[v.type]:OpenMenu(menu, v)
+            end
+
             menu:AddOption("Delete Item", function()
                 net.Start("Nebula.Inv:DeleteItem")
                 net.WriteString(v.id)

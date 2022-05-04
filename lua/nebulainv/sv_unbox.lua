@@ -11,7 +11,11 @@ end
 NebulaInv.TotalCache = {}
 function NebulaInv:Unbox(ply, case_id)
     luck = math.Clamp(ply.luckValue or 0, -100, 100)
-    
+
+    if (self.Items[case_id].extraData and isstring(self.Items[case_id].extraData)) then
+        self.Items[case_id].extraData = util.JSONToTable(self.Items[case_id].extraData)
+    end
+
     local case = self.Items[case_id].extraData.cases
     if not case then
         MsgN("[NebulaInv] Case has not been configurated: " .. case_id)
@@ -33,8 +37,9 @@ function NebulaInv:Unbox(ply, case_id)
 
     for k, v in SortedPairsByValue(case, true) do
         total = total + v
+        MsgN(ran," ", total)
         if (ran <= total) then
-            winner = v
+            winner = k
             break
         end
     end
@@ -50,9 +55,9 @@ function NebulaInv:Unbox(ply, case_id)
     end
     
     ply.luckValue = math.Clamp(ply.luckValue, -100, 100)
-    local could = ply:addItem(winner.content, 1)
+    local could = ply:addItem(winner, 1)
     if (not could) then
-        ply:addItem(winner.content, 1)
+        ply:addItem(winner, 1)
         return false
     end
     return winner, ran, self.TotalCache[case_id]

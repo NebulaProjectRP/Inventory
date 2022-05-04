@@ -43,6 +43,10 @@ net.Receive("Nebula.Inv:AddItem", function(l, ply)
             NebulaInv.Inventory[id].data = data
         end
     end
+
+    if IsValid(NebulaInv.Panel) then
+        NebulaInv.Panel:PopulateItems()
+    end
 end)
 
 net.Receive("Nebula.Inv:NetworkItem", function()

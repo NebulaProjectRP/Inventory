@@ -7,6 +7,17 @@ function DEF:OnUse(ply, item)
     return b
 end
 
+function DEF:OpenMenu(menu, item)
+    menu:AddOption("Open case", function()                
+        if IsValid(NebulaInv.Panel) then
+            local w, h = NebulaInv.Panel:GetSize()
+            local fit = vgui.Create("nebula.unbox", NebulaInv.Panel)
+            fit:SetSize(w, h)
+            fit:SetCase(item.id)
+        end
+    end)
+end
+
 function DEF:CreateEditor(panel, container, data)
     local top = panel:AddControl("DLabel", {
         Text = "Item Pool",

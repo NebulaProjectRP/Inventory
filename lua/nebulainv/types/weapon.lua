@@ -8,6 +8,14 @@ function DEF:OnEquip(ply, item)
     return true
 end
 
+function DEF:OpenMenu(menu)
+    menu:AddOption("Equip Weapon", function()                
+        net.Start("Nebula.Inv:UseItem")
+        net.WriteString(v.id)
+        net.SendToServer()
+    end)
+end
+
 function DEF:CreateEditor(panel, container, data)
     panel:AddControl("DLabel", {
         Text = "Entity/Weapon Class",

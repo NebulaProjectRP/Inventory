@@ -13,6 +13,14 @@ function DEF:OnUse(ply, item)
     return true
 end
 
+function DEF:OpenMenu(menu)
+    menu:AddOption("Equip Suit", function()                
+        net.Start("Nebula.Inv:UseItem")
+        net.WriteString(v.id)
+        net.SendToServer()
+    end)
+end
+
 function DEF:CreateEditor(panel, container, data)
     panel:AddControl("DLabel", {
         Text = "Suit Name",

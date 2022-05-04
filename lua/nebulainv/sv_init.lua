@@ -8,6 +8,7 @@ util.AddNetworkString("Nebula.Inv:AddItem")
 util.AddNetworkString("Nebula.Inv:SyncItem")
 util.AddNetworkString("Nebula.Inv:EquipItem")
 util.AddNetworkString("Nebula.Inv:HolsterEquipment")
+util.AddNetworkString("Nebula.Inv:OpenCase")
 
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
@@ -188,4 +189,13 @@ end)
 
 net.Receive("Nebula.Inv:HolsterEquipment", function(l, ply)
     ply:holsterWeapons()
+end)
+
+net.Receive("Nebula.Inv:OpenCase", function(l, ply)
+    local caseID = net.ReadUInt(32)
+    local winner, ran, cache = NebulaInv:Unbox(ply, caseID)
+    MsgN(NebulaInv.Items[winner].name)
+    net.Start("Nebula.Inv:OpenCase")
+    net.WriteUInt(winner, 32)
+    net.Send(ply)
 end)
