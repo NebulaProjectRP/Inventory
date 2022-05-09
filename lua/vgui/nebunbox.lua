@@ -110,7 +110,7 @@ end
 
 function PANEL:GenerateDummy()
     local offset = 8
-    local samples = 50
+    local samples = 64
     local randomItems = {}
     for k = 1, samples do
         local chances, id = table.Random(self.Items)
@@ -197,7 +197,7 @@ function PANEL:DrawSpinner(w, h)
     
     local idealTarget = (self.IdealTarget or 0) - w / 2 + 48
     if (self.SpinUp and self.Progress < 1) then
-        self.Progress = self.Progress + FrameTime() / 7
+        self.Progress = self.Progress + FrameTime() / 4
         lerpVal = math.ease.InOutCubic(self.Progress)
 
         self.LastOffset = self.Offset
@@ -250,8 +250,9 @@ net.Receive("Nebula.Inv:OpenCase", function()
         local item = NebulaInv.Items[winner]
         NebulaInv.UnboxPanel.WinnerName = item.name
         NebulaInv.UnboxPanel.ParticleID = item.rarity
-        NebulaInv.UnboxPanel.Cards[40]:SetItem(winner)
-        NebulaInv.UnboxPanel.IdealTarget = NebulaInv.UnboxPanel.Cards[40]:GetX()
+        NebulaInv.UnboxPanel.Cards[60]:SetItem(winner)
+        NebulaInv.UnboxPanel.Cards[60]:SetBackgroundAlpha(25)
+        NebulaInv.UnboxPanel.IdealTarget = NebulaInv.UnboxPanel.Cards[60]:GetX()
     end    
 end)
 
