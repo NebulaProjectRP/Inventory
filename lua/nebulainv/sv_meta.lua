@@ -105,6 +105,16 @@ function meta:loadItems(data)
 
         if (decals) then
             self._decals = util.JSONToTable(decals)
+            if table.IsEmpty(self._decals) then
+                self:giveDecals()
+            else
+                for k, v in pairs(self._decals) do
+                    if (v) then
+                        self:SetNWString("DecalName", k)
+                        break
+                    end
+                end
+            end
         end
 
         if (load) then
@@ -117,8 +127,10 @@ function meta:loadItems(data)
         NebulaDriver:MySQLInsert("inventories", {
             steamid = self:SteamID64(),
             items = util.TableToJSON({}),
-            loadout = util.TableToJSON({})
+            loadout = util.TableToJSON({}),
+            decals = util.TableToJSON({}),
         })
+        self:giveDecals()
     end
 end
 
@@ -214,6 +226,14 @@ function meta:equipItem(kind, id, status)
     end
 
     self:networkLoadout(kind, status)
+end
+
+function meta:saveDecal()
+    NebulaDriver:MySQLUpdate("inventories", {
+        decals = util.TableToJSON(self._decals)
+    }, "steamid = " .. self:SteamID64(), function()
+        MsgN("[INV] Saved decals for " .. self:Nick() .. ":" .. self:SteamID64())
+    end)
 end
 
 local function savePlayerInventory(ply)

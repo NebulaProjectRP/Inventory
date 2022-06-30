@@ -1,4 +1,5 @@
 local PANEL = {}
+local decalCache = {}
 
 local ShowMode = {
     ["Case"] = function(item)
@@ -257,6 +258,69 @@ function PANEL:CreateSlots()
         for k = 1, 3 do
             NebulaInv.Loadout = {}
             self.WeaponSlots[k]:SetItem(nil)
+        end
+    end
+
+    local left = vgui.Create("Panel", self.Model)
+    left:Dock(LEFT)
+    left:SetWide(72)
+
+    self.Decals = vgui.Create("nebula.button", left)
+    self.Decals:Dock(BOTTOM)
+    self.Decals:SetTall(72)
+    self.Decals:SetText("")
+    self.Decals.DoClick = function(s)
+        local count = table.Count(NebulaInv.Decals)
+        local menu = vgui.Create("nebula.scroll")
+        menu:SetSize(76 * 4, math.ceil(count / 4) * 76 + 8)
+        menu:GetCanvas():DockPadding(8, 8, 4, 4)
+        menu.GetDeleteSelf = function()
+            return true
+        end
+        menu:SetDrawOnTop(true)
+        menu:SetMouseInputEnabled(true)
+        menu:MakePopup()
+        menu:RequestFocus()
+        menu.m_bIsMenuComponent = true
+        RegisterDermaMenuForClose(menu)
+        local icons = vgui.Create("DIconLayout", menu)
+        icons:Dock(FILL)
+        icons:SetSpaceX(4)
+        icons:SetSpaceY(4)
+
+        for k, v in pairs(NebulaInv.Decals or {}) do
+            local btn = vgui.Create("nebula.button", icons)
+            btn:SetSize(72, 72)
+            btn:SetText("")
+            btn.DoClick = function()
+                MsgN("Setting decal to ", k)
+                LocalPlayer():setDeathDecal(k)
+            end
+            btn.PaintOver = function(s, w, h)
+                if not decalCache[k] then
+                    decalCache[k] = Material("nebularp/decals/" .. k)
+                else
+                    surface.SetMaterial(decalCache[k])
+                    surface.SetDrawColor(color_white)
+                    surface.DrawTexturedRect(8, 8, w - 16, h - 16)
+                end
+            end
+        end
+        local x, y = s:LocalToScreen(s:GetWide(), 0)
+        menu:SetPos(x - menu:GetWide(), y - menu:GetTall() - 8)
+    end
+    self.Decals.PaintOver = function(s, w, h)
+        local decal = LocalPlayer():GetNWString("DecalName")
+        if (decal == "") then
+            return
+        end
+
+        if not decalCache[decal] then
+            decalCache[decal] = Material("nebularp/decals/" .. decal)
+        else
+            surface.SetMaterial(decalCache[decal])
+            surface.SetDrawColor(color_white)
+            surface.DrawTexturedRect(8, 8, w - 16, h - 16)
         end
     end
 

@@ -110,6 +110,7 @@ function NebulaInv:LoadItems()
             local inv = json.inventory or {}
             NebulaInv.Inventory = util.JSONToTable(inv.items)
             NebulaInv.Loadout = util.JSONToTable(inv.loadout)
+            NebulaInv.Decals = util.JSONToTable(inv.decals)
             LocalPlayer():loadMining(json.mining or {})
         end)
     end)
