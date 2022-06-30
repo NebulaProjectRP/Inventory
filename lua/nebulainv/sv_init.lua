@@ -13,6 +13,7 @@ util.AddNetworkString("Nebula.Inv:OpenCase")
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
         items = "TEXT NOT NULL",
+        decals = "TEXT NOT NULL",
         loadout = "TEXT NOT NULL",
         steamid = "VARCHAR(22)"
     }, "steamid", function()
@@ -194,7 +195,6 @@ end)
 net.Receive("Nebula.Inv:OpenCase", function(l, ply)
     local caseID = net.ReadUInt(32)
     local winner, ran, cache = NebulaInv:Unbox(ply, caseID)
-    MsgN(NebulaInv.Items[winner].name)
     net.Start("Nebula.Inv:OpenCase")
     net.WriteUInt(winner, 32)
     net.Send(ply)

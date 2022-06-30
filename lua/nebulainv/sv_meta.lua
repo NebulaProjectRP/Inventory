@@ -92,13 +92,19 @@ end
 function meta:loadItems(data)
     self._inventory = {}
     self._loadout = {}
+    self._decals = {}
 
     if (data and data.items) then
         local inv = data.items
         local load = data.loadout
+        local decals = data.decals
 
         if (inv) then
             self._inventory = util.JSONToTable(inv)
+        end
+
+        if (decals) then
+            self._decals = util.JSONToTable(decals)
         end
 
         if (load) then

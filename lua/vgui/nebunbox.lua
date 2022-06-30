@@ -10,6 +10,8 @@ PANEL.Velocity = 0
 
 game.AddParticles("particles/nebula.pcf")
 PrecacheParticleSystem("fireworks_splash")
+PrecacheParticleSystem("suit_deplete_main")
+
 
 function PANEL:Init()
     NebulaInv.UnboxPanel = self
