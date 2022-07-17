@@ -109,7 +109,7 @@ function PANEL:Init()
         end
     end
     self.Model.LayoutEntity = function(s, ent)
-        ent:FrameAdvance( ( RealTime() - self.LastPaint ) )
+        ent:FrameAdvance( RealTime() - self.LastPaint )
         self:ManipulateModel(ent)
     end
 
@@ -134,7 +134,7 @@ function PANEL:Init()
     self.Content.PaintOver = function(s, w, h)
         local childCount = #self.Layout:GetChildren()
         if childCount == 0 then
-            draw.SimpleText("No items found.", NebulaUI:Font(30), w / 2, h / 2, Color(255, 255, 255, 73), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)    
+            draw.SimpleText("No items found.", NebulaUI:Font(30), w / 2, h / 2, Color(255, 255, 255, 73), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
     end
 
@@ -199,7 +199,7 @@ function PANEL:PopulateItems()
         btn.DoClick = function(s)
 
             local menu = DermaMenu()
-            
+
             if (NebulaInv.Types[v.type].OpenMenu) then
                 NebulaInv.Types[v.type]:OpenMenu(menu, v)
             end
@@ -221,8 +221,9 @@ function PANEL:PopulateItems()
     end
 end
 
+local off = Color(255, 255, 255, 25)
 function PANEL:CreateSlots()
-    
+
     local header = vgui.Create("Panel", self.Model)
     header:Dock(BOTTOM)
     header:SetTall(32)
@@ -270,7 +271,7 @@ function PANEL:CreateSlots()
     self.Decals:SetTall(72)
     self.Decals:SetText("")
     self.Decals.DoClick = function(s)
-        local count = table.Count(NebulaInv.Decals)
+        local count = table.Count(NebulaInv.Decals or {})
         local menu = vgui.Create("nebula.scroll")
         local rows = math.Clamp(math.ceil(count / 4), 1, 5)
         menu:SetSize(76 * 4 + (rows > 1 and 24 or 12), rows * 76 + 8)
@@ -323,6 +324,29 @@ function PANEL:CreateSlots()
             surface.SetDrawColor(color_white)
             surface.DrawTexturedRect(8, 8, w - 16, h - 16)
         end
+    end
+
+    self.Tarot = vgui.Create("nebula.button", left)
+    self.Tarot:Dock(BOTTOM)
+    self.Tarot:DockMargin(0, 0, 0, 8)
+    self.Tarot:SetTall(48)
+    self.Tarot:SetText("")
+    self.Tarot.DoClick = function(s)
+        if IsValid(NebulaTarot.Store) then
+            NebulaTarot.Store:Remove()
+        end
+
+        NebulaTarot.Store = vgui.Create("nebulaui.tarot.store")
+    end
+    self.Tarot.PaintOver = function(s, w, h)
+        local inv = NebulaTarot.Favorites
+        if not inv then
+            NebulaTarot.Favorites = util.JSONToTable(cookie.GetString("cards_equipped", "[]"))
+            return
+        end
+        NebulaUI.Derma.Inventory[7](w / 2 - 12 - 20, h / 2 - 12, 24, 24, inv[1] and color_white or off)
+        NebulaUI.Derma.Inventory[7](w / 2 - 12, h / 2 - 12, 24, 24, inv[2] and color_white or off)
+        NebulaUI.Derma.Inventory[7](w / 2 - 12 + 20, h / 2 - 12, 24, 24, inv[3] and color_white or off)
     end
 
     local side = vgui.Create("Panel", self.Model)
@@ -379,7 +403,7 @@ net.Receive("Nebula.Inv:SyncItem", function()
         local item = net.ReadString()
         local amount = net.ReadUInt(16)
         local data = net.ReadTable()
-        NebulaInv.Inventory[id] = amount > 0 and {
+        NebulaInv.Inventory[item] = amount > 0 and {
             amount = amount,
             data = data
         } or nil
