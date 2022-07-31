@@ -77,7 +77,7 @@ function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRar
         }, "id = " .. editID, function()
             owner:SendLua("Derma_Message('Item with id " .. editID .. " has been updated!', 'Nebula Inventory', 'OK')")
             BroadcastLua("NebulaInv:LoadItems()")
-            http.Post(NebulaAPI .. "items/update", {
+            http.Post(NebulaAPI.HOST .. "items/update", {
                 key = "CAT.secretkey"
             })
         end)
@@ -91,7 +91,7 @@ function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRar
                 self:NetworkItem(item.id)
                 owner:SendLua("Derma_Message('Item has been created with id " .. item.id .. "!', 'Nebula Inventory', 'OK')")
 
-                http.Post(NebulaAPI .. "items/update", {
+                http.Post(NebulaAPI.HOST .. "items/update", {
                     key = "CAT.secretkey"
                 })
             end)

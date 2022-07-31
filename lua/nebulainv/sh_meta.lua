@@ -96,7 +96,7 @@ if SERVER then return end
 
 function NebulaInv:LoadItems()
     MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading items database...\n")
-    http.Fetch(NebulaAPI .. "items", function(data)
+    http.Fetch(NebulaAPI.HOST .. "items", function(data)
         NebulaInv.Items = util.JSONToTable(data)
         for k, v in pairs(NebulaInv.Items) do
             if (isstring(v.extraData)) then
@@ -104,7 +104,7 @@ function NebulaInv:LoadItems()
             end
         end
         MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading player items...\n")
-        http.Fetch(NebulaAPI .. "players/" .. LocalPlayer():SteamID64(), function(data)
+        http.Fetch(NebulaAPI.HOST .. "players/" .. LocalPlayer():SteamID64(), function(data)
             MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Finished downloading items!\n")
             local json = util.JSONToTable(data)
             local inv = json.inventory or {}
