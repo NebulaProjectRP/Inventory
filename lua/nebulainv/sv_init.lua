@@ -78,7 +78,7 @@ function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRar
             owner:SendLua("Derma_Message('Item with id " .. editID .. " has been updated!', 'Nebula Inventory', 'OK')")
             BroadcastLua("NebulaInv:LoadItems()")
             http.Post(NebulaAPI.HOST .. "items/update", {
-                key = "CAT.secretkey"
+                key = NebulaAPI.API_KEY
             })
         end)
     else
@@ -92,7 +92,7 @@ function NebulaInv:CreateItem(owner, isEdit, editID, itemName, itemIcon, itemRar
                 owner:SendLua("Derma_Message('Item has been created with id " .. item.id .. "!', 'Nebula Inventory', 'OK')")
 
                 http.Post(NebulaAPI.HOST .. "items/update", {
-                    key = "CAT.secretkey"
+                    key = NebulaAPI.API_KEY
                 })
             end)
         end)
