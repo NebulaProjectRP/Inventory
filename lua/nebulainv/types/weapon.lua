@@ -38,4 +38,11 @@ function DEF:OnUnequip(ply, item)
     ply:addItem(item.ID, 1)
 end
 
+function DEF:Build(data, id)
+    local wep = weapons.GetStored(data)
+    local item = {}
+    item.Name = wep.PrintName
+    return item
+end
+
 NebulaInv:RegisterType("weapon", DEF)

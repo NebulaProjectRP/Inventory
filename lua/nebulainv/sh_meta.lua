@@ -94,6 +94,16 @@ MsgC(Color(100, 100, 255), "[Nebula]",color_white, "Finished loading Items Types
 
 if SERVER then return end
 
+function NebulaInv:RegisterItem(class, id, data)
+    local name_id = class .. "_" .. id
+    local def = self.Types[class]
+    if not def then
+        error("NebulaInv:RegisterItem: Type " .. class .. " not found!")
+    end
+    
+    self.Items[name_id] = def:Build(data, id)
+end
+
 function NebulaInv:LoadItems()
     MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading items database...\n")
     http.Fetch(NebulaAPI.HOST .. "items", function(data)
