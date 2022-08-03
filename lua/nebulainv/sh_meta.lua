@@ -50,7 +50,7 @@ net.Receive("Nebula.Inv:AddItem", function(l, ply)
 end)
 
 net.Receive("Nebula.Inv:NetworkItem", function()
-    id = net.ReadUInt(32)
+    local id = net.ReadUInt(32)
     NebulaInv.Items[id] = {
         name = net.ReadString(),
         id = id,
@@ -81,7 +81,6 @@ function NebulaInv:RegisterType(type, data)
     self.Types[type] = data
 end
 
-local a, b = file.Find("nebulainv/types/*", "LUA")
 MsgC(Color(100, 100, 255), "[Nebula]",color_white, "Loading Type!\n", Color(100, 100, 100))
 for k, v in pairs(file.Find("nebulainv/types/*.lua", "LUA")) do
     if SERVER then
@@ -92,17 +91,17 @@ for k, v in pairs(file.Find("nebulainv/types/*.lua", "LUA")) do
 end
 MsgC(Color(100, 100, 255), "[Nebula]",color_white, "Finished loading Items Types!\n")
 
-if SERVER then return end
-
 function NebulaInv:RegisterItem(class, id, data)
     local name_id = class .. "_" .. id
     local def = self.Types[class]
     if not def then
         error("NebulaInv:RegisterItem: Type " .. class .. " not found!")
     end
-    
+
     self.Items[name_id] = def:Build(data, id)
 end
+
+if SERVER then return end
 
 function NebulaInv:LoadItems()
     MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading items database...\n")
@@ -114,9 +113,9 @@ function NebulaInv:LoadItems()
             end
         end
         MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading player items...\n")
-        http.Fetch(NebulaAPI.HOST .. "players/" .. LocalPlayer():SteamID64(), function(data)
+        http.Fetch(NebulaAPI.HOST .. "players/" .. LocalPlayer():SteamID64(), function(dt)
             MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Finished downloading items!\n")
-            local json = util.JSONToTable(data)
+            local json = util.JSONToTable(dt)
             local inv = json.inventory or {}
             NebulaInv.Inventory = util.JSONToTable(inv.items)
             NebulaInv.Loadout = util.JSONToTable(inv.loadout)
