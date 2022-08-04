@@ -38,17 +38,17 @@ NebulaInv:RegisterItem("vox", "mylittlepony", {
     imgur = "CRXi5bc"
 })
 
-NebulaInv:RegisterItem("hitmark", "hit_squid", {
+NebulaInv:RegisterItem("hitmark", "squasher", {
     rarity = 2,
     imgur = "3vFdTO7"
 })
 
-NebulaInv:RegisterItem("hitmark", "hit_bell", {
+NebulaInv:RegisterItem("hitmark", "def", {
     rarity = 2,
     imgur = "VTJQjsX"
 })
 
-NebulaInv:RegisterItem("hitmark", "hit_arcade", {
+NebulaInv:RegisterItem("hitmark", "beepo", {
     rarity = 2,
     imgur = "Hk6cT45"
 })

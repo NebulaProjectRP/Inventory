@@ -9,7 +9,7 @@ local ShowMode = {
         return item.type == "weapon"
     end,
     ["Suit"] = function(item)
-        return item.type == "weapon"
+        return item.type == "suit"
     end,
     ["Ammo"] = function(item)
         return item.type == "ammo"
@@ -172,7 +172,6 @@ function PANEL:PopulateItems()
     for k, v in pairs(inv) do
         local item = NebulaInv.Items[v.id]
         if not item then
-            MsgN(v.id)
             continue
         end
         if filter and not filter(item) or (search != "" and not string.find(string.lower(item.name), search, 0, true)) then
@@ -181,6 +180,7 @@ function PANEL:PopulateItems()
         table.insert(invData, {
             am = v.am or 1,
             id = v.id,
+            slot = k,
             type = item.type
         })
     end
@@ -200,7 +200,7 @@ function PANEL:PopulateItems()
         end
         btn:SetSize(96, 96)
         btn:Droppable("Receiver." .. v.type)
-        btn.Slot = k
+        btn.Slot = v.slot
         btn.DoClick = function(s)
 
             local menu = DermaMenu()
@@ -425,6 +425,7 @@ net.Receive("Nebula.Inv:SyncItem", function()
         NebulaInv.Panel:PopulateItems()
     end
 end)
+
 
 net.Receive("Nebula.Inv:EquipItem", function()
     local kind = net.ReadString()

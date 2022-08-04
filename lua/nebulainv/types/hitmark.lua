@@ -28,7 +28,7 @@ end
 
 function DEF:Build(data, id)
     local item = {}
-    item.sound = id
+    item.class = id
     return item
 end
 

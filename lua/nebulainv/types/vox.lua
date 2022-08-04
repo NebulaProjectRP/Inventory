@@ -27,7 +27,9 @@ function DEF:CreateEditor(panel, container, data)
 end
 
 function DEF:Build(data, id)
-    return data
+    local item = data
+    item.class = id
+    return item
 end
 
 NebulaInv:RegisterType("vox", DEF)

@@ -28,7 +28,7 @@ function DEF:Build(data, id)
     scripted_ents.Register(ENT, "neb_suitcrate_" .. data.class)
 
     local item = {}
-    item.Name = wep.PrintName
+    item.Name = suit.Name
     item.Stats = {
         Health = suit.Health,
         Armor = suit.Armor,
@@ -37,7 +37,7 @@ function DEF:Build(data, id)
     return item
 end
 
-function DEF:OpenMenu(menu)
+function DEF:OpenMenu(menu, v)
     menu:AddOption("Equip Suit", function()
         net.Start("Nebula.Inv:UseItem")
         net.WriteString(v.id)

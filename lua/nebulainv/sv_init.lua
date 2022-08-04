@@ -8,6 +8,7 @@ util.AddNetworkString("Nebula.Inv:RemoveItem")
 util.AddNetworkString("Nebula.Inv:AddItem")
 util.AddNetworkString("Nebula.Inv:SyncItem")
 util.AddNetworkString("Nebula.Inv:EquipItem")
+util.AddNetworkString("Nebula.Inv:EquipResult")
 util.AddNetworkString("Nebula.Inv:HolsterEquipment")
 util.AddNetworkString("Nebula.Inv:OpenCase")
 
@@ -186,7 +187,11 @@ net.Receive("Nebula.Inv:EquipItem", function(l, ply)
     local id = net.ReadUInt(16)
     local status = net.ReadBool()
 
-    ply:equipItem(kind, id, status)
+    local result = ply:equipItem(kind, id, status)
+
+    net.Start("Nebula.Inv:EquipResult")
+    net.WriteBool(result)
+    net.Send(ply)
 end)
 
 net.Receive("Nebula.Inv:HolsterEquipment", function(l, ply)

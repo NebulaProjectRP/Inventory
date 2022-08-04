@@ -1,40 +1,40 @@
 NebulaInv:RegisterItem("weapon", "diver_1", {
     classname = "nebula_diver",
     rarity = 1,
-    imgur = ""
+    imgur = "PcNlwjr"
 })
 
 NebulaInv:RegisterItem("weapon", "diver_2", {
     classname = "nebula_diver_1",
     rarity = 3,
-    imgur = ""
+    imgur = "oKdiale"
 })
 
 NebulaInv:RegisterItem("weapon", "nade_fire", {
-    classname = "neb_nadefire",
+    classname = "neb_tfa_nadefire",
     rarity = 2,
-    imgur = "",
+    imgur = "W7FFjed",
     stack = 10
 })
 
 NebulaInv:RegisterItem("weapon", "nade_funny", {
-    classname = "neb_nadefunny",
+    classname = "neb_tfa_nadefunny",
     rarity = 2,
-    imgur = "",
+    imgur = "cJTDDAs",
     stack = 10
 })
 
 NebulaInv:RegisterItem("weapon", "nade_emp", {
-    classname = "neb_nadeemp",
+    classname = "neb_tfa_nadeemp",
     rarity = 3,
-    imgur = "",
+    imgur = "VzoMT4B",
     stack = 10
 })
 
 NebulaInv:RegisterItem("weapon", "nade_exp", {
-    classname = "neb_nadeexp",
+    classname = "neb_tfa_nadeexp",
     rarity = 3,
-    imgur = "",
+    imgur = "mSQpTYS",
     stack = 10
 })
 
@@ -114,7 +114,7 @@ NebulaInv:RegisterItem("weapon", "ruyi", {
 NebulaInv:RegisterItem("weapon", "p90", {
     classname = "tfa_neb_p90",
     rarity = 1,
-    imgur = "",
+    imgur = "7o4xMH7",
 })
 
 NebulaInv:RegisterItem("weapon", "p90lapin", {

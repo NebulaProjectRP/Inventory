@@ -20,21 +20,19 @@ function meta:giveItem(id, am, fields)
     end
 
     local insertAt
+    local isAdd = false
     if (table.IsEmpty(fields or {})) then
-        local isAdd = false
-        if (table.IsEmpty(fields or {})) then
-            for k, v in pairs(self._inventory) do
-                if (v.id == id) then
-                    v.am = v.am + am
-                    insertAt = k
-                    isAdd = true
-                    break
-                end
+        for k, v in pairs(self._inventory) do
+            if (v.id == id) then
+                v.am = v.am + am
+                insertAt = k
+                isAdd = true
+                break
             end
         end
-        if not isAdd then
-            insertAt = table.insert(self._inventory, nextItem)
-        end
+    end
+    if not isAdd then
+        insertAt = table.insert(self._inventory, nextItem)
     end
 
     net.Start("Nebula.Inv:AddItem")
@@ -90,13 +88,18 @@ end
 
 function meta:holsterWeapons()
     for slot, v in pairs(self._loadout) do
-        local itemId = istable(v) and v.id or v
+        local itemId = v.id
         local item = NebulaInv.Items[itemId]
         if not item then continue end
 
-        self:giveItem(itemId, istable(v) and v.amount or 1, istable(v) and v or nil)
-        self:StripWeapon(item.class)
+        self:giveItem(itemId, v.am or 1, v.data)
         self._loadout[slot] = nil
+        if not item.classname then continue end
+
+        local wep = self:GetWeapon(item.classname)
+        if IsValid(wep) then
+            self:StripWeapon(item.classname)
+        end
     end
 
     self:networkLoadout()
@@ -157,7 +160,7 @@ function meta:networkLoadout(kind, status)
             net.WriteBool(iscustom)
             if (iscustom) then
                 net.WriteString(v.id)
-                net.WriteUInt(v.amount, 16)
+                net.WriteUInt(v.am, 16)
                 net.WriteTable(v.data)
             else
                 net.WriteUInt(v, 32)
@@ -188,10 +191,22 @@ function meta:equipItem(kind, id, status)
         local item = self:getInventory()[id]
         if (not item) then
             DarkRP.notify(self, 1, 4, "You don't have this item!")
-            return
+            return false
+        end
+
+        local exp = string.Explode(":", kind)
+        local tempKind = kind
+        if (#exp == 2) then
+            tempKind = exp[1]
         end
 
         local ref = NebulaInv.Items[item.id]
+
+        if (tempKind != ref.type) then
+            MsgN("Wrong slot! ", kind, " on -> ", ref.type)
+            return false
+        end
+
         if not self._loadout then
             self._loadout = {
                 [kind] = {}
@@ -217,6 +232,7 @@ function meta:equipItem(kind, id, status)
     end
 
     self:networkLoadout(kind, status)
+    return true
 end
 
 function meta:saveDecal()
@@ -229,11 +245,13 @@ end
 
 local function savePlayerInventory(ply)
     local cleanTable = {}
+    MsgN("Saving inv?")
+    local nick, sid = ply:Nick(), ply:SteamID64()
     NebulaDriver:MySQLUpdate("inventories", {
         items = util.TableToJSON(ply._inventory),
         loadout = util.TableToJSON(ply._loadout or {})
-    }, "steamid = " .. ply:SteamID64(), function()
-        MsgN("[INV] Saved inventory for " .. ply:Nick() .. ":" .. ply:SteamID64())
+    }, "steamid = " .. sid, function()
+        MsgN("[INV] Saved inventory for " .. nick .. ":" .. sid)
     end)
 end
 
@@ -241,7 +259,7 @@ hook.Add("PlayerDisconnected", "NebulaSaveItems", savePlayerInventory)
 
 function meta:saveInventory()
     local timerID = self:SteamID64() .. "_inventory_save"
-    timer.Create(timerID, 5, 1, function()
+    timer.Create(timerID, 1, 1, function()
         if not IsValid(self) then return end
         savePlayerInventory(self)
     end)
