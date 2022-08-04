@@ -13,8 +13,32 @@ function DEF:OnUse(ply, item)
     return true
 end
 
+function DEF:Build(data, id)
+    local suit = NebulaSuits.Data[data.class]
+    if not suit then
+        MsgN("NebulaSuits: Invalid suit class '" .. data.class .. "'")
+        return
+    end
+    local ENT = {}
+    ENT.Base = "neb_suitcrate"
+    ENT.PrintName = suit.Name
+    ENT.Spawnable = true
+    ENT.Category = "NebulaRP Suits"
+    ENT.Suit = data.class
+    scripted_ents.Register(ENT, "neb_suitcrate_" .. data.class)
+
+    local item = {}
+    item.Name = wep.PrintName
+    item.Stats = {
+        Health = suit.Health,
+        Armor = suit.Armor,
+        Speed = suit.Speed,
+    }
+    return item
+end
+
 function DEF:OpenMenu(menu)
-    menu:AddOption("Equip Suit", function()                
+    menu:AddOption("Equip Suit", function()
         net.Start("Nebula.Inv:UseItem")
         net.WriteString(v.id)
         net.SendToServer()

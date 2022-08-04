@@ -1,44 +1,56 @@
+local lan = GetConVar("sv_lan")
 local meta = FindMetaTable("Player")
 
 function meta:giveItem(id, am, fields)
 
-    if (!NebulaInv.Items[id]) then
+    if (not NebulaInv.Items[id]) then
         MsgN("[NebulaInv] Item "..id.." does not exist!")
         return false
     end
     am = am or 1
-    local isUnique = fields != nil
-    if not isUnique then
-        if (self._inventory[id]) then
-            self._inventory[id] = self._inventory[id] + am
-        else
-            self._inventory[id] = am
-        end
 
-        net.Start("Nebula.Inv:AddItem")
-        net.WriteBool(false)
-        net.WriteUInt(id, 32)
-        net.WriteUInt(self._inventory[id], 32)
-        net.Send(self)
-    else
-        local hash = util.MD5(util.TableToJSON(fields))
-        local name = "unique_" .. id .. "_" .. hash
-        if (self._inventory[name]) then
-            self._inventory[name].amount = self._inventory[name].amount + am
-        else
-            self._inventory[name] = {
-                amount = am,
-                data = fields
-            }
-        end
-        
-        net.Start("Nebula.Inv:AddItem")
-        net.WriteBool(true)
-        net.WriteString(name)
-        net.WriteUInt(self._inventory[name].amount, 16)
-        net.WriteTable(fields)
-        net.Send(self)
+    local nextItem = {
+        id = id,
+        am = am,
+        data = fields or {}
+    }
+
+    if (not self._inventory) then
+        self._inventory = {}
     end
+
+    local insertAt
+    if (table.IsEmpty(fields or {})) then
+        local isAdd = false
+        if (table.IsEmpty(fields or {})) then
+            for k, v in pairs(self._inventory) do
+                if (v.id == id) then
+                    v.am = v.am + am
+                    insertAt = k
+                    isAdd = true
+                    break
+                end
+            end
+        end
+        if not isAdd then
+            insertAt = table.insert(self._inventory, nextItem)
+        end
+    end
+
+    net.Start("Nebula.Inv:AddItem")
+    net.WriteBool(fields != nil)
+    net.WriteUInt(insertAt, 16)
+    net.WriteString(id)
+    if (fields != nil) then
+        net.WriteUInt(table.Count(fields), 8)
+        for k, v in pairs(fields) do
+            net.WriteString(k)
+            net.WriteString(v)
+        end
+    else
+        net.WriteUInt(self._inventory[insertAt].am, 8)
+    end
+    net.Send(self)
 
     MsgC(Color(0, 183, 255), "[INV] ", Color(255, 255, 255), self:Nick() .. " have received ", Color(255, 0, 0), am, Color(255, 255, 255), "x ", Color(255, 0, 0), id, "\n")
     self:saveInventory()
@@ -47,31 +59,32 @@ function meta:giveItem(id, am, fields)
 end
 meta.addItem = meta.giveItem
 
-function meta:takeItem(id, am)
-    local isUnique = isstring(id)
-    if not isUnique then
-        self._inventory[id] = self._inventory[id] - am
-        if (self._inventory[id] <= 0) then
-            self._inventory[id] = nil
-        end
-
-        net.Start("Nebula.Inv:SyncItem")
-        net.WriteBool(false)
-        net.WriteUInt(id, 32)
-        net.WriteUInt(self._inventory[id] or 0, 32)
-        net.Send(self)
-    elseif (self._inventory[id]) then
-        self._inventory[id].amount = self._inventory[id].amount - am
-        if (self._inventory[id].amount <= 0) then
-            self._inventory[id] = nil
-        end
-        net.Start("Nebula.Inv:SyncItem")
-        net.WriteBool(true)
-        net.WriteString(id)
-        net.WriteUInt(self._inventory[id] and self._inventory[id].amount or 0, 16)
-        net.WriteTable({})
-        net.Send(self)
+function meta:syncInvSlot(slot)
+    local item = self:getInventory()[slot]
+    net.Start("Nebula.Inv:SyncItem")
+    net.WriteUInt(slot, 16)
+    net.WriteString(item.id)
+    net.WriteUInt(item.am or 0, 8)
+    net.WriteUInt(table.Count(item.data), 8)
+    for k, v in pairs(item.data) do
+        net.WriteString(k)
+        net.WriteString(v)
     end
+    net.Send(self)
+end
+
+function meta:takeItem(slot, am)
+    local item = self:getInventory()[slot]
+    if not item then return false end
+
+    item.am = (item.am or 1) - am
+
+    self:syncInvSlot(slot)
+
+    if (item.am <= 0) then
+        table.remove(self._inventory, slot)
+    end
+
     self:saveInventory()
 end
 
@@ -172,42 +185,20 @@ end
 function meta:equipItem(kind, id, status)
     local slot
     if (status) then
-        if (tonumber(id)) then
-            id = tonumber(id)
-        else
-            local exp = string.Explode(":", id)
-            if (#exp > 0) then
-                id = tonumber(exp[1])
-                slot = exp[2]
-            end
-        end
-
-        local item = self._inventory[id]
-        if (!item) then
+        local item = self:getInventory()[id]
+        if (not item) then
             DarkRP.notify(self, 1, 4, "You don't have this item!")
             return
         end
 
-        local ref = NebulaInv:GetReference(id)
-
-        if (slot) then
-            kind = kind .. ":" .. slot
-        end
-        
+        local ref = NebulaInv.Items[item.id]
         if not self._loadout then
             self._loadout = {
                 [kind] = {}
             }
         end
 
-        if (istable(item)) then
-            self._loadout[kind] = table.Copy(item)
-            self._loadout[kind].id = id
-            self._loadout[kind].amount = 1
-        else
-            self._loadout[kind] = id
-        end
-
+        self._loadout[kind] = table.Copy(item)
         if (NebulaInv.Types[ref.type] and NebulaInv.Types[ref.type].OnEquip) then
             NebulaInv.Types[ref.type]:OnEquip(self, ref)
         end
@@ -237,6 +228,7 @@ function meta:saveDecal()
 end
 
 local function savePlayerInventory(ply)
+    local cleanTable = {}
     NebulaDriver:MySQLUpdate("inventories", {
         items = util.TableToJSON(ply._inventory),
         loadout = util.TableToJSON(ply._loadout or {})
@@ -245,10 +237,24 @@ local function savePlayerInventory(ply)
     end)
 end
 
+hook.Add("PlayerDisconnected", "NebulaSaveItems", savePlayerInventory)
+
 function meta:saveInventory()
     local timerID = self:SteamID64() .. "_inventory_save"
     timer.Create(timerID, 5, 1, function()
         if not IsValid(self) then return end
         savePlayerInventory(self)
+    end)
+end
+
+if (lan:GetBool()) then
+    concommand.Add("neb_giveall", function(ply, cmd, args)
+        local target = p(1)
+        MsgN(target)
+        for id, data in pairs(NebulaInv.Items) do
+            MsgN("?")
+            PrintTable(data)
+            target:giveItem(id, 1)
+        end
     end)
 end

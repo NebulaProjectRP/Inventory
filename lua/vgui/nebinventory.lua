@@ -170,13 +170,17 @@ function PANEL:PopulateItems()
 
     local invData = {}
     for k, v in pairs(inv) do
-        local item = NebulaInv.Items[k]
+        local item = NebulaInv.Items[v.id]
+        if not item then
+            MsgN(v.id)
+            continue
+        end
         if filter and not filter(item) or (search != "" and not string.find(string.lower(item.name), search, 0, true)) then
             continue
         end
         table.insert(invData, {
-            amount = istable(v) and v.amount or v,
-            id = k,
+            am = v.am or 1,
+            id = v.id,
             type = item.type
         })
     end
@@ -196,6 +200,7 @@ function PANEL:PopulateItems()
         end
         btn:SetSize(96, 96)
         btn:Droppable("Receiver." .. v.type)
+        btn.Slot = k
         btn.DoClick = function(s)
 
             local menu = DermaMenu()
@@ -295,7 +300,6 @@ function PANEL:CreateSlots()
             btn:SetSize(72, 72)
             btn:SetText("")
             btn.DoClick = function()
-                MsgN("Setting decal to ", k)
                 LocalPlayer():setDeathDecal(k)
             end
             btn.PaintOver = function(s, w, h)
@@ -398,19 +402,23 @@ end
 vgui.Register("nebula.f4.inventory", PANEL, "Panel")
 
 net.Receive("Nebula.Inv:SyncItem", function()
-    local isUnique = net.ReadBool()
-    if (isUnique) then
-        local item = net.ReadString()
-        local amount = net.ReadUInt(16)
-        local data = net.ReadTable()
-        NebulaInv.Inventory[item] = amount > 0 and {
-            amount = amount,
-            data = data
-        } or nil
+    local slot = net.ReadUInt(16)
+    local am = net.ReadUInt(8)
+    local id = net.ReadString()
+    local entry = {
+        id = id,
+        amount = am,
+        data = {}
+    }
+
+    for k = 1, net.ReadUInt(8) do
+        entry[net.ReadString()] = net.ReadString()
+    end
+    
+    if (am > 0) then
+        NebulaInv.Inventory[slot] = entry
     else
-        local id = net.ReadUInt(32)
-        local amount = net.ReadUInt(16)
-        NebulaInv.Inventory[id] = amount > 0 and amount or nil
+        table.remove(NebulaInv.Inventory, slot)
     end
 
     if IsValid(NebulaInv.Panel) then
@@ -432,7 +440,7 @@ net.Receive("Nebula.Inv:EquipItem", function()
     if (isCustom) then
         NebulaInv.Loadout[kind] = {
             id = net.ReadString(),
-            amount = net.ReadUInt(16),
+            am = net.ReadUInt(16),
             data = net.ReadTable()
         }
     else

@@ -26,4 +26,10 @@ function DEF:CreateEditor(panel, container, data)
     })
 end
 
+function DEF:Build(data, id)
+    local item = {}
+    item.sound = id
+    return item
+end
+
 NebulaInv:RegisterType("hitmark", DEF)

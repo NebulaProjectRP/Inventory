@@ -39,9 +39,14 @@ function DEF:OnUnequip(ply, item)
 end
 
 function DEF:Build(data, id)
-    local wep = weapons.GetStored(data)
+    local wep = weapons.GetStored(data.classname)
+    if not wep then
+        MsgN("Nebula: Weapon " .. data.classname .. " not found!")
+        return
+    end
     local item = {}
     item.Name = wep.PrintName
+    item.class = data.classname
     return item
 end
 

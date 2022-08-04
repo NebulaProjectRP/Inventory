@@ -29,18 +29,19 @@ net.Receive("Nebula.Inv:AddItem", function(l, ply)
         NebulaInv.Inventory = {}
     end
     local isCustom = net.ReadBool()
-    if (not isCustom) then
-        NebulaInv.Inventory[net.ReadUInt(32)] = net.ReadUInt(16)
-    else
-        local id = net.ReadString()
-        local amount = net.ReadUInt(16)
-        local data = net.ReadTable()
-        if not NebulaInv.Inventory[id] then
-            NebulaInv.Inventory[id] = {}
-        end
-        NebulaInv.Inventory[id].amount = amount
-        if (table.Count(data) > 0) then
-            NebulaInv.Inventory[id].data = data
+    local slotID = net.ReadUInt(16)
+    local id = net.ReadString()
+
+    NebulaInv.Inventory[slotID] = {
+        id = id,
+        am = isCustom and 1 or net.ReadUInt(8),
+        data = {}
+    }
+
+    if (isCustom) then
+        NebulaInv.Inventory[slotID].data = {}
+        for k = 1, net.ReadUInt(8) do
+            NebulaInv.Inventory[slotID].data[net.ReadString()] = net.ReadString()
         end
     end
 
@@ -81,6 +82,26 @@ function NebulaInv:RegisterType(type, data)
     self.Types[type] = data
 end
 
+function NebulaInv:RegisterItem(class, id, data)
+    local name_id = class .. "_" .. id
+    local def = self.Types[class]
+    if not def then
+        error("NebulaInv:RegisterItem: Type " .. class .. " not found!")
+    end
+
+    //PrintTable(def)
+    local temp = def:Build(data, id)
+    if not temp then
+        MsgN("failed to create item " .. name_id)
+        return
+    end
+    temp.type = class
+    temp.imgur = data.imgur
+    temp.rarity = data.rarity or 1
+    temp.id = id
+    self.Items[name_id] = temp
+end
+
 MsgC(Color(100, 100, 255), "[Nebula]",color_white, "Loading Type!\n", Color(100, 100, 100))
 for k, v in pairs(file.Find("nebulainv/types/*.lua", "LUA")) do
     if SERVER then
@@ -91,14 +112,14 @@ for k, v in pairs(file.Find("nebulainv/types/*.lua", "LUA")) do
 end
 MsgC(Color(100, 100, 255), "[Nebula]",color_white, "Finished loading Items Types!\n")
 
-function NebulaInv:RegisterItem(class, id, data)
-    local name_id = class .. "_" .. id
-    local def = self.Types[class]
-    if not def then
-        error("NebulaInv:RegisterItem: Type " .. class .. " not found!")
+for k, v in pairs(file.Find("nebulainv/items/*.lua", "LUA")) do
+    if SERVER then
+        AddCSLuaFile("nebulainv/items/" .. v)
     end
-
-    self.Items[name_id] = def:Build(data, id)
+    timer.Simple(0, function()
+        include("nebulainv/items/" .. v)
+        MsgC("\tLoading def " .. string.sub(v, 1, #v - 4) .. "...\n")
+    end)
 end
 
 if SERVER then return end
