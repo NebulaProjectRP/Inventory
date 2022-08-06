@@ -11,6 +11,7 @@ util.AddNetworkString("Nebula.Inv:EquipItem")
 util.AddNetworkString("Nebula.Inv:EquipResult")
 util.AddNetworkString("Nebula.Inv:HolsterEquipment")
 util.AddNetworkString("Nebula.Inv:OpenCase")
+util.AddNetworkString("Nebula.Inv:DropItem")
 
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
@@ -188,6 +189,11 @@ end)
 net.Receive("Nebula.Inv:DeleteItem", function(l, ply)
     local slot = net.ReadUInt(16)
     ply:takeItem(slot, 1)
+end)
+
+net.Receive("Nebula.Inv:DropItem", function(l, ply)
+    local slot = net.ReadUInt(16)
+    ply:dropItem(slot, 1)
 end)
 
 net.Receive("Nebula.Inv:OpenCase", function(l, ply)

@@ -9,6 +9,7 @@ function DEF:OnUse(ply, item)
         return false
     end
 
+    PrintTable(item)
     ply:applySuit(item.class)
     return true
 end
@@ -29,6 +30,7 @@ function DEF:Build(data, id)
 
     local item = {}
     item.name = suit.Name
+    item.class = data.class
     item.Stats = {
         Health = suit.Health,
         Armor = suit.Armor,
@@ -37,12 +39,33 @@ function DEF:Build(data, id)
     return item
 end
 
-function DEF:OpenMenu(menu, v)
+function DEF:OpenMenu(menu, item, slot)
     menu:AddOption("Equip Suit", function()
         net.Start("Nebula.Inv:UseItem")
-        net.WriteString(v.id)
+        net.WriteUInt(slot, 16)
         net.SendToServer()
     end)
+
+    menu:AddOption("Drop Suit", function()
+        net.Start("Nebula.Inv:DropItem")
+        net.WriteUInt(slot, 16)
+        net.SendToServer()
+    end)
+end
+
+function DEF:DropItem(ply, item, slot, amount)
+    local suit = ents.Create("neb_suitcrate_" .. item.class)
+    local tr = util.TraceLine({
+        start = ply:GetShootPos(),
+        endpos = ply:GetShootPos() + ply:GetAimVector() * 96,
+        filter = ply
+    })
+    suit:SetPos(tr.HitPos)
+    suit:Spawn()
+    suit.Free = CurTime() + 5
+    suit.Owner = ply
+
+    return true
 end
 
 function DEF:CreateEditor(panel, container, data)

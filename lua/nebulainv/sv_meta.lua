@@ -71,6 +71,21 @@ function meta:syncInvSlot(slot)
     net.Send(self)
 end
 
+function meta:dropItem(slot, amount)
+    local item = self:getInventory()[slot]
+    if (not item) then return end
+
+    local itemRef = NebulaInv.Items[item.id]
+    local def = NebulaInv.Types[itemRef.type]
+
+    if not def or not def.DropItem then return end
+
+    local res = def:DropItem(self, itemRef, slot, amount)
+    if (res) then
+        self:takeItem(slot, amount)
+    end
+end
+
 function meta:takeItem(slot, am)
     local item = self:getInventory()[slot]
     if not item then return false end
@@ -178,10 +193,6 @@ function meta:networkLoadout(kind, status)
             type:OnEquip(self, ref, item.id)
         end
     end
-end
-
-function meta:dropItem(id)
-    self:saveInventory()
 end
 
 function meta:equipItem(kind, id, status)
