@@ -12,15 +12,15 @@ NebulaStore.SeasonPass = {
 NebulaStore.QueueItems = {
     [1] = {
         itemID = "weapon_paladin_1",
-        credits = 100,
+        credits = 150,
     },
     [2] = {
         itemID = "weapon_paladin_2",
-        credits = 100,
+        credits = 175,
     },
     [3] = {
         itemID = "weapon_paladin_3",
-        credits = 100,
+        credits = 200,
     },
     [4] = {
         itemID = "weapon_diver_1",
@@ -44,19 +44,6 @@ NebulaStore.Shop = {
                 itemID = "case_red_woopie",
                 money = 6000,
             },
-        }
-    },
-    ["Suits"] = {
-        Color = Color(22, 194, 51),
-        Items = {
-            [1] = {
-                itemID = "suit_architect",
-                money = 100,
-            },
-            [2] = {
-                itemID = "suit_carnage",
-                money = 100,
-            }
         }
     },
     ["Feedback"] = {
