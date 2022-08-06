@@ -12,6 +12,8 @@ util.AddNetworkString("Nebula.Inv:EquipResult")
 util.AddNetworkString("Nebula.Inv:HolsterEquipment")
 util.AddNetworkString("Nebula.Inv:OpenCase")
 util.AddNetworkString("Nebula.Inv:DropItem")
+util.AddNetworkString("Nebula.Inv:RemoveEquipment")
+util.AddNetworkString("Nebula.Inv:RemoveSlot")
 
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
@@ -133,7 +135,7 @@ if (NebulaDriver) then
 end
 
 net.Receive("Nebula.Inv:CreateItem", function(l, ply)
-    if (!ply:IsAdmin()) then return end
+    if (not ply:IsAdmin()) then return end
 
     local isEdit = net.ReadBool()
     local editID = net.ReadUInt(32)
@@ -196,6 +198,15 @@ net.Receive("Nebula.Inv:DropItem", function(l, ply)
     ply:dropItem(slot, 1)
 end)
 
+net.Receive("Nebula.Inv:RemoveSlot", function(l, ply)
+    local slot = net.ReadString()
+    if (not ply._loadout or not ply._loadout[slot]) then return end
+
+    ply:giveItem(ply._loadout[slot].id, 1, ply._loadout.data or {})
+    ply._loadout[slot] = nil
+
+end)
+
 net.Receive("Nebula.Inv:OpenCase", function(l, ply)
     local caseID = net.ReadString(32)
     local slot
@@ -206,9 +217,6 @@ net.Receive("Nebula.Inv:OpenCase", function(l, ply)
         end
     end
     if not slot then return end
-    MsgN("BASE\n\n")
-    PrintTable(ply:getInventory()[slot])
-    MsgN("BASE\n\n")
     local winner, _, _ = NebulaInv:Unbox(ply, caseID)
     net.Start("Nebula.Inv:OpenCase")
     net.WriteString(winner)

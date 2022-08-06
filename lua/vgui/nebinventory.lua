@@ -366,17 +366,65 @@ function PANEL:CreateSlots()
     self.PlayerSlot:SetSize(72, 72)
     self.PlayerSlot:Dock(BOTTOM)
     self.PlayerSlot:Allow("model", true)
+    self.PlayerSlot.DoClick = function(s)
+        if not s.Item then
+            return
+        end
+
+        local menu = DermaMenu()
+        menu:AddOption("Remove", function()
+            net.Start("Nebula.Inv:RemoveSlot")
+            net.WriteString("model")
+            net.SendToServer()
+            s:SetItem(nil)
+            NebulaInv.Loadout["model"] = nil
+        end)
+        menu:AddOption("Cancel")
+        menu:Open()
+    end
 
     self.HitSound = vgui.Create("nebula.item", side)
     self.HitSound:SetSize(72, 72)
     self.HitSound:Dock(BOTTOM)
     self.HitSound:DockMargin(0, 8, 0, 8)
     self.HitSound:Allow("hitmark", true)
+    self.HitSound.DoClick = function(s)
+        if not s.Item then
+            return
+        end
+
+        local menu = DermaMenu()
+        menu:AddOption("Remove", function()
+            net.Start("Nebula.Inv:RemoveSlot")
+            net.WriteString("hitmark")
+            net.SendToServer()
+            s:SetItem(nil)
+            NebulaInv.Loadout["hitmark"] = nil
+        end)
+        menu:AddOption("Cancel")
+        menu:Open()
+    end
 
     self.VOX = vgui.Create("nebula.item", side)
     self.VOX:SetSize(72, 72)
     self.VOX:Dock(BOTTOM)
     self.VOX:Allow("vox", true)
+    self.VOX.OnMousePressed = function(s)
+        if not s.Reference then
+            return
+        end
+
+        local menu = DermaMenu()
+        menu:AddOption("Remove", function()
+            net.Start("Nebula.Inv:RemoveSlot")
+            net.WriteString("vox")
+            net.SendToServer()
+            s:SetItem(nil)
+            NebulaInv.Loadout["vox"] = nil
+        end)
+        menu:AddOption("Cancel")
+        menu:Open()
+    end
 
     local loadout = NebulaInv.Loadout
     if not loadout then return end
@@ -408,7 +456,7 @@ vgui.Register("nebula.f4.inventory", PANEL, "Panel")
 
 net.Receive("Nebula.Inv:SyncItem", function()
     local slot = net.ReadUInt(16)
-    local am = net.ReadUInt(8)
+    local am = net.ReadUInt(16)
     local id = net.ReadString()
     local entry = {
         id = id,
@@ -416,6 +464,7 @@ net.Receive("Nebula.Inv:SyncItem", function()
         data = {}
     }
 
+    PrintTable(entry)
     for k = 1, net.ReadUInt(8) do
         entry[net.ReadString()] = net.ReadString()
     end
@@ -431,6 +480,16 @@ net.Receive("Nebula.Inv:SyncItem", function()
     end
 end)
 
+net.Receive("Nebula.Inv:RemoveEquipment", function(l, ply)
+    for k, v in pairs(NebulaInv.Loadout or {}) do
+        if not string.StartWith(k, "weapon:") then continue end
+        MsgN(k," ", v)
+        local item = NebulaInv.Items[v.id]
+        if (item.rarity < 6) then
+            NebulaInv.Loadout[k] = nil
+        end
+    end
+end)
 
 net.Receive("Nebula.Inv:EquipItem", function()
     local kind = net.ReadString()
@@ -441,7 +500,6 @@ net.Receive("Nebula.Inv:EquipItem", function()
         }
     end
 
-    MsgN(kind," ", isEquip)
     if (isEquip) then
         NebulaInv.Loadout[kind] = {
             id = net.ReadString(),

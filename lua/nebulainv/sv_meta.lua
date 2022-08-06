@@ -61,7 +61,7 @@ function meta:syncInvSlot(slot)
     local item = self:getInventory()[slot]
     net.Start("Nebula.Inv:SyncItem")
     net.WriteUInt(slot, 16)
-    net.WriteUInt(item.am or 0, 8)
+    net.WriteUInt(item.am or 0, 16)
     net.WriteString(item.id)
     net.WriteUInt(table.Count(item.data), 8)
     for k, v in pairs(item.data) do
@@ -101,13 +101,17 @@ function meta:takeItem(slot, am)
 end
 
 function meta:holsterWeapons()
+    PrintTable(self._loadout)
     for slot, v in pairs(self._loadout) do
+        MsgN(slot," ", v)
+        if (not string.StartWith(slot, "weapon")) then return end
         local itemId = v.id
         local item = NebulaInv.Items[itemId]
         if not item then continue end
 
         self:giveItem(itemId, v.am or 1, v.data)
         self._loadout[slot] = nil
+        
         if not item.classname then continue end
 
         local wep = self:GetWeapon(item.classname)
@@ -197,8 +201,8 @@ end
 
 function meta:equipItem(kind, id, status)
     local slot
+    local item = self:getInventory()[id]
     if (status) then
-        local item = self:getInventory()[id]
         if (not item) then
             DarkRP.notify(self, 1, 4, "You don't have this item!")
             return false
@@ -266,6 +270,20 @@ local function savePlayerInventory(ply)
 end
 
 hook.Add("PlayerDisconnected", "NebulaSaveItems", savePlayerInventory)
+
+hook.Add("PlayerDeath", "Nebula:RemoveWeapons", function(ply)
+    for k, v in pairs(ply._loadout) do
+        if (string.StartWith(k, "weapon")) then
+            MsgN("Removing weapon: ", k)
+            local item = NebulaInv.Items[v.id]
+            if (item.rarity >= 6) then MsgN("CLean weapon") continue end
+            ply._loadout[k] = nil
+        end
+    end
+
+    net.Start("Nebula.Inv:RemoveEquipment")
+    net.Send(ply)
+end)
 
 function meta:saveInventory()
     local timerID = self:SteamID64() .. "_inventory_save"
