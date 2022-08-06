@@ -101,9 +101,7 @@ function meta:takeItem(slot, am)
 end
 
 function meta:holsterWeapons()
-    PrintTable(self._loadout)
     for slot, v in pairs(self._loadout) do
-        MsgN(slot," ", v)
         if (not string.StartWith(slot, "weapon")) then return end
         local itemId = v.id
         local item = NebulaInv.Items[itemId]
@@ -283,6 +281,22 @@ hook.Add("PlayerDeath", "Nebula:RemoveWeapons", function(ply)
 
     net.Start("Nebula.Inv:RemoveEquipment")
     net.Send(ply)
+end)
+
+hook.Add("canDropWeapon", "Nebula:NODropLoadout", function(ply, wep)
+    local class = wep:GetClass()
+    local disallow = false
+    for k, v in pairs(ply._loadout) do
+        if (v.id == "weapon_" .. class) then
+            disallow = true
+            break
+        end
+    end
+
+    if disallow then
+        DarkRP.notify(ply, 1, 4, "You can't drop equipped weapons weapon!")
+        return false
+    end
 end)
 
 function meta:saveInventory()

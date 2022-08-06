@@ -464,9 +464,8 @@ net.Receive("Nebula.Inv:SyncItem", function()
         data = {}
     }
 
-    PrintTable(entry)
     for k = 1, net.ReadUInt(8) do
-        entry[net.ReadString()] = net.ReadString()
+        entry.data[net.ReadString()] = net.ReadString()
     end
 
     if (am > 0) then
