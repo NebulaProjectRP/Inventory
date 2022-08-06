@@ -62,7 +62,7 @@ function PANEL:Init()
         lerpVar = 0
 
         net.Start("Nebula.Inv:OpenCase")
-        net.WriteUInt(self.caseID, 32)
+        net.WriteString(self.caseID, 32)
         net.SendToServer()
     end
 
@@ -73,7 +73,7 @@ function PANEL:Init()
 end
 
 function PANEL:SetCase(id)
-    local case = NebulaInv.Items[id].extraData.cases
+    local case = NebulaInv.Items[id].items
     if not case then return end
 
     self.caseID = id
@@ -116,14 +116,21 @@ function PANEL:GenerateDummy()
     local randomItems = {}
     for k = 1, samples do
         local chances, id = table.Random(self.Items)
+        if not NebulaInv.Items[id] then
+            MsgN(id)
+            continue
+        end
         table.insert(randomItems, {chances, NebulaInv.Items[id]})
     end
+    //PrintTable(randomItems)
 
     for k = 1, samples do
         local card = vgui.Create("nebula.item", self.Spinner)
         card:SetSize(96, 96)
         card.Origin = offset
-        card:SetItem(randomItems[k][2].id)
+        if (k != 58) then
+            card:SetItem(randomItems[k][2].id)
+        end
         card:SetBackgroundAlpha(10)
         card:SetPaintedManually(true)
         table.insert(self.Cards, card)
@@ -142,10 +149,12 @@ function PANEL:SpawnParticle(id)
     end
 
     surface.PlaySound("ui/achievement_earned.wav")
-    self.OpenParticle = CreateParticleSystem(self.Model, "fireworks_" .. id, 0, 0, Vector(0, 0, 16))
-    self.OpenParticle:SetShouldDraw(false)
+    if id then
+        self.OpenParticle = CreateParticleSystem(self.Model, "fireworks_" .. id, 0, 0, Vector(0, 0, 16))
+        self.OpenParticle:SetShouldDraw(false)
+    end
 
-    self:AlphaTo(0, .5, 1.5, function()
+    self:AlphaTo(0, .1, 1.5, function()
         self:Remove()
     end)
 end
@@ -247,15 +256,15 @@ end
 vgui.Register("nebula.unbox", PANEL, isTesting and "DFrame" or "DPanel")
 
 net.Receive("Nebula.Inv:OpenCase", function()
-    local winner = net.ReadUInt(32)
+    local winner = net.ReadString()
     if IsValid(NebulaInv.UnboxPanel) then
         local item = NebulaInv.Items[winner]
         NebulaInv.UnboxPanel.WinnerName = item.name
         NebulaInv.UnboxPanel.ParticleID = item.rarity
-        NebulaInv.UnboxPanel.Cards[60]:SetItem(winner)
-        NebulaInv.UnboxPanel.Cards[60]:SetBackgroundAlpha(25)
-        NebulaInv.UnboxPanel.IdealTarget = NebulaInv.UnboxPanel.Cards[60]:GetX()
-    end    
+        NebulaInv.UnboxPanel.Cards[58]:SetItem(winner)
+        NebulaInv.UnboxPanel.Cards[58]:SetBackgroundAlpha(25)
+        NebulaInv.UnboxPanel.IdealTarget = NebulaInv.UnboxPanel.Cards[58]:GetX()
+    end
 end)
 
 if IsValid(NebulaInv.UnboxPanel) then

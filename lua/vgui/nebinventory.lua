@@ -174,6 +174,9 @@ function PANEL:PopulateItems()
         if not item then
             continue
         end
+        if item and not item.name then
+            PrintTable(item)
+        end
         if filter and not filter(item) or (search != "" and not string.find(string.lower(item.name), search, 0, true)) then
             continue
         end
@@ -193,7 +196,7 @@ function PANEL:PopulateItems()
 
     for k, v in pairs(invData) do
         local btn = vgui.Create("nebula.item", self.Layout)
-        local res = btn:SetItem(v.id, true)
+        local res = btn:SetItem(v.id, k)
         if (not res) then
             btn:Remove()
             continue

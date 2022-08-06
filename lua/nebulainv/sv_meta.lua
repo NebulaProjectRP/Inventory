@@ -74,7 +74,6 @@ end
 function meta:takeItem(slot, am)
     local item = self:getInventory()[slot]
     if not item then return false end
-
     item.am = (item.am or 1) - am
 
     self:syncInvSlot(slot)
@@ -268,10 +267,7 @@ end
 if (lan:GetBool()) then
     concommand.Add("neb_giveall", function(ply, cmd, args)
         local target = p(1)
-        MsgN(target)
         for id, data in pairs(NebulaInv.Items) do
-            MsgN("?")
-            PrintTable(data)
             target:giveItem(id, 1)
         end
     end)

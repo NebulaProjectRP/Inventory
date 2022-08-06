@@ -8,7 +8,7 @@ function DEF:OnUse(ply, item)
 end
 
 function DEF:OpenMenu(menu, item)
-    menu:AddOption("Open case", function()                
+    menu:AddOption("Open case", function()
         if IsValid(NebulaInv.Panel) then
             local w, h = NebulaInv.Panel:GetSize()
             local fit = vgui.Create("nebula.unbox", NebulaInv.Panel)
@@ -70,6 +70,55 @@ function DEF:CreateEditor(panel, container, data)
     for k, v in pairs(data.cases) do
         body:AddLine(k, v)
     end
+end
+
+local definition = ""
+function DEF:Build(data, id)
+    local items = data.items
+    if (data.generate) then
+        local main = NebulaInv.Items
+        for k, _ in pairs(items) do
+            local found = false
+            for itemid, info in pairs(main) do
+                if (not string.StartWith(itemid, "weapon_")) then continue end
+                if (itemid == "weapon_" .. k) then
+                    found = true
+                    break
+                end
+            end
+
+            if (not found) then        
+                local chances = {}
+                for _, v in pairs(items) do
+                    if (table.HasValue(chances, v)) then continue end
+                    table.insert(chances, v)
+                end
+
+                while (#chances > 5) do
+                    table.remove(chances, 2)
+                end
+
+                local icon = ""
+                local rarity = 1
+                //local wepData = weapons.GetStored(data.classname)
+                local filePath = "materials/entities/" .. k .. ".png"
+                if (file.Exists(filePath, "GAME")) then
+                    icon = "entities/" .. k .. ".png"
+                end
+
+                for i = 1, 5 do
+                    if (chances[i] <= items[k]) then
+                        rarity = i
+                        break
+                    end
+                end
+
+                MsgN("NebulaInv:RegisterItem('weapon', '" .. k .. "', {\n\tclassname = '" .. k .. "',\n\trarity = " .. rarity .. ",\n\ticon = '" .. icon .. "'\n})")
+            end
+        end
+    end
+
+    return data
 end
 
 NebulaInv:RegisterType("case", DEF)

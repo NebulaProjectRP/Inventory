@@ -29,6 +29,7 @@ end
 function DEF:Build(data, id)
     local item = {}
     item.class = id
+    item.name = data.Name
     return item
 end
 

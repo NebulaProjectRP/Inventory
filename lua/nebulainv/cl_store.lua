@@ -4,30 +4,58 @@ local storeTitle = "Nebula Store"
 local lwhite = Color(255, 255, 255, 100)
 
 local nebux = Material("nebularp/ui/nebux")
+local vaultback = Color(151, 62, 173)
 
+surface.CreateFont("vault_strobble", {
+    font = "ONE DAY",
+    size = 36,
+    blursize = 4
+})
 function PANEL:Init()
     StorePanel = self
+    self.Categories = {}
 
     if self.NoFrame then
         self:DockPadding(8, 8, 8, 8)
         self:Dock(FILL)
     else
         self:SetTitle("Store!")
-        self:SetSize(ScrW() * .7, ScrH() * .7)
+        self:SetSize(ScrW() * .8, ScrH() * .8)
         self:Center()
         self:MakePopup()
     end
 
-    self.Packages = vgui.Create("DPanel", self)
+    //God please forgive me for this
+    self:GetParent():InvalidateParent(true)
+    self:InvalidateParent(true)
+    self:InvalidateLayout(true)
+
+
+    self.Packages = vgui.Create("nebula.grid", self)
 
     self.Packages:Dock(FILL)
+    self.Packages:SetGrid(12, 1)
     self.Packages:DockMargin(0, 0, 8, 0)
-    
+
     self.Season = vgui.Create("nebula.grid", self.Packages)
-    self.Season:Dock(LEFT)
-    self.Season:SetWide(400)
-    self.Season:SetGrid(2, 4)
+    self.Season:SetPosGrid(0, 0, 3, 1)
+    self.Season:SetGrid(1, 8)
     self.Season:DockMargin(0, 72, 8, 0)
+
+    self.Deals = vgui.Create("nebula.grid", self.Packages)
+    self.Deals:SetPosGrid(3, 0, 7, 1)
+    self.Deals:SetGrid(2, 8)
+    self.Deals:DockMargin(16, 84, 24, 0)
+    self.Deals:SetWide(400)
+    self.Deals.Paint = function(s, w, h)
+        local twide = 256
+        local vaultback = HSVToColor((300 + math.cos(RealTime() * 2) * 30) % 360, 1, .5)
+        local desync = HSVToColor((380 + math.cos(RealTime() * 2) * 30) % 360, .4, 1)
+        draw.RoundedBox(8, w / 2 - twide / 2, 16, twide, 48, vaultback)
+        
+        draw.SimpleText("THE VAULT", "vault_strobble", w / 2, h * .05 + 8, ColorAlpha(desync, 100 + math.tan(RealTime() * 8) * 100), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText("THE VAULT", NebulaUI:Font(36, true), w / 2, h * .05 + 8, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
 
     local fontSize = 64
     surface.SetFont(NebulaUI:Font(fontSize))
@@ -108,44 +136,161 @@ Your information will never be shared with anyone, and we will never ask you for
     end
 
     self.Main = vgui.Create("nebula.scroll", self.Packages)
-    self.Main:Dock(FILL)
+    self.Main:SetPosGrid(7, 0, 12, 1)
     self.Main:DockMargin(0, 72, 0, 0)
 
+    self:InvalidateChildren(true)
+
     self:InitSeason()
+    self:InitStore()
 end
 
 function PANEL:InitSeason()
+
     local season = self.Season
 
     season.Top = vgui.Create("DPanel", season)
-    season.Top:SetPosGrid(0, 0, 2, 2)
+    season.Top:SetPosGrid(0, 0, 1, 7)
     season.Top.Paint = function(s, w, h)
         draw.RoundedBox(8, 0, 0, w, h, color_black)
     end
 
-    season.Top.Buy = vgui.Create("nebula.button", season.Top)
-    season.Top.Buy:Dock(BOTTOM)
-    season.Top.Buy:SetTall(32)
-    season.Top.Buy:SetText("Coming soon...")
-    season.Top.Buy:DockMargin(8, 0, 8, 8)
+    season.Top.PaintOver = function(s, w, h)
+        draw.SimpleText(NebulaStore.SeasonPass.name, NebulaUI:Font(42), w / 2, h - 32 - 16, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+        draw.SimpleText(NebulaStore.SeasonPass.description, NebulaUI:Font(16), w / 2, h - 32, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        if not NebulaStore.SeasonPass.enabled then
+            draw.SimpleText("-COMING SOON-", NebulaUI:Font(32, true), w / 2, h / 2 - 32, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        end
+    end
+    season.Top.Imgur = vgui.Create("nebula.imgur", season.Top)
+
+    season.Top.Imgur:Dock(FILL)
+    //season.Top.Imgur:SetImage(NebulaStore.SeasonPass.imgur)
+    //season.Top.PaintOver = function(s, w, h)
+    //end
+
+    season.Buy = vgui.Create("nebula.button", season)
+    season.Buy:SetTall(48)
+    season.Buy:SetPosGrid(0, 7, 1, 8)
+    season.Buy:SetText("")
+    season.Buy:SetTooltip(NebulaStore.SeasonPass.description)
+    season.Buy.DoClick = function(s)
+        if (not NebulaStore.SeasonPass.enabled) then
+            Derma_Message("Slow down space cowboy, the season pass is not enabled yet!", "NebulaRP", "OK")
+            return
+        end
+        if (LocalPlayer():getCredits() >= NebulaStore.SeasonPass.credits) then
+            RunConsoleCommand("nebula_buy", 1)
+        else
+            Derma_Message("You cannot afford the season pass!")
+        end
+    end
+    season.Buy.PaintOver = function(s, w, h)
+        local tx, _ = draw.SimpleText(NebulaStore.SeasonPass.credits, NebulaUI:Font(32), w / 2 + 16, h / 2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        surface.SetMaterial(nebux)
+        surface.SetDrawColor(color_white)
+        surface.DrawTexturedRect(w / 2 - tx / 2 - 24, h / 2 - 16, 32, 32)
+    end
 
     for y = 1, 2 do
         for x = 1, 2 do
-            local item = vgui.Create("nebula.grid", season)
-            item:SetPosGrid(x - 1, 2 + y - 1, x, 2 + y)
+            local index = (y - 1) * 2 + x
+            local itemData = NebulaStore.QueueItems[index]
+            if not itemData then
+                continue
+            end
+            local item = vgui.Create("nebula.grid", self.Deals)
+            item:SetPosGrid(x - 1, 1 + (y - 1) * 3, x, 1 + (y - 1) * 3 + 3)
             item:SetWide(64)
             item:SetGrid(1, 4)
             item:SetText((y - 1) * 2 + x)
             item.Buy = vgui.Create("nebula.button", item)
             item.Buy:SetPosGrid(0, 3, 1, 4)
-            item.Buy:SetText("Buy")
+            item.Buy:SetText("")
+            item.DoClick = function()
+                if (itemData.credits or 0) > LocalPlayer():getCredits() then
+                    Derma_Message("You cannot afford this item!", "NebulaRP", "OK")
+                    return
+                end
+                RunConsoleCommand("nebula_buy", 2, index)
+            end
+            item.Buy.PaintOver = function(s, w, h)
+                local tx, _ = draw.SimpleText(NebulaStore.QueueItems[index].credits, NebulaUI:Font(24), w / 2 + 16, h / 2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                surface.SetMaterial(nebux)
+                surface.SetDrawColor(color_white)
+                surface.DrawTexturedRect(w / 2 - tx / 2 - 14, h / 2 - 12, 24, 24)
+            end
             item.Image = vgui.Create("nebula.item", item)
-            item.Image:SetItem("weapon_paladin_1")
             item.Image:SetPosGrid(0, 0, 1, 3)
+            item.Image:SetItem(itemData.itemID)
             item.Image.Icon:SetFitMode(FIT_ASPECT_W)
         end
     end
 
+end
+
+PANEL.Categories = {}
+function PANEL:InitStore()
+
+    //God please forgive me for this
+    self:GetParent():InvalidateParent(true)
+    self:InvalidateParent(true)
+    self:InvalidateLayout(true)
+    self:InvalidateChildren(true)
+
+    for k, v in pairs(NebulaStore.Shop) do
+        if not IsValid(self.Categories[k]) then
+            local cat = vgui.Create("nebula.f4.category", self.Main)
+            cat:SetText(k)
+            cat:SetHeaderColor(v.Color)
+            cat:SetColumns(math.Round(self.Main:GetWide() / 128) - 1)
+            cat:Dock(TOP)
+            cat:DockMargin(0, 0, 0, 8)
+            self.Categories[k] = cat
+        end
+
+        for i, it in pairs(v.Items) do
+            local item = vgui.Create("Panel", self.Categories[k])
+            item:SetTall(128 + 32)
+            item:DockMargin(0, 4, 0, 0)
+            item.Icon = vgui.Create("nebula.item", item)
+            item.Icon:Dock(TOP)
+            item.Icon:SetTall(128)
+            item.Icon:SetItem(it.itemID)
+
+            item.buy = vgui.Create("nebula.button", item)
+            item.buy:Dock(FILL)
+            item.buy:DockMargin(0, 4, 0, 0)
+            if (it.money) then
+                item.buy:SetText(DarkRP.formatMoney(it.money))
+            else
+                item.buy:SetText("")
+                item.buy.PaintOver = function(s, w, h)
+                    local tx, _ = draw.SimpleText(it.credits, NebulaUI:Font(24), w / 2 + 16, h - 32 - 16, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+                    surface.SetMaterial(nebux)
+                    surface.SetDrawColor(color_white)
+                    surface.DrawTexturedRect(w / 2 - tx / 2 - 8, h / 2 - 16, 32, 32)
+                end
+            end
+            item.ItemData = it
+            item.CategoryName = k
+            item.buy.DoClick = function(s)
+                if (item.ItemData.credits and (LocalPlayer():getCredits() >= item.ItemData.credits) or LocalPlayer():canAfford(item.ItemData.money)) then
+                    RunConsoleCommand("nebula_buy", 3, item.CategoryName, i, item.ItemData.itemID)
+                else
+                    Derma_Message("You do not have enough " .. (item.ItemData.credits and "credits" or "money") .. " to buy this item.", "Nebula", "OK")
+                    return
+                end
+            end
+        end
+
+        self:InvalidateLayout(true)
+        for _, cat in pairs(self.Categories) do
+            if not IsValid(cat) then return end
+            cat:UpdateLayout(true)
+        end
+        
+    end
 end
 
 vgui.Register("nebula.store", PANEL, "nebula.frame")
@@ -164,3 +309,5 @@ concommand.Add("neb_store", function()
     
     StorePanel = vgui.Create("nebula.store")
 end)
+
+//RunConsoleCommand("neb_store")

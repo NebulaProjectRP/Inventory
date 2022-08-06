@@ -28,7 +28,7 @@ function DEF:Build(data, id)
     scripted_ents.Register(ENT, "neb_suitcrate_" .. data.class)
 
     local item = {}
-    item.Name = suit.Name
+    item.name = suit.Name
     item.Stats = {
         Health = suit.Health,
         Armor = suit.Armor,

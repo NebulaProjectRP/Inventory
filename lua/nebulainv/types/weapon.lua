@@ -44,8 +44,8 @@ function DEF:Build(data, id)
         MsgN("Nebula: Weapon " .. data.classname .. " not found!")
         return
     end
-    local item = {}
-    item.Name = wep.PrintName
+    local item = table.Copy(data)
+    item.name = wep.PrintName
     item.class = data.classname
     return item
 end

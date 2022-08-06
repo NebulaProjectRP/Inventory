@@ -12,11 +12,7 @@ NebulaInv.TotalCache = {}
 function NebulaInv:Unbox(ply, case_id)
     luck = math.Clamp(ply.luckValue or 0, -100, 100)
 
-    if (self.Items[case_id].extraData and isstring(self.Items[case_id].extraData)) then
-        self.Items[case_id].extraData = util.JSONToTable(self.Items[case_id].extraData)
-    end
-
-    local case = self.Items[case_id].extraData.cases
+    local case = self.Items[case_id].items
     if not case then
         MsgN("[NebulaInv] Case has not been configurated: " .. case_id)
         return false
@@ -28,16 +24,15 @@ function NebulaInv:Unbox(ply, case_id)
             self.TotalCache[case_id] = self.TotalCache[case_id] + v
         end
     end
-    
+
     local maxItems = self.TotalCache[case_id]
-    local luck = luck / 100
-    local ran = math.Round(random.Number(maxItems * (luck) + 1, maxItems))
+    luck = luck / 100
+    local ran = math.Round(random.Number(maxItems * luck + 1, maxItems))
     local total = 0
-    local winner, id
+    local winner
 
     for k, v in SortedPairsByValue(case, true) do
         total = total + v
-        MsgN(ran," ", total)
         if (ran <= total) then
             winner = k
             break
@@ -49,15 +44,15 @@ function NebulaInv:Unbox(ply, case_id)
     if (parity < .4) then
         ply.luckValue = (ply.luckValue or 0) + (2.5 + 5 * (1 - parity))
     elseif (parity < .75) then
-        ply.luckValue = ply.luckValue / 2
+        ply.luckValue = (ply.luckValue or 0) / 2
     elseif (parity < 1) then
         ply.luckValue = 0
     end
-    
+
     ply.luckValue = math.Clamp(ply.luckValue, -100, 100)
     local could = ply:addItem(winner, 1)
     if (not could) then
-        ply:addItem(winner, 1)
+        ply:addItem(case_id, 1)
         return false
     end
     return winner, ran, self.TotalCache[case_id]
@@ -83,7 +78,7 @@ concommand.Add("nebula_unbox_benchmark", function(ply, cmd, args)
         now = SysTime()
 
         for k = 1, steps do
-            local winner, ran, max = NebulaInv:Unbox(p(1), 1, luck)    
+            local winner, ran, max = NebulaInv:Unbox(p(1), 1, luck)
             if not winner then
                 fails = fails + 1
                 continue

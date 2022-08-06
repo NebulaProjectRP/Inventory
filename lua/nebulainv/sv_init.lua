@@ -143,7 +143,6 @@ net.Receive("Nebula.Inv:CreateItem", function(l, ply)
     local itemClass = net.ReadString()
     local itemExtraData = net.ReadTable()
 
-    MsgN("Hello?")
     NebulaInv:CreateItem(ply, isEdit, editID, itemName, itemIcon, itemRarity, itemType, itemClass, itemExtraData)
 end)
 
@@ -199,9 +198,24 @@ net.Receive("Nebula.Inv:HolsterEquipment", function(l, ply)
 end)
 
 net.Receive("Nebula.Inv:OpenCase", function(l, ply)
-    local caseID = net.ReadUInt(32)
-    local winner, ran, cache = NebulaInv:Unbox(ply, caseID)
+    local caseID = net.ReadString(32)
+    local slot
+    for k, v in pairs(ply:getInventory()) do
+        if (v.id == caseID) then
+            slot = k
+            break
+        end
+    end
+    if not slot then return end
+    MsgN("BASE\n\n")
+    PrintTable(ply:getInventory()[slot])
+    MsgN("BASE\n\n")
+    local winner, _, _ = NebulaInv:Unbox(ply, caseID)
     net.Start("Nebula.Inv:OpenCase")
-    net.WriteUInt(winner, 32)
+    net.WriteString(winner)
     net.Send(ply)
+
+    if (winner) then
+        ply:takeItem(slot, 1)
+    end
 end)
