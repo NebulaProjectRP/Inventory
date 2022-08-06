@@ -156,6 +156,15 @@ function NebulaInv:LoadItems()
     */
 end
 
+concommand.Add("neb_requestinv", function()
+    if ((last_request or 0) < CurTime()) then
+        last_request = CurTime() + 3
+        NebulaInv:LoadItems()
+    else
+        notification.AddLegacy("Please wait before requesting again! " .. math.Round(last_request - CurTime()) .. " seconds", NOTIFY_ERROR, 5)
+    end
+end)
+
 hook.Add("InitPostEntity", "NebulaInv.LoadItems", function()
     NebulaInv:LoadItems()
 end)

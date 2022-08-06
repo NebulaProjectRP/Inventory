@@ -190,13 +190,13 @@ function PANEL:PopulateItems()
 
     table.sort(invData, function(a, b)
         if orderBy then
-            return orderBy(NebulaInv.Items[a.id], NebulaInv.Items[b.id], a.amount, b.amount)
+            return orderBy(NebulaInv.Items[a.id], NebulaInv.Items[b.id], a.am, b.am)
         end
     end)
 
     for k, v in pairs(invData) do
         local btn = vgui.Create("nebula.item", self.Layout)
-        local res = btn:SetItem(v.id, k)
+        local res = btn:SetItem(v.id, v.slot)
         if (not res) then
             btn:Remove()
             continue
@@ -209,19 +209,21 @@ function PANEL:PopulateItems()
             local menu = DermaMenu()
 
             if (NebulaInv.Types[v.type].OpenMenu) then
-                NebulaInv.Types[v.type]:OpenMenu(menu, v)
+                NebulaInv.Types[v.type]:OpenMenu(menu, v, s.Slot)
             end
 
             menu:AddOption("Delete Item", function()
                 net.Start("Nebula.Inv:DeleteItem")
-                net.WriteString(v.id)
+                net.WriteUInt(s.Slot, 16)
                 net.SendToServer()
             end)
+            /*
             menu:AddOption("Sell Item", function()
                 net.Start("Nebula.Inv:SellItem")
-                net.WriteString(v.id)
+                net.WriteUInt(s.slot, 16)
                 net.SendToServer()
             end)
+            */
             menu:AddOption("Cancel")
             menu:Open()
         end
@@ -410,7 +412,7 @@ net.Receive("Nebula.Inv:SyncItem", function()
     local id = net.ReadString()
     local entry = {
         id = id,
-        amount = am,
+        am = am,
         data = {}
     }
 

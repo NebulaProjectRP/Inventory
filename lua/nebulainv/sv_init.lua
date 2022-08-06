@@ -147,37 +147,25 @@ net.Receive("Nebula.Inv:CreateItem", function(l, ply)
 end)
 
 net.Receive("Nebula.Inv:UseItem", function(l, ply)
-    local itemID = net.ReadString()
-    local id
-    if (string.StartWith(itemID, "unique")) then
-        id = tonumber(string.Explode("_", itemID, false)[2])
-        if (not ply._inventory[itemID]) then
-            DarkRP.notify(ply, 1, 4, "You don't have this item!")
-            return
-        end
-    else
-        if (not ply._inventory[tonumber(itemID)]) then
-            DarkRP.notify(ply, 1, 4, "You don't have this item!")
-            return
-        end
-        id = tonumber(itemID)
-    end
+    local slot = net.ReadUInt(16)
+    local item = ply:getInventory()[slot]
+    local id = item.id
 
-    local item = NebulaInv.Items[id]
-    
+    local ref = NebulaInv.Items[id]
+
     if not item then
         DarkRP.notify(ply, 1, 4, "This item not longer exists!")
         return
     end
-    local resolver = NebulaInv.Types[NebulaInv.Items[id].type]
-    if (!resolver) then
+    local resolver = NebulaInv.Types[ref.type]
+    if (not resolver) then
         DarkRP.notify(ply, 1, 4, "This item is not usable!")
         return
     end
 
-    local result = resolver:OnUse(ply, item)
+    local result = resolver:OnUse(ply, ref)
     if (result == true) then
-        ply:takeItem(tonumber(itemID) and tonumber(itemID) or itemID, 1)
+        ply:takeItem(slot, 1)
     end
 end)
 
@@ -195,6 +183,11 @@ end)
 
 net.Receive("Nebula.Inv:HolsterEquipment", function(l, ply)
     ply:holsterWeapons()
+end)
+
+net.Receive("Nebula.Inv:DeleteItem", function(l, ply)
+    local slot = net.ReadUInt(16)
+    ply:takeItem(slot, 1)
 end)
 
 net.Receive("Nebula.Inv:OpenCase", function(l, ply)
