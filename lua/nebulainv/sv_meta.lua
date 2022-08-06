@@ -61,8 +61,8 @@ function meta:syncInvSlot(slot)
     local item = self:getInventory()[slot]
     net.Start("Nebula.Inv:SyncItem")
     net.WriteUInt(slot, 16)
-    net.WriteString(item.id)
     net.WriteUInt(item.am or 0, 8)
+    net.WriteString(item.id)
     net.WriteUInt(table.Count(item.data), 8)
     for k, v in pairs(item.data) do
         net.WriteString(k)
@@ -150,22 +150,14 @@ function meta:loadItems(data)
 end
 
 function meta:networkLoadout(kind, status)
-    local function proccessItem(k, v)
+    local function proccessItem(k, v, isEquip)
         net.Start("Nebula.Inv:EquipItem")
         net.WriteString(k)
-        if (status) then
-            net.WriteBool(true)
-            local iscustom = istable(v)
-            net.WriteBool(iscustom)
-            if (iscustom) then
-                net.WriteString(v.id)
-                net.WriteUInt(v.am, 16)
-                net.WriteTable(v.data)
-            else
-                net.WriteUInt(v, 32)
-            end
-        else
-            net.WriteBool(false)
+        net.WriteBool(isEquip)
+        if (isEquip) then
+            net.WriteString(v.id)
+            net.WriteUInt(v.am, 16)
+            net.WriteTable(v.data)
         end
         net.Send(self)
     end
@@ -177,6 +169,14 @@ function meta:networkLoadout(kind, status)
 
     for k, v in pairs(self._loadout or {}) do
         proccessItem(k, v, true)
+    end
+
+    for slot, item in pairs(self._loadout) do
+        local ref = NebulaInv.Items[item.id]
+        local type = NebulaInv.Types[ref.type]
+        if (type and type.OnEquip) then
+            type:OnEquip(self, ref, item.id)
+        end
     end
 end
 

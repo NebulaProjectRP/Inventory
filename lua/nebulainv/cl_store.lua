@@ -91,13 +91,13 @@ function PANEL:Init()
 
         surface.SetMaterial(nebux)
         surface.SetDrawColor(color_white)
-        surface.DrawTexturedRect(8, 8, 32, 32)
-        draw.SimpleText(credits, NebulaUI:Font(32), 48, h / 2 - 2, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+        local tx, _  = draw.SimpleText(credits, NebulaUI:Font(32), w - 16, h / 2 - 2, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+        surface.DrawTexturedRect(w - 24 - tx - 32, 8, 32, 32)
         if s.Credits != LocalPlayer():getCredits() then
             s.Credits = LocalPlayer():getCredits()
             surface.SetFont(NebulaUI:Font(32))
-            local tx, _ = surface.GetTextureSize(credits)
-            s.Size = 48 + tx + 26
+            local tx, _ = surface.GetTextSize(credits)
+            s.Size = 48 + tx + 20
             s:SizeTo(s.Size, 48, .1, 0, 1)
             s:MoveTo(self.Packages:GetWide() - s.Size, 0, .3, 0, 0)
         end

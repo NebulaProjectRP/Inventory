@@ -417,7 +417,7 @@ net.Receive("Nebula.Inv:SyncItem", function()
     for k = 1, net.ReadUInt(8) do
         entry[net.ReadString()] = net.ReadString()
     end
-    
+
     if (am > 0) then
         NebulaInv.Inventory[slot] = entry
     else
@@ -433,22 +433,21 @@ end)
 net.Receive("Nebula.Inv:EquipItem", function()
     local kind = net.ReadString()
     local isEquip = net.ReadBool()
-    local isCustom = net.ReadBool()
-
     if not NebulaInv.Loadout then
         NebulaInv.Loadout = {
             [kind] = {}
         }
     end
 
-    if (isCustom) then
+    MsgN(kind," ", isEquip)
+    if (isEquip) then
         NebulaInv.Loadout[kind] = {
             id = net.ReadString(),
             am = net.ReadUInt(16),
             data = net.ReadTable()
         }
     else
-        NebulaInv.Loadout[kind] = net.ReadUInt(32)
+        NebulaInv.Loadout[kind] = nil
     end
 
     if IsValid(NebulaInv.Panel) then
