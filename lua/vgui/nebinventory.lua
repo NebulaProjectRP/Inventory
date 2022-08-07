@@ -45,13 +45,14 @@ local SortModes = {
         return a.type < b.type
     end,
     ["Rarity"] = function(a, b)
-        return a.rarity < b.rarity
+        return a.rarity > b.rarity
     end,
     ["Amount"] = function(a, b, c, d)
-        return c == d and a.name < b.name or c > d
+        return c == d and a.name < b.name or c.am > d.am
     end,
 }
 
+PANEL.Slots = {}
 function PANEL:Init()
     NebulaInv.Panel = self
     self:Dock(FILL)
@@ -157,7 +158,7 @@ function PANEL:ManipulateModel(ent)
 end
 
 function PANEL:PopulateItems()
-    local inv = LocalPlayer():getInventory() or {}
+    local inv = LocalPlayer():getInventory()
     local filter = ShowMode[self.ShowOnly:GetText() or "All"]
     local orderBy = SortModes[self.OrderBy:GetText() or "None"]
     local search = string.lower(self.Search:GetText())
@@ -169,7 +170,8 @@ function PANEL:PopulateItems()
     self.ItemSpawned = {}
 
     local invData = {}
-    for k, v in pairs(inv) do
+    for k = 1, table.Count(inv) do
+        local v = inv[k]
         local item = NebulaInv.Items[v.id]
         if not item then
             continue
@@ -180,7 +182,7 @@ function PANEL:PopulateItems()
         if filter and not filter(item) or (search != "" and not string.find(string.lower(item.name), search, 0, true)) then
             continue
         end
-        table.insert(invData, {
+        table.insert(invData, k, {
             am = v.am or 1,
             id = v.id,
             slot = k,
@@ -188,11 +190,13 @@ function PANEL:PopulateItems()
         })
     end
 
-    table.sort(invData, function(a, b)
-        if orderBy then
-            return orderBy(NebulaInv.Items[a.id], NebulaInv.Items[b.id], a.am, b.am)
-        end
-    end)
+    if orderBy then
+        table.sort(invData, function(a, b)
+            return orderBy(NebulaInv.Items[a.id], NebulaInv.Items[b.id], a, b)
+        end)
+    end
+
+    PrintTable(invData)
 
     for k, v in pairs(invData) do
         local btn = vgui.Create("nebula.item", self.Layout)
@@ -257,18 +261,34 @@ function PANEL:CreateSlots()
         btn:SetSize(size, size)
         btn:Allow("weapon", true, self.WeaponSlots)
         btn.subslot = k
+        self.Slots["weapon:" .. k] = btn
         table.insert(self.WeaponSlots, btn)
     end
 
     self.Holster = vgui.Create("nebula.button", header)
     self.Holster:Dock(FILL)
     self.Holster:SetText("Return Weapons to inventory")
+    local modify = false
+    self.Holster.Think = function(s)
+        local cooldown = LocalPlayer():GetNWFloat("ReturnCooldown", 0)
+        if (cooldown > CurTime()) then
+            modify = true
+            s:SetText("You have to wait " .. math.Round(cooldown - CurTime(), 1))
+        elseif (modify) then
+            s:SetText("Return Weapons to inventory")
+        end
+    end
     self.Holster.DoClick = function()
+        local cooldown = LocalPlayer():GetNWFloat("ReturnCooldown", 0)
+        if (cooldown > CurTime()) then
+            return
+        end
         net.Start("Nebula.Inv:HolsterEquipment")
         net.SendToServer()
         for k = 1, 3 do
-            NebulaInv.Loadout = {}
+            NebulaInv.Loadout["weapon:" .. k] = nil
             self.WeaponSlots[k]:SetItem(nil)
+            //self.Slots["weapon:" .. k]:SetItem(nil)
         end
     end
 
@@ -366,6 +386,7 @@ function PANEL:CreateSlots()
     self.PlayerSlot:SetSize(72, 72)
     self.PlayerSlot:Dock(BOTTOM)
     self.PlayerSlot:Allow("model", true)
+    self.Slots["model"] = self.PlayerSlot
     self.PlayerSlot.DoClick = function(s)
         if not s.Item then
             return
@@ -388,6 +409,7 @@ function PANEL:CreateSlots()
     self.HitSound:Dock(BOTTOM)
     self.HitSound:DockMargin(0, 8, 0, 8)
     self.HitSound:Allow("hitmark", true)
+    self.Slots["hitmark"] = self.PlayerSlot
     self.HitSound.DoClick = function(s)
         if not s.Item then
             return
@@ -409,6 +431,7 @@ function PANEL:CreateSlots()
     self.VOX:SetSize(72, 72)
     self.VOX:Dock(BOTTOM)
     self.VOX:Allow("vox", true)
+    self.Slots["vox"] = self.PlayerSlot
     self.VOX.OnMousePressed = function(s)
         if not s.Reference then
             return
@@ -469,7 +492,26 @@ net.Receive("Nebula.Inv:SyncItem", function()
     end
 
     if (am > 0) then
-        NebulaInv.Inventory[slot] = entry
+        if (NebulaInv.Inventory[slot] and NebulaInv.Inventory[slot].id == id) then
+            NebulaInv.Inventory[slot].am = am
+            NebulaInv.Inventory[slot].data = entry.data
+        else
+            local found = false
+            for k, v in pairs(NebulaInv.Inventory) do
+                if (v.id == id) then
+                    for a, b in pairs(v.data) do
+                        if (entry[a] == v.data[a]) then
+                            NebulaInv.Inventory[k].am = am
+                            found = true
+                            break
+                        end
+                    end
+                end
+            end
+            if not found then
+                table.insert(NebulaInv.Inventory, slot, entry)
+            end
+        end
     else
         table.remove(NebulaInv.Inventory, slot)
     end
@@ -482,7 +524,6 @@ end)
 net.Receive("Nebula.Inv:RemoveEquipment", function(l, ply)
     for k, v in pairs(NebulaInv.Loadout or {}) do
         if not string.StartWith(k, "weapon:") then continue end
-        MsgN(k," ", v)
         local item = NebulaInv.Items[v.id]
         if (item.rarity < 6) then
             NebulaInv.Loadout[k] = nil
@@ -509,7 +550,8 @@ net.Receive("Nebula.Inv:EquipItem", function()
         NebulaInv.Loadout[kind] = nil
     end
 
-    if IsValid(NebulaInv.Panel) then
-        NebulaInv.Panel:PopulateItems()
+    local pnl = NebulaInv.Panel
+    if IsValid(pnl) and pnl.Slots[kind] then
+        pnl.Slots[kind]:SetItem(isEquip and NebulaInv.Loadout[kind].id or nil)
     end
 end)

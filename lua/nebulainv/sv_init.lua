@@ -177,14 +177,15 @@ net.Receive("Nebula.Inv:EquipItem", function(l, ply)
     local id = net.ReadUInt(16)
     local status = net.ReadBool()
 
-    local result = ply:equipItem(kind, id, status)
-
-    net.Start("Nebula.Inv:EquipResult")
-    net.WriteBool(result)
-    net.Send(ply)
+    ply:equipItem(kind, id, status)
 end)
 
 net.Receive("Nebula.Inv:HolsterEquipment", function(l, ply)
+    if (ply:GetNWFloat("ReturnCooldown", 0) > CurTime()) then
+        DarkRP.notify(ply, 1, 4, "You can't return your equipment yet!")
+        return
+    end
+    ply:SetNWFloat("ReturnCooldown", CurTime() + 30)
     ply:holsterWeapons()
 end)
 

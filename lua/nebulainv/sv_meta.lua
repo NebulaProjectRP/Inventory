@@ -36,17 +36,13 @@ function meta:giveItem(id, am, fields)
     end
 
     net.Start("Nebula.Inv:AddItem")
-    net.WriteBool(fields != nil)
     net.WriteUInt(insertAt, 16)
     net.WriteString(id)
-    if (fields != nil) then
-        net.WriteUInt(table.Count(fields), 8)
-        for k, v in pairs(fields) do
-            net.WriteString(k)
-            net.WriteString(v)
-        end
-    else
-        net.WriteUInt(self._inventory[insertAt].am, 8)
+    net.WriteUInt(self._inventory[insertAt].am, 16)
+    net.WriteUInt(table.Count(self._inventory[insertAt].data), 8)
+    for k, v in pairs(self._inventory[insertAt].data) do
+        net.WriteString(k)
+        net.WriteString(v)
     end
     net.Send(self)
 
@@ -107,18 +103,18 @@ function meta:holsterWeapons()
         local item = NebulaInv.Items[itemId]
         if not item then continue end
 
-        self:giveItem(itemId, v.am or 1, v.data)
+        local newItem = table.Copy(v)
         self._loadout[slot] = nil
-        
-        if not item.classname then continue end
+        self:networkLoadout(slot, false)
+        self:giveItem(itemId, newItem.am or 1, newItem.data)
 
-        local wep = self:GetWeapon(item.classname)
+        if not item.class then continue end
+
+        local wep = self:GetWeapon(item.class)
         if IsValid(wep) then
-            self:StripWeapon(item.classname)
+            self:StripWeapon(item.class)
         end
     end
-
-    self:networkLoadout()
 end
 
 function meta:loadItems(data)
@@ -198,7 +194,6 @@ function meta:networkLoadout(kind, status)
 end
 
 function meta:equipItem(kind, id, status)
-    local slot
     local item = self:getInventory()[id]
     if (status) then
         if (not item) then
@@ -226,6 +221,7 @@ function meta:equipItem(kind, id, status)
         end
 
         self._loadout[kind] = table.Copy(item)
+        self._loadout[kind].am = 1
         if (NebulaInv.Types[ref.type] and NebulaInv.Types[ref.type].OnEquip) then
             NebulaInv.Types[ref.type]:OnEquip(self, ref)
         end

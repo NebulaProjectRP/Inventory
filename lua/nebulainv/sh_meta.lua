@@ -28,21 +28,25 @@ net.Receive("Nebula.Inv:AddItem", function(l, ply)
     if not NebulaInv.Inventory then
         NebulaInv.Inventory = {}
     end
-    local isCustom = net.ReadBool()
     local slotID = net.ReadUInt(16)
     local id = net.ReadString()
+    local amount = net.ReadUInt(16)
+    MsgN(amount)
 
-    NebulaInv.Inventory[slotID] = {
+    local newItem = {
         id = id,
-        am = isCustom and 1 or net.ReadUInt(8),
+        am = amount,
         data = {}
     }
 
-    if (isCustom) then
-        NebulaInv.Inventory[slotID].data = {}
-        for k = 1, net.ReadUInt(8) do
-            NebulaInv.Inventory[slotID].data[net.ReadString()] = net.ReadString()
-        end
+    for k = 1, net.ReadUInt(8) do
+        newItem.data[net.ReadString()] = net.ReadString()
+    end
+
+    if (NebulaInv.Inventory[slotID]) then
+        NebulaInv.Inventory[slotID] = newItem
+    else
+        table.insert(NebulaInv.Inventory, slotID, newItem)
     end
 
     if IsValid(NebulaInv.Panel) then
