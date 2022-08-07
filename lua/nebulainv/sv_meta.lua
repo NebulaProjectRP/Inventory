@@ -97,7 +97,6 @@ function meta:takeItem(slot, am)
 end
 
 function meta:holsterWeapons()
-    MsgN(table.Count(self._loadout))
     for slot, v in pairs(self._loadout) do
         if (not string.StartWith(slot, "weapon")) then continue end
         local itemId = v.id

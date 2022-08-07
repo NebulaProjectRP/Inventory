@@ -20,7 +20,6 @@ end
 if SERVER then
     util.AddNetworkString("NebulaInv:SyncKills")
     hook.Add("PlayerDeath", "NebulaInv.SaveKills", function(ply, inf, att)
-        MsgN(inf.TrackKills)
         if inf.TrackKills then
             inf.KillCounter = inf.KillCounter + 1
             if (inf.InvSlot and att._loadout[inf.InvSlot]) then
@@ -61,19 +60,15 @@ end
 
 function DEF:OpenMenu(menu, item, slot)
     local ref = NebulaInv.Items[item.id]
-    if (ref.rarity >= 4) then
-        Derma_Message("You cannot use weapons with this rarity, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
-        return
-    end
     menu:AddOption("Equip Weapon", function()
         local prompted = cookie.GetNumber("weapon_equip_prompt", 0)
-        if (not prompted) then
-            Derma_Query("You will use a weapon, this means you will equip it and you will not be able to return it into your inventory\nIf you want to recover your weapon, equip it in the weapon slot", "NebulaRP", "Continue", function()
-                cookie.Set("weapon_equip_prompt", 1)
-                net.Start("Nebula.Inv:UseItem")
-                net.WriteUInt(slot, 16)
-                net.SendToServer()
-            end, "Cancel")
+        if (ref.rarity >= 4) then
+            Derma_Message("You cannot use weapons with this rarity, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
+            return
+        end
+    
+        if (not table.IsEmpty(item.data)) then
+            Derma_Message("You cannot use weapons with mutators, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
             return
         end
         net.Start("Nebula.Inv:UseItem")

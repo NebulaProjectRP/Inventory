@@ -186,7 +186,8 @@ function PANEL:PopulateItems()
             am = v.am or 1,
             id = v.id,
             slot = k,
-            type = item.type
+            type = item.type,
+            data = v.data
         })
     end
 

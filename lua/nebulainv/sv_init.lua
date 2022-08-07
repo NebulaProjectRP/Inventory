@@ -166,7 +166,7 @@ net.Receive("Nebula.Inv:UseItem", function(l, ply)
         return
     end
 
-    local result = resolver:OnUse(ply, ref)
+    local result = resolver:OnUse(ply, ref, id, item)
     if (result == true) then
         ply:takeItem(slot, 1)
     end
