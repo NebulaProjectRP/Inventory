@@ -33,16 +33,16 @@ NebulaStore.Shop = {
         Color = Color(204, 109, 0),
         Items = {
             [1] = {
-                itemID = "case_puresteel",
-                money = 2000,
+                itemID = "case_nades",
+                money = 7500,
             },
             [2] = {
-                itemID = "case_nades",
-                money = 4000,
+                itemID = "case_puresteel",
+                money = 5000,
             },
             [3] = {
                 itemID = "case_red_woopie",
-                money = 6000,
+                money = 15000,
             },
         }
     },

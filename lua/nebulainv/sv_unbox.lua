@@ -50,7 +50,13 @@ function NebulaInv:Unbox(ply, case_id)
     end
 
     ply.luckValue = math.Clamp(ply.luckValue, -100, 100)
-    local could = ply:addItem(winner, 1)
+    local ref = NebulaInv.Items[winner]
+    local data = {}
+    if (ref.type == "weapon") then
+        data = NebulaInv.Types.weapon:Generate(winner)
+        PrintTable(data)
+    end
+    local could = ply:addItem(winner, 1, data)
     if (not could) then
         ply:addItem(case_id, 1)
         return false

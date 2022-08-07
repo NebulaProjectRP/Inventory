@@ -97,8 +97,9 @@ function meta:takeItem(slot, am)
 end
 
 function meta:holsterWeapons()
+    MsgN(table.Count(self._loadout))
     for slot, v in pairs(self._loadout) do
-        if (not string.StartWith(slot, "weapon")) then return end
+        if (not string.StartWith(slot, "weapon")) then continue end
         local itemId = v.id
         local item = NebulaInv.Items[itemId]
         if not item then continue end
@@ -188,7 +189,7 @@ function meta:networkLoadout(kind, status)
         local ref = NebulaInv.Items[item.id]
         local type = NebulaInv.Types[ref.type]
         if (type and type.OnEquip) then
-            type:OnEquip(self, ref, item.id)
+            type:OnEquip(self, ref, item.id, item)
         end
     end
 end
@@ -223,7 +224,7 @@ function meta:equipItem(kind, id, status)
         self._loadout[kind] = table.Copy(item)
         self._loadout[kind].am = 1
         if (NebulaInv.Types[ref.type] and NebulaInv.Types[ref.type].OnEquip) then
-            NebulaInv.Types[ref.type]:OnEquip(self, ref)
+            NebulaInv.Types[ref.type]:OnEquip(self, ref, item.id, item, kind)
         end
 
         self:takeItem(id, 1)

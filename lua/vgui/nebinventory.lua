@@ -196,8 +196,6 @@ function PANEL:PopulateItems()
         end)
     end
 
-    PrintTable(invData)
-
     for k, v in pairs(invData) do
         local btn = vgui.Create("nebula.item", self.Layout)
         local res = btn:SetItem(v.id, v.slot)
@@ -261,6 +259,8 @@ function PANEL:CreateSlots()
         btn:SetSize(size, size)
         btn:Allow("weapon", true, self.WeaponSlots)
         btn.subslot = k
+        btn.IsSlot = "weapon:" .. k
+        btn:SetDrawOnTop(true)
         self.Slots["weapon:" .. k] = btn
         table.insert(self.WeaponSlots, btn)
     end
