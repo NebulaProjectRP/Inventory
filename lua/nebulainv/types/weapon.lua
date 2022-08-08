@@ -91,6 +91,7 @@ NebulaInv.Mutators = {
             return string.Replace(mut.Description, "#", tostring(math.Round(mut.Levels[level] * 100)))
         end,
         Resolve = function(mut, wep, level, ply)
+            if not wep.SetStatRawL then return end
             wep:SetStatRawL("Primary.RPM", wep:GetStatL("Primary.RPM") + wep:GetStatL("Primary.RPM") * mut.Levels[level])
             wep:ClearStatCacheL("Primary.RPM")
             net.Start("Nebula.Inv:AddMutator")
@@ -109,6 +110,7 @@ NebulaInv.Mutators = {
             return string.Replace(mut.Description, "#", tostring(math.Round(mut.Levels[level] * 100)))
         end,
         Resolve = function(mut, wep, level, ply)
+            if not wep.SetStatRawL then return end
             wep:SetStatRawL("Primary.ClipSize", wep:GetStatL("Primary.ClipSize") + math.ceil(wep:GetStatL("Primary.ClipSize") * mut.Levels[level]))
             wep:ClearStatCacheL("Primary.ClipSize")
             wep:SetClip1(wep:GetStatL("Primary.ClipSize") + math.ceil(wep:GetStatL("Primary.ClipSize") * mut.Levels[level]))
