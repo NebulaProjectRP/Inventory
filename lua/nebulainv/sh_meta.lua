@@ -133,7 +133,7 @@ if SERVER then return end
 function NebulaInv:LoadItems()
 
     MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading player items...\n")
-    MsgN(NebulaAPI.HOST .. "players/" .. LocalPlayer():SteamID64())
+    MsgN("players/" .. LocalPlayer():SteamID64())
     http.Fetch(NebulaAPI.HOST .. "players/" .. LocalPlayer():SteamID64(), function(dt)
         MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Finished downloading items!\n")
         local json = util.JSONToTable(dt)
