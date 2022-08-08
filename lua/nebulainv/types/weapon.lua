@@ -10,6 +10,7 @@ function DEF:ProcessWeapon(wep, data, ply, slot)
         wep.InvSlot = slot
     end
 
+    if !wep.IsTFA then return end
     for k, v in pairs(data.data) do
         if (k == "kills") then continue end
         NebulaInv.Mutators[k]:Resolve(wep, v, ply)
