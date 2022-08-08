@@ -12,7 +12,6 @@ function DEF:ProcessWeapon(wep, data, ply, slot)
 
     for k, v in pairs(data.data) do
         if (k == "kills") then continue end
-        MsgN(k)
         NebulaInv.Mutators[k]:Resolve(wep, v, ply)
     end
 end
