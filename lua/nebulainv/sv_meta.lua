@@ -83,6 +83,17 @@ function meta:dropItem(slot, amount)
 end
 
 function meta:takeItem(slot, am)
+    if (isstring(slot)) then
+        for k, v in pairs(self:getInventory()) do
+            if (v.id == slot) then
+                slot = k
+                break
+            end
+        end
+        if isstring(slot) then
+            return false
+        end
+    end
     local item = self:getInventory()[slot]
     if not item then return false end
     item.am = (item.am or 1) - am
@@ -94,6 +105,7 @@ function meta:takeItem(slot, am)
     end
 
     self:saveInventory()
+    return true
 end
 
 function meta:holsterWeapons()

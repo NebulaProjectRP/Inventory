@@ -21,7 +21,16 @@ function meta:getInventory()
 end
 
 function meta:hasItem(id)
-    return self:getInventory()[id] != nil
+    for k, v in pairs(self:getInventory()) do
+        if v.id == id then
+            return v
+        end
+    end
+end
+
+function meta:countItem(id)
+    local has = self:hasItem(id)
+    return has and has.am or 0
 end
 
 net.Receive("Nebula.Inv:AddItem", function(l, ply)
@@ -137,6 +146,7 @@ function NebulaInv:LoadItems()
     http.Fetch(NebulaAPI.HOST .. "players/" .. LocalPlayer():SteamID64(), function(dt)
         MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Finished downloading items!\n")
         local json = util.JSONToTable(dt)
+        MsgN(dt)
         local inv = json.inventory or {}
         NebulaInv.Inventory = util.JSONToTable(inv.items)
         NebulaInv.Loadout = util.JSONToTable(inv.loadout)

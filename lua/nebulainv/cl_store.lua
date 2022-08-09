@@ -135,7 +135,7 @@ Your information will never be shared with anyone, and we will never ask you for
         end
     end
 
-    self.Main = vgui.Create("nebula.scroll", self.Packages)
+    self.Main = vgui.Create("Panel", self.Packages)
     self.Main:SetPosGrid(7, 0, 12, 1)
     self.Main:DockMargin(0, 72, 0, 0)
 
@@ -232,12 +232,11 @@ end
 PANEL.Categories = {}
 function PANEL:InitStore()
 
-    //God please forgive me for this
-    self:GetParent():InvalidateParent(true)
-    self:InvalidateParent(true)
-    self:InvalidateLayout(true)
-    self:InvalidateChildren(true)
+    self.Market = vgui.Create("DMarket.Shop", self.Main)
+    self.Market:Dock(FILL)
+    self.Market:DockMargin(0, 0, 8, 0)
 
+    if true then return end
     for k, v in pairs(NebulaStore.Shop) do
         if not IsValid(self.Categories[k]) then
             local cat = vgui.Create("nebula.f4.category", self.Main)
