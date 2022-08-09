@@ -262,6 +262,9 @@ function PANEL:CreateSlots()
         btn.subslot = k
         btn.IsSlot = "weapon:" .. k
         btn:SetDrawOnTop(true)
+        btn.Think = function(s)
+            s:SetDrawOnTop(s:IsHovered())
+        end
         self.Slots["weapon:" .. k] = btn
         table.insert(self.WeaponSlots, btn)
     end
