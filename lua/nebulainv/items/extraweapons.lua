@@ -41,15 +41,18 @@ NebulaInv:RegisterItem('weapon', 'tfa_cso_m4a1gs', {
 NebulaInv:RegisterItem('weapon', 'tfa_cso_mooncake', {
 	classname = 'tfa_cso_mooncake',
 	rarity = 1,
+	basic = true,
 	icon = 'entities/tfa_cso_mooncake.png'
 })
 NebulaInv:RegisterItem('weapon', 'tfa_cso_fragnade', {
 	classname = 'tfa_cso_fragnade',
+	basic = true,
 	rarity = 1,
 	icon = 'entities/tfa_cso_fragnade.png'
 })
 NebulaInv:RegisterItem('weapon', 'tfa_cso_sfgrenade', {
 	classname = 'tfa_cso_sfgrenade',
+	basic = true,
 	rarity = 1,
 	icon = 'entities/tfa_cso_sfgrenade.png'
 })

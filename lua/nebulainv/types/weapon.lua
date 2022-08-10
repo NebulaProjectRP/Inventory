@@ -61,15 +61,16 @@ end
 function DEF:OpenMenu(menu, item, slot)
     local ref = NebulaInv.Items[item.id]
     menu:AddOption("Equip Weapon", function()
-        local prompted = cookie.GetNumber("weapon_equip_prompt", 0)
-        if (ref.rarity >= 4) then
-            Derma_Message("You cannot use weapons with this rarity, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
-            return
-        end
-    
-        if (not table.IsEmpty(item.data)) then
-            Derma_Message("You cannot use weapons with mutators, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
-            return
+        if (not ref.basic) then
+            if (ref.rarity >= 4) then
+                Derma_Message("You cannot use weapons with this rarity, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
+                return
+            end
+
+            if (not table.IsEmpty(item.data)) then
+                Derma_Message("You cannot use weapons with mutators, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
+                return
+            end
         end
         net.Start("Nebula.Inv:UseItem")
         net.WriteUInt(slot, 16)
@@ -221,6 +222,12 @@ NebulaInv.Mutators = {
 }
 
 function DEF:Generate(id, last)
+
+    local ref = NebulaInv.Items[id]
+    if (ref.basic) then
+        return {}
+    end
+
     local weapon = last or {}
     local dice = math.Round(random.Number(0, 50))
     if (dice < 15) then
