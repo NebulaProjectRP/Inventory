@@ -55,6 +55,9 @@ meta.addItem = meta.giveItem
 
 function meta:syncInvSlot(slot)
     local item = self:getInventory()[slot]
+    if isstring(item.data) then
+        self:getInventory()[slot].data = util.JSONToTable(self:getInventory()[slot].data)
+    end
     net.Start("Nebula.Inv:SyncItem")
     net.WriteUInt(slot, 16)
     net.WriteUInt(item.am or 0, 16)
