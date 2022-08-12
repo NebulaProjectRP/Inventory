@@ -172,6 +172,7 @@ function PANEL:PopulateItems()
     local invData = {}
     for k = 1, table.Count(inv) do
         local v = inv[k]
+        MsgN(v.id)
         local item = NebulaInv.Items[v.id]
         if not item then
             continue
