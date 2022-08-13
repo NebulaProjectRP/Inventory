@@ -3,6 +3,10 @@ PANEL.ImTrading = {}
 PANEL.IsTrading = {}
 PANEL.TradeCredits = 0
 
+local backColor = Color(16, 0, 24, 250)
+local backColorAlt = Color(12, 0, 18, 255)
+local borderColor = Color(255, 255, 255, 25)
+
 function PANEL:Init()
     GTRADE = self
     self.ImTrading = {}
@@ -30,9 +34,9 @@ function PANEL:Init()
     self.Inventory:SetTall(self:GetTall() / 2)
 
     self.Inventory.Paint = function(s, w, h)
-        draw.RoundedBox(4, 0, 0, w, h, Color(26, 26, 26, 200))
-        draw.RoundedBoxEx(4, 0, 0, w, 48, Color(16, 16, 16), true, true, false, false)
-        draw.SimpleText("Inventory", NebulaUI:Font(18), 16, 16, color_white)
+        draw.RoundedBox(8, 0, 0, w, h, borderColor)
+        draw.RoundedBox(8, 1, 1, w - 2, h - 2, backColor)
+        draw.SimpleText("Inventory", NebulaUI:Font(24), 16, 16, color_white)
     end
 
     self.Chat = vgui.Create("DPanel", self.Left)
@@ -41,9 +45,9 @@ function PANEL:Init()
     self.Chat:Dock(FILL)
 
     self.Chat.Paint = function(s, w, h)
-        draw.RoundedBox(4, 0, 0, w, h, Color(26, 26, 26, 200))
-        draw.RoundedBoxEx(4, 0, 0, w, 32, Color(16, 16, 16), true, true, false, false)
-        draw.SimpleText("Chat", NebulaUI:Font(16), 8, 8, color_white)
+        draw.RoundedBox(8, 0, 0, w, h, borderColor)
+        draw.RoundedBox(8, 1, 1, w - 2, h - 2, backColor)
+        draw.SimpleText("Chat", NebulaUI:Font(24), 8, 8, color_white)
     end
 
     self:SetupChat()
@@ -81,7 +85,8 @@ function PANEL:SetupChat()
     self.chatBox.oPaint = self.chatBox.Paint
 
     self.chatBox.Paint = function(s, w, h)
-        draw.RoundedBox(4, 0, 0, w, h, Color(16, 16, 16, 200))
+        draw.RoundedBox(8, 0, 0, w, h, borderColor)
+        draw.RoundedBox(8, 1, 1, w - 2, h - 2, backColorAlt)
     end
 end
 
@@ -92,9 +97,9 @@ function PANEL:SetupViews()
     self.LocalContainer:SetTall(self:GetTall() / 2 - 128)
 
     self.LocalContainer.Paint = function(s, w, h)
-        draw.RoundedBox(4, 0, 0, w, h, Color(26, 26, 26, 200))
-        draw.RoundedBoxEx(4, 0, 0, w, 38, Color(16, 16, 16), true, true, false, false)
-        draw.SimpleText(self.LocalName and self.LocalName .. " Offer" or "Your Offer", NebulaUI:Font(18), 8, 8, color_white)
+        draw.RoundedBox(8, 0, 0, w, h, borderColor)
+        draw.RoundedBox(8, 1, 1, w - 2, h - 2, backColor)
+        draw.SimpleText(self.LocalName and self.LocalName .. " Offer" or "Your Offer", NebulaUI:Font(24), 16, 12, color_white)
     end
 
     local bottom = vgui.Create("Panel", self.LocalContainer)
@@ -199,10 +204,11 @@ function PANEL:SetupViews()
 
     local scroll = vgui.Create("nebula.scroll", self.LocalContainer)
     scroll:Dock(FILL)
-    scroll:DockMargin(8, 42, 8, 8)
+    scroll:DockMargin(16, 42, 16, 12)
 
     scroll.Paint = function(s, w, h)
-        draw.RoundedBox(4, 0, 0, w, h, Color(26, 26, 26))
+        draw.RoundedBox(8, 0, 0, w, h, borderColor)
+        draw.RoundedBox(8, 1, 1, w - 2, h - 2, backColorAlt)
     end
 
     scroll:Receiver("tradeTarget", function(slf, tbl, dropped)
@@ -332,9 +338,9 @@ function PANEL:SetupViews()
     self.TradeContainer:DockMargin(0, 0, 0, 0)
 
     self.TradeContainer.Paint = function(s, w, h)
-        draw.RoundedBox(4, 0, 0, w, h, Color(26, 26, 26, 200))
-        draw.RoundedBoxEx(4, 0, 0, w, 38, Color(16, 16, 16), true, true, false, false)
-        draw.SimpleText((self.TraderName or "Their") .. "'s Offer", NebulaUI:Font(18), 8, 8, color_white)
+        draw.RoundedBox(8, 0, 0, w, h, borderColor)
+        draw.RoundedBox(8, 1, 1, w - 2, h - 2, backColor)
+        draw.SimpleText((self.TraderName or "Their") .. "'s Offer", NebulaUI:Font(24), 16, 12, color_white)
     end
 
     bottom = vgui.Create("Panel", self.TradeContainer)
@@ -385,10 +391,11 @@ function PANEL:SetupViews()
 
     scroll = vgui.Create("nebula.scroll", self.TradeContainer)
     scroll:Dock(FILL)
-    scroll:DockMargin(8, 42, 8, 8)
+    scroll:DockMargin(16, 42, 16, 12)
 
     scroll.Paint = function(s, w, h)
-        draw.RoundedBox(4, 0, 0, w, h, Color(26, 26, 26))
+        draw.RoundedBox(8, 0, 0, w, h, borderColor)
+        draw.RoundedBox(8, 1, 1, w - 2, h - 2, backColorAlt)
     end
 
     self.OthericonLayout = vgui.Create("DIconLayout", scroll)
@@ -421,15 +428,17 @@ function PANEL:LoadInventory()
 
     self.ItemsContainer = vgui.Create("nebula.scroll", self.Inventory)
     self.ItemsContainer:Dock(FILL)
-    self.ItemsContainer:DockMargin(0, 8, 0, 0)
+    self.ItemsContainer:DockMargin(0, 8, 0, 4)
+    self.ItemsContainer:DockPadding(8, 8, 8, 8)
 
     self.ItemsContainer.Paint = function(s, w, h)
-        draw.RoundedBox(4, 0, 0, w, h, Color(26, 26, 26))
+        draw.RoundedBox(8, 0, 0, w, h, borderColor)
+        draw.RoundedBox(8, 1, 1, w - 2, h - 2, backColorAlt)
     end
 
     self.ItemsLayout = vgui.Create("DIconLayout", self.ItemsContainer)
     self.ItemsLayout:SetSpaceX(4)
-    self.ItemsLayout:DockPadding(4, 4, 0, 0)
+    self.ItemsLayout:DockPadding(8, 8, 8, 8)
     self.ItemsLayout:SetSpaceY(4)
     self.ItemsLayout:Dock(FILL)
     self.Left:InvalidateLayout(true)
