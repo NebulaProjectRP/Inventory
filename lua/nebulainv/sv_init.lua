@@ -2,6 +2,7 @@ util.AddNetworkString("Nebula.Inv:CreateItem")
 util.AddNetworkString("Nebula.Inv:NetworkItem")
 util.AddNetworkString("Nebula.Inv:UseItem")
 util.AddNetworkString("Nebula.Inv:DeleteItem")
+util.AddNetworkString("Nebula.Inv:GiftItem")
 util.AddNetworkString("Nebula.Inv:ClearSlot")
 util.AddNetworkString("Nebula.Inv:SellItem")
 util.AddNetworkString("Nebula.Inv:RemoveItem")
@@ -135,7 +136,7 @@ if (NebulaDriver) then
 end
 
 net.Receive("Nebula.Inv:CreateItem", function(l, ply)
-    if (not ply:IsAdmin()) then return end
+    if (not ply:IsSuperAdmin()) then return end
 
     local isEdit = net.ReadBool()
     local editID = net.ReadUInt(32)
@@ -191,7 +192,14 @@ end)
 
 net.Receive("Nebula.Inv:DeleteItem", function(l, ply)
     local slot = net.ReadUInt(16)
-    ply:takeItem(slot, 1)
+    local isAll = net.ReadBool()
+    ply:takeItem(slot, isAll and -1 or 1)
+end)
+
+net.Receive("Nebula.Inv:GiftItem", function(l, ply)
+    local slot = net.ReadUInt(16)
+    local target = net.ReadEntity()
+    ply:giftItem(slot, target)
 end)
 
 net.Receive("Nebula.Inv:DropItem", function(l, ply)

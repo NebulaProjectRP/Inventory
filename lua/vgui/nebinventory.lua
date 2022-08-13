@@ -89,6 +89,21 @@ function PANEL:Init()
         self.OrderBy:AddChoice(k)
     end
 
+    self.TradeButton = vgui.Create("nebula.button", self.Header)
+    self.TradeButton:Dock(RIGHT)
+    self.TradeButton:DockMargin(0, 0, 16, 0)
+    self.TradeButton:SetWide(128)
+    self.TradeButton:SetText("Trade")
+    self.TradeButton.DoClick = function()
+        local selector = PlayerSelector()
+        selector.OnSelect = function(s, ply)
+            net.Start("NebulaInv.Trade:SendInvitation")
+            net.WriteEntity(ply)
+            net.SendToServer()
+        end
+        selector:Open()
+    end
+
     self.Search = vgui.Create("nebula.textentry", self.Header)
     self.Search:Dock(FILL)
     self.Search:DockMargin(16, 0, 16, 0)
@@ -215,11 +230,19 @@ function PANEL:PopulateItems()
                 NebulaInv.Types[v.type]:OpenMenu(menu, v, s.Slot)
             end
 
-            menu:AddOption("Delete Item", function()
-                net.Start("Nebula.Inv:DeleteItem")
-                net.WriteUInt(s.Slot, 16)
-                net.SendToServer()
+            menu:AddSpacer()
+
+            menu:AddOption("Gift Item", function()
+                local selector = PlayerSelector()
+                selector.OnSelect = function(s, ply)
+                    net.Start("Nebula.Inv:GiftItem")
+                    net.WriteUInt(v.slot, 16)
+                    net.WriteEntity(ply)
+                    net.SendToServer()
+                end
+                selector:Open()
             end)
+
             menu:AddOption("Sell Item", function()
                 Derma_StringRequest("For how much do you want to sell this item", "Marketplace", "100", function(val)
                     net.Start("NebulaMarket:AddItem")
@@ -228,6 +251,25 @@ function PANEL:PopulateItems()
                     net.SendToServer()
                 end)
             end)
+
+            menu:AddSpacer()
+
+            menu:AddOption("Delete Item", function()
+                Derma_Query("Are you sure do you want to delete this item?", "Delete Item", "Yes", function()
+                    net.Start("Nebula.Inv:DeleteItem")
+                    net.WriteUInt(s.Slot, 16)
+                    net.WriteBool(false)
+                    net.SendToServer()
+                end, "Delete all", function()
+                    net.Start("Nebula.Inv:DeleteItem")
+                    net.WriteUInt(s.Slot, 16)
+                    net.WriteBool(true)
+                    net.SendToServer()
+                end, "No", function()
+                end)
+                
+            end)
+
             menu:AddOption("Cancel")
             menu:Open()
         end

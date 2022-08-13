@@ -85,6 +85,25 @@ function meta:dropItem(slot, amount)
     end
 end
 
+function meta:giftItem(slot, target)
+    if (target == self) then
+        DarkRP.notify(self, 1, 5, "You cannot gift items to yourself!")
+        return
+    end
+
+    local item = self:getInventory()[slot]
+    if not item then
+        DarkRP.notify(self, 1, 5, "You do not have this item!")
+        return
+    end
+
+    local itemRef = NebulaInv.Items[item.id]
+    self:takeItem(slot, 1)
+    target:giveItem(item.id, 1, item.data)
+
+    hook.Run("onUnboxGift", self, target, item.id)
+end
+
 function meta:takeItem(slot, am)
     if (isstring(slot)) then
         for k, v in pairs(self:getInventory()) do
@@ -99,6 +118,10 @@ function meta:takeItem(slot, am)
     end
     local item = self:getInventory()[slot]
     if not item then return false end
+
+    if (am == -1) then
+        am = item.am
+    end
     item.am = (item.am or 1) - am
 
     self:syncInvSlot(slot)
