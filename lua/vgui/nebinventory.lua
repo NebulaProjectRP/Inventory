@@ -235,9 +235,25 @@ function PANEL:PopulateItems()
             menu:AddOption("Gift Item", function()
                 local selector = PlayerSelector()
                 selector.OnSelect = function(s, ply)
+                    if (v.am > 1) then
+                        Derma_StringRequest("Gift", "How many do you want to send", "1", function(text)
+                            local amount = tonumber(text)
+                            if (amount and amount > 0 and amount <= v.am) then
+                                net.Start("Nebula.Inv:GiftItem")
+                                net.WriteUInt(v.slot, 16)
+                                net.WriteEntity(ply)
+                                net.WriteUInt(amount, 16)
+                                net.SendToServer()
+                            else
+                                Derma_Message("Invalid amount.", "Error", "OK")
+                            end
+                        end)
+                        return
+                    end
                     net.Start("Nebula.Inv:GiftItem")
                     net.WriteUInt(v.slot, 16)
                     net.WriteEntity(ply)
+                    net.WriteUInt(amount, 1)
                     net.SendToServer()
                 end
                 selector:Open()
@@ -255,15 +271,32 @@ function PANEL:PopulateItems()
             menu:AddSpacer()
 
             menu:AddOption("Delete Item", function()
+                
                 Derma_Query("Are you sure do you want to delete this item?", "Delete Item", "Yes", function()
                     net.Start("Nebula.Inv:DeleteItem")
                     net.WriteUInt(s.Slot, 16)
                     net.WriteBool(false)
                     net.SendToServer()
                 end, "Delete all", function()
+                    if (v.am > 1) then
+                        Derma_StringRequest("Delete amount", "How many do you want to delete", "1", function(text)
+                            local amount = tonumber(text)
+                            if (amount and amount > 0 and amount <= v.am) then
+                                net.Start("Nebula.Inv:DeleteItem")
+                                net.WriteUInt(s.Slot, 16)
+                                net.WriteBool(true)
+                                net.WriteUInt(amount, 16)
+                                net.SendToServer()
+                            else
+                                Derma_Message("Invalid amount.", "Error", "OK")
+                            end
+                        end)
+                        return
+                    end
                     net.Start("Nebula.Inv:DeleteItem")
                     net.WriteUInt(s.Slot, 16)
                     net.WriteBool(true)
+                    net.WriteUInt(0, 16)
                     net.SendToServer()
                 end, "No", function()
                 end)

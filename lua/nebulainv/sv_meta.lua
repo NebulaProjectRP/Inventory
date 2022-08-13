@@ -85,7 +85,7 @@ function meta:dropItem(slot, amount)
     end
 end
 
-function meta:giftItem(slot, target)
+function meta:giftItem(slot, target, amount)
     if (target == self) then
         DarkRP.notify(self, 1, 5, "You cannot gift items to yourself!")
         return
@@ -97,9 +97,13 @@ function meta:giftItem(slot, target)
         return
     end
 
-    local itemRef = NebulaInv.Items[item.id]
-    self:takeItem(slot, 1)
-    target:giveItem(item.id, 1, item.data)
+    if (item.am < amount) then
+        DarkRP.notify(self, 1, 5, "You do not have enough of this item!")
+        return
+    end
+
+    self:takeItem(slot, amount)
+    target:giveItem(item.id, amount, item.data)
 
     hook.Run("onUnboxGift", self, target, item.id)
 end
