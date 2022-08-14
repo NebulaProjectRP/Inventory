@@ -73,16 +73,26 @@ function NebulaInv.Trade:FinishTrade(ply)
     if session.Players[1]:GetNWBool("Trade.Ready", false) and session.Players[2]:GetNWBool("Trade.Ready", false) then
         session.Players[1]:SetNWBool("Trade.Ready", false)
         session.Players[2]:SetNWBool("Trade.Ready", false)
-        --MsgN("[TRADE] Writting logs for trade #" .. ply._tradeID)
 
-        --MsgN("Trade between: ", ply:Nick(), " (" .. ply:SteamID64() .. ") and " .. target:Nick() .. " (" .. target:SteamID64() .. ")")
+        for id = 1, 2 do
+            local buildList = {}
+
+            for k, v in pairs(session.Items[id]) do
+                table.insert(buildList, {k, v.am})
+            end
+
+            local could = session.Players[id]:takeItem(buildList)
+
+            if not could then
+                DarkRP.notify(session.Players[id], 1, 4, "An error occurred while resolving the trade, items won't be modified.")
+                break
+            end
+        end
+
         for id = 1, 2 do
             for k, v in pairs(session.Items[id]) do
                 local target = session.Players[id == 1 and 2 or 1]
-                session.Players[id]:takeItem(k, v.am)
                 target:giveItem(v.id, v.am, v.data)
-                MsgN("Giving " .. v.am .. "x " .. v.id .. " to " .. target:Nick())
-                --MsgN(target:Nick() .. "<" .. target:SteamID64() .. "> received ", k, v > 1 and "x" .. v or "")
             end
 
             local moneyAmount = session.Money[id]
@@ -93,7 +103,6 @@ function NebulaInv.Trade:FinishTrade(ply)
                 target:addMoney(moneyAmount)
             end
 
-            --MsgN(target:Nick() .. " got ", DarkRP.formatMoney(moneyAmount))
             local creditsAmount = session.Credits[id]
 
             if creditsAmount > 0 then
@@ -101,10 +110,8 @@ function NebulaInv.Trade:FinishTrade(ply)
                 session.Players[id]:addCredits(-creditsAmount)
                 target:addCredits(creditsAmount)
             end
-            --MsgN(target:Nick() .. " got ", creditsAmount, " Credits.")
         end
 
-        --MsgN("[TRADE] Log ended")
         local a, b = session.Players[1], session.Players[2]
         net.Start("NebulaInv.Trade:Finish")
         net.WriteInt(1, 4)

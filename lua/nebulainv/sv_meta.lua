@@ -109,6 +109,49 @@ function meta:giftItem(slot, target, amount)
 end
 
 function meta:takeItem(slot, am)
+
+    if (istable(slot)) then
+        local failed = false
+        for _, data in SortedPairs(slot) do
+            local temp = table.Copy(self:getInventory()[data[1]])
+            if not temp then
+                failed = true
+                break;
+            end
+
+            if (temp.am < data[2]) then
+                failed = true
+                break;
+            end
+            temp.am = (temp.am or 1) - data[2]
+            if (temp.am <= 0) then
+                self:getInventory()[data[1]].toDeletion = true
+            else
+                self:getInventory()[data[1]].am = temp.am
+            end
+        end
+
+        if (failed) then
+            return false
+        end
+
+        local found = true
+        while (found) do
+            found = false
+            for k, v in pairs(self:getInventory()) do
+                if (v.toDeletion) then
+                    table.remove(self:getInventory(), k)
+                    found = true
+                end
+            end
+        end
+
+        self:saveInventory(function()
+            self:ConCommand("neb_requestinv")
+        end)
+        return true
+    end
+
     if (isstring(slot)) then
         for k, v in pairs(self:getInventory()) do
             if (v.id == slot) then
@@ -293,8 +336,7 @@ function meta:saveDecal()
     end)
 end
 
-local function savePlayerInventory(ply)
-    local cleanTable = {}
+local function savePlayerInventory(ply, cb)
     MsgN("Saving inv?")
     local nick, sid = ply:Nick(), ply:SteamID64()
     NebulaDriver:MySQLUpdate("inventories", {
@@ -302,6 +344,9 @@ local function savePlayerInventory(ply)
         loadout = util.TableToJSON(ply._loadout or {})
     }, "steamid = " .. sid, function()
         MsgN("[INV] Saved inventory for " .. nick .. ":" .. sid)
+        if (cb) then
+            cb()
+        end
     end)
 end
 
@@ -337,11 +382,11 @@ hook.Add("canDropWeapon", "Nebula:NODropLoadout", function(ply, wep)
     end
 end)
 
-function meta:saveInventory()
+function meta:saveInventory(cb)
     local timerID = self:SteamID64() .. "_inventory_save"
-    timer.Create(timerID, 1, 1, function()
+    timer.Create(timerID, cb and 0 or 1, 1, function()
         if not IsValid(self) then return end
-        savePlayerInventory(self)
+        savePlayerInventory(self, cb)
     end)
 end
 
