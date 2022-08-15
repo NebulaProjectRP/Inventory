@@ -353,11 +353,14 @@ end
 hook.Add("PlayerDisconnected", "NebulaSaveItems", savePlayerInventory)
 
 hook.Add("PlayerDeath", "Nebula:RemoveWeapons", function(ply)
+    if (ply.hasFool) then
+        ply.hasFool = nil
+        return
+    end
     for k, v in pairs(ply._loadout) do
         if (string.StartWith(k, "weapon")) then
-            MsgN("Removing weapon: ", k)
             local item = NebulaInv.Items[v.id]
-            if (item.rarity >= 6) then MsgN("CLean weapon") continue end
+            if (item.rarity >= 6) then continue end
             ply._loadout[k] = nil
         end
     end
