@@ -171,20 +171,10 @@ NebulaInv:RegisterItem('weapon', 'tfa_cso_vulcanus3', {
 	rarity = 1,
 	icon = 'entities/tfa_cso_vulcanus3.png'
 })
-NebulaInv:RegisterItem('weapon', 'tfa_cso_vulcanus1_b', {
-	classname = 'tfa_cso_vulcanus1_b',
-	rarity = 1,
-	icon = 'entities/tfa_cso_vulcanus1_b.png'
-})
 NebulaInv:RegisterItem('weapon', 'tfa_cso_vulcanus11', {
 	classname = 'tfa_cso_vulcanus11',
 	rarity = 1,
 	icon = 'entities/tfa_cso_vulcanus11.png'
-})
-NebulaInv:RegisterItem('weapon', 'tfa_cso_vulcanus1_a', {
-	classname = 'tfa_cso_vulcanus1_a',
-	rarity = 1,
-	icon = 'entities/tfa_cso_vulcanus1_a.png'
 })
 NebulaInv:RegisterItem('weapon', 'tfa_cso_vulcanus5', {
 	classname = 'tfa_cso_vulcanus5',

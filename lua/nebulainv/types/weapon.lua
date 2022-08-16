@@ -282,7 +282,7 @@ end
 function DEF:Build(data, id)
     local wep = weapons.GetStored(data.classname)
     if not wep then
-        MsgN("Nebula: Weapon " .. data.classname .. " not found!")
+        MsgN("[Nebula] Weapon " .. data.classname .. " not found!")
         return
     end
     local item = table.Copy(data)

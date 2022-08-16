@@ -116,7 +116,7 @@ function NebulaInv:RegisterItem(class, id, data)
     end)
 end
 
-MsgC(Color(100, 100, 255), "[Nebula]",color_white, "Loading Type!\n", Color(100, 100, 100))
+MsgC(Color(100, 100, 255), "[Nebula] ",color_white, "Loading Type!\n", Color(100, 100, 100))
 for k, v in pairs(file.Find("nebulainv/types/*.lua", "LUA")) do
     if SERVER then
         AddCSLuaFile("nebulainv/types/" .. v)
@@ -124,7 +124,7 @@ for k, v in pairs(file.Find("nebulainv/types/*.lua", "LUA")) do
     include("nebulainv/types/" .. v)
     MsgC("\tRegistering " .. string.sub(v, 1, #v - 4) .. "...\n")
 end
-MsgC(Color(100, 100, 255), "[Nebula]",color_white, "Finished loading Items Types!\n")
+MsgC(Color(100, 100, 255), "[Nebula] ",color_white, "Finished loading Items Types!\n")
 
 
 for k, v in pairs(file.Find("nebulainv/items/*.lua", "LUA")) do
@@ -141,7 +141,7 @@ if SERVER then return end
 
 function NebulaInv:LoadItems()
 
-    MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading player items...\n")
+    MsgC(Color(100, 200, 50), "[Nebula] ",color_white, "Downloading player items...\n")
     MsgN("players/" .. LocalPlayer():SteamID64())
     http.Fetch(NebulaAPI.HOST .. "players/" .. LocalPlayer():SteamID64(), function(dt)
         MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Finished downloading items!\n")
@@ -157,7 +157,7 @@ function NebulaInv:LoadItems()
     end)
     /*
     --Items definitions are not longer needed
-    MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Downloading items database...\n")
+    MsgC(Color(100, 200, 50), "[Nebula] ",color_white, "Downloading items database...\n")
     http.Fetch(NebulaAPI.HOST .. "items", function(data)
         NebulaInv.Items = util.JSONToTable(data)
         for k, v in pairs(NebulaInv.Items) do
