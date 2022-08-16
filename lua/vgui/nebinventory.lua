@@ -233,7 +233,7 @@ function PANEL:PopulateItems()
                     net.Start("Nebula.Inv:GiftItem")
                     net.WriteUInt(v.slot, 16)
                     net.WriteEntity(ply)
-                    net.WriteUInt(amount, 1)
+                    net.WriteUInt(1, 16)
                     net.SendToServer()
                 end
 

@@ -114,11 +114,12 @@ function PANEL:GenerateDummy()
     local offset = 8
     local samples = 64
     local randomItems = {}
+    local tries = 0
     for k = 1, samples do
         local chances, id = table.Random(self.Items)
-        if not NebulaInv.Items[id] then
-            MsgN(id)
-            continue
+        while (tries < 1000 and not NebulaInv.Items[id]) do
+            chances, id = table.Random(self.Items)
+            tries = tries + 1
         end
         table.insert(randomItems, {chances, NebulaInv.Items[id]})
     end

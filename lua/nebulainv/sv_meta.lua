@@ -97,6 +97,8 @@ function meta:giftItem(slot, target, amount)
         return
     end
 
+    amount = math.Clamp(amount, 1, item.am)
+
     if (item.am < amount) then
         DarkRP.notify(self, 1, 5, "You do not have enough of this item!")
         return
@@ -337,7 +339,6 @@ function meta:saveDecal()
 end
 
 local function savePlayerInventory(ply, cb)
-    MsgN("Saving inv?")
     local nick, sid = ply:Nick(), ply:SteamID64()
     NebulaDriver:MySQLUpdate("inventories", {
         items = util.TableToJSON(ply._inventory),
