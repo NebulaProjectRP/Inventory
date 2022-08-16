@@ -300,6 +300,14 @@ if CLIENT then
         local val = net.ReadFloat()
 
         local function insertMutator(wep, slot, val)
+
+            if not IsValid(LocalPlayer()) or not LocalPlayer().GetWeapon then
+                timer.Simple(1, function()
+                    insertMutator(wep, slot, val)
+                end)
+                return
+            end
+            
             local wep_ent = LocalPlayer():GetWeapon(wep)
             if not IsValid(wep_ent) then
                 timer.Simple(0.1, function()
