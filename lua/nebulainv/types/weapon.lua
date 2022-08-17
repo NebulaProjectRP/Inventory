@@ -158,6 +158,7 @@ NebulaInv.Mutators = {
         Resolve = function(mut, wep, level)
             hook.Add("EntityTakeDamage", wep, function(w, ent, dmg)
                 if (dmg:GetInflictor() != w) then return end
+                if (not ent:IsPlayer()) then return end
                 local dice = math.Rand(0, 1)
                 if dice <= mut.Levels[level] then
                     ent:EmitSound("suits/shield_spawn.mp3")
@@ -201,6 +202,7 @@ NebulaInv.Mutators = {
         Resolve = function(mut, wep, level)
             hook.Add("EntityTakeDamage", wep, function(w, ent, dmg)
                 if (dmg:GetInflictor() != w) then return end
+                if (not ent:IsPlayer()) then return end
                 local dice = math.Rand(0, 1)
                 if dice <= mut.Levels[level] then
                     ent:addBuff("weed", 1)
@@ -219,6 +221,7 @@ NebulaInv.Mutators = {
         Resolve = function(mut, wep, level)
             hook.Add("EntityTakeDamage", wep, function(w, ent, dmg)
                 if (dmg:GetInflictor() != w) then return end
+                if (not ent:IsPlayer()) then return end
                 local dice = math.Rand(0, 1)
                 if dice <= mut.Levels[level] then
                     ent:addBuff("ignite", 1, w:GetOwner())
@@ -237,6 +240,7 @@ NebulaInv.Mutators = {
         Resolve = function(mut, wep, level)
             hook.Add("EntityTakeDamage", wep, function(w, ent, dmg)
                 if (dmg:GetInflictor() != w) then return end
+                if (not ent:IsPlayer()) then return end
                 local dice = math.Rand(0, 1)
                 if dice <= mut.Levels[level] then
                     ent:addBuff("ice", 1, w:GetOwner())
@@ -255,7 +259,6 @@ function DEF:Generate(id, last)
 
     local weapon = last or {}
     local dice = math.Round(random.Number(0, 50))
-    MsgN(dice)
     if (dice < 15) then
         return weapon
     end
