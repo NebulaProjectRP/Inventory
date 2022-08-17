@@ -230,6 +230,7 @@ function DEF:Generate(id, last)
 
     local weapon = last or {}
     local dice = math.Round(random.Number(0, 50))
+    MsgN(dice)
     if (dice < 15) then
         return weapon
     end

@@ -1,6 +1,7 @@
+util.AddNetworkString("NebulaRP.StoreBuy")
 
-concommand.Add("nebula_buy", function(ply, cmd, args)
-    local kind = tonumber(args[1])
+net.Receive("NebulaRP.StoreBuy", function(l, ply)
+    local kind = net.ReadUInt(3)
     local store = NebulaStore
     if (kind == 1) then
         if (not store.SeasonPass.enabled) then
@@ -10,14 +11,16 @@ concommand.Add("nebula_buy", function(ply, cmd, args)
         if (ply:getCredits() >= store.SeasonPass.credits) then
         end
     elseif (kind == 2) then
-        local id = args[2]
+        local id = net.ReadUInt(8)
         if (store.QueueItems[id] and ply:getCredits() >= store.QueueItems[id].credits) then
-            ply:giveItem(store.QueueItems[id].itemID, 1)
+            local data = NebulaInv.Types.weapon:Generate(store.QueueItems[id].itemID)
+            PrintTable(data)
+            ply:giveItem(store.QueueItems[id].itemID, 1, data)
             ply:addCredits(-store.QueueItems[id].credits, "Item store purchase")
         end
     elseif (kind == 3) then
-        local category = args[2]
-        local itemid = tonumber(args[3])
+        local category = net.ReadUInt(8)
+        local itemid = net.ReadUInt(8)
         local item = store.Shop[category].Items[itemid]
         if not item then return end
         if (item.credits and ply:getCredits() >= item.credits or ply:canAfford(item.money)) then
