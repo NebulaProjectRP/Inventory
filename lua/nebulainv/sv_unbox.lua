@@ -54,7 +54,6 @@ function NebulaInv:Unbox(ply, case_id)
     local data = {}
     if (ref.type == "weapon") then
         data = NebulaInv.Types.weapon:Generate(winner)
-        PrintTable(data)
     end
     local could = ply:addItem(winner, 1, data)
     if (not could) then
