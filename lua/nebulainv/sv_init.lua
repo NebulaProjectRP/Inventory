@@ -15,6 +15,7 @@ util.AddNetworkString("Nebula.Inv:OpenCase")
 util.AddNetworkString("Nebula.Inv:DropItem")
 util.AddNetworkString("Nebula.Inv:RemoveEquipment")
 util.AddNetworkString("Nebula.Inv:RemoveSlot")
+util.AddNetworkString("NebulaInv:SendMoney")
 
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
@@ -236,4 +237,17 @@ net.Receive("Nebula.Inv:OpenCase", function(l, ply)
     if (winner) then
         ply:takeItem(slot, 1)
     end
+end)
+
+net.Receive("NebulaInv:SendMoney", function(l, ply)
+    local target = net.ReadEntity()
+    local amount = net.ReadUInt(32)
+
+    if (ply == target) then return end
+    if (not ply:canAfford(amount)) then return end
+
+    ply:addMoney(-amount)
+    target:addMoney(amount)
+
+    hook.Run("playerGaveMoney", ply, target, amount)
 end)
