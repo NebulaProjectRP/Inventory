@@ -65,6 +65,10 @@ local grab = {
     ["!refund"] = true,
     ["!invholster"] = true,
     ["!holster"] = true,
+    ["/refundweapons"] = true,
+    ["/refund"] = true,
+    ["/invholster"] = true,
+    ["/holster"] = true,
 }
 
 hook.Add("PlayerSay", "NebulaRP.HolsterSwep", function(ply, text)
@@ -74,6 +78,8 @@ hook.Add("PlayerSay", "NebulaRP.HolsterSwep", function(ply, text)
             ply:giveItem(v.ItemData.id, 1, v.ItemData.data)
             ply:StripWeapon(v:GetClass())
         end
+
+        return ""
     end
 end)
 
