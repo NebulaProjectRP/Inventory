@@ -12,6 +12,8 @@ concommand.Add("nebula_buy", function(ply, cmd, args)
     elseif (kind == 2) then
         local id = args[2]
         if (store.QueueItems[id] and ply:getCredits() >= store.QueueItems[id].credits) then
+            ply:giveItem(store.QueueItems[id].itemID, 1)
+            ply:addCredits(-store.QueueItems[id].credits, "Item store purchase")
         end
     elseif (kind == 3) then
         local category = args[2]
