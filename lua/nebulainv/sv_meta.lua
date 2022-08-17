@@ -371,6 +371,7 @@ hook.Add("PlayerDeath", "Nebula:RemoveWeapons", function(ply)
 end)
 
 hook.Add("canDropWeapon", "Nebula:NODropLoadout", function(ply, wep)
+    if not IsValid(wep) then return end
     local class = wep:GetClass()
     local disallow = false
     for k, v in pairs(ply._loadout) do
