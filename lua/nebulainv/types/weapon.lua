@@ -10,9 +10,14 @@ function DEF:ProcessWeapon(wep, data, ply, slot)
         wep.InvSlot = slot
     end
 
+    if (data.data.lives) then
+        wep.livesRemaining = data.data.lives
+    end
+
     if not wep.IsTFA then return end
     for k, v in pairs(data.data) do
         if (k == "kills") then continue end
+        if (k == "lives") then continue end
         NebulaInv.Mutators[k]:Resolve(wep, v, ply)
     end
 end
@@ -255,6 +260,21 @@ NebulaInv.Mutators = {
                 end
             end)
         end
+    },
+    ["lives"] = {
+        Name = "Sould-Bonded",
+        Levels = {3, 5, 7, 10, 15},
+        Color = Color(196, 76, 186),
+        Description = "You can die # times with this gun and recover it",
+        Display = function(mut, level)
+            return string.Replace(mut.Description, "#", level)
+        end,
+        SetValue = function(mut, level)
+            return mut.Levels[level]
+        end,
+        Resolve = function(mut, wep, level)
+            wep.livesRemaining = mut.Levels[level]
+        end
     }
 }
 
@@ -266,7 +286,7 @@ function DEF:Generate(id, last)
     end
 
     local weapon = last or {}
-    local dice = math.Round(random.Number(0, 50))
+    local dice = math.Round(random.Number(0, 65))
     if (dice < 15) then
         return weapon
     end
@@ -280,7 +300,7 @@ function DEF:Generate(id, last)
             while (math.random(1, 100) < 30 and level < 5) do
                 level = level + 1
             end
-            weapon[k] = level
+            weapon[k] = v.SetValue and v:SetValue(level) or level
             found = true
             break
         end

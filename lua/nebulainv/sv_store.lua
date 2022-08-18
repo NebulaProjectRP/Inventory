@@ -14,6 +14,7 @@ net.Receive("NebulaRP.StoreBuy", function(l, ply)
         local id = net.ReadUInt(8)
         if (store.QueueItems[id] and ply:getCredits() >= store.QueueItems[id].credits) then
             local data = NebulaInv.Types.weapon:Generate(store.QueueItems[id].itemID)
+            data.lives = NebulaInv.Mutators["lives"]:SetValue(math.random(1, 5))
             ply:giveItem(store.QueueItems[id].itemID, 1, data)
             ply:addCredits(-store.QueueItems[id].credits, "Item store purchase")
         end

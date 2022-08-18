@@ -389,13 +389,26 @@ hook.Add("PlayerDeath", "Nebula:RemoveWeapons", function(ply)
     for k, v in pairs(ply._loadout) do
         if string.StartWith(k, "weapon") then
             local item = NebulaInv.Items[v.id]
+            local wep = ply:GetWeapon(item.class)
+            if (wep.livesRemaining and wep.livesRemaining > 1) then
+                wep.livesRemaining = wep.livesRemaining - 1
+                ply._loadout[k].data.lives = wep.livesRemaining
+
+                local send = "NebulaInv.Loadout['" .. k .. "'].data.lives = " .. wep.livesRemaining
+                ply:SendLua(send)
+                continue
+            end
             if item.rarity >= 6 then continue end
             ply._loadout[k] = nil
+            net.Start("Nebula.Inv:RemoveEquipment")
+            net.WriteString(k)
+            net.Send(ply)
         end
     end
 
-    net.Start("Nebula.Inv:RemoveEquipment")
-    net.Send(ply)
+    if (not table.IsEmpty(ply._loadout)) then
+        ply:networkLoadout()
+    end
 end)
 
 hook.Add("canDropWeapon", "Nebula:NODropLoadout", function(ply, wep)
@@ -416,6 +429,14 @@ hook.Add("canDropWeapon", "Nebula:NODropLoadout", function(ply, wep)
 
         return false
     end
+end)
+
+hook.Add("PlayerSpawn", "NebulaReturnWeapons", function(ply)
+    if (not ply._loadout or table.IsEmpty(ply._loadout)) then
+        return
+    end
+
+    ply:networkLoadout()
 end)
 
 function meta:saveInventory(cb)
