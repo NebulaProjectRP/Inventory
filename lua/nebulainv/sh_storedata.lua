@@ -9,7 +9,7 @@ NebulaStore.SeasonPass = {
     endsAt = os.time() + 3600 * 24 * 31
 }
 
-NebulaStore.QueueItems = {
+NebulaStore.VaultItems = {
     [1] = {
         itemID = "weapon_paladin_1",
         credits = 150,

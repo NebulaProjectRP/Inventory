@@ -12,11 +12,11 @@ net.Receive("NebulaRP.StoreBuy", function(l, ply)
         end
     elseif (kind == 2) then
         local id = net.ReadUInt(8)
-        if (store.QueueItems[id] and ply:getCredits() >= store.QueueItems[id].credits) then
-            local data = NebulaInv.Types.weapon:Generate(store.QueueItems[id].itemID)
+        if (store.VaultItems[id] and ply:getCredits() >= store.VaultItems[id].credits) then
+            local data = NebulaInv.Types.weapon:Generate(store.VaultItems[id].itemID)
             data.lives = NebulaInv.Mutators["lives"]:SetValue(math.random(1, 5))
-            ply:giveItem(store.QueueItems[id].itemID, 1, data)
-            ply:addCredits(-store.QueueItems[id].credits, "VAULT Purchase")
+            ply:giveItem(store.VaultItems[id].itemID, 1, data)
+            ply:addCredits(-store.VaultItems[id].credits, "VAULT Purchase")
         end
     elseif (kind == 3) then
         local category = net.ReadUInt(8)

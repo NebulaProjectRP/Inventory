@@ -196,7 +196,7 @@ function PANEL:InitSeason()
     for y = 1, 2 do
         for x = 1, 2 do
             local index = (y - 1) * 2 + x
-            local itemData = NebulaStore.QueueItems[index]
+            local itemData = NebulaStore.VaultItems[index]
             if not itemData then
                 continue
             end
@@ -223,7 +223,7 @@ function PANEL:InitSeason()
                 end, "Cancel")
             end
             item.Buy.PaintOver = function(s, w, h)
-                local tx, _ = draw.SimpleText(NebulaStore.QueueItems[index].credits, NebulaUI:Font(24), w / 2 + 16, h / 2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                local tx, _ = draw.SimpleText(NebulaStore.VaultItems[index].credits, NebulaUI:Font(24), w / 2 + 16, h / 2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                 surface.SetMaterial(nebux)
                 surface.SetDrawColor(color_white)
                 surface.DrawTexturedRect(w / 2 - tx / 2 - 14, h / 2 - 12, 24, 24)
