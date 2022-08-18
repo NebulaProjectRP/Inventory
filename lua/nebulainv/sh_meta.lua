@@ -7,9 +7,9 @@ NebulaInv = NebulaInv or {
 
 NebulaInv.Rarities = {
     [1] = Color(148, 182, 190),
-    [2] = Color(51, 102, 214),
-    [3] = Color(164, 55, 207),
-    [4] = Color(95, 212, 59),
+    [2] = Color(95, 212, 59),
+    [3] = Color(51, 102, 214),
+    [4] = Color(164, 55, 207),
     [5] = Color(218, 49, 105),
     [6] = Color(251, 255, 43),
 }
