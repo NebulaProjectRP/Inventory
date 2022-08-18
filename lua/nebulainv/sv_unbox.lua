@@ -14,7 +14,7 @@ function NebulaInv:Unbox(ply, case_id)
 
     local case = self.Items[case_id].items
     if not case then
-        MsgN("[NebulaInv] Case has not been configurated: " .. case_id)
+        MsgN("[Nebula] Case has not been configurated: " .. case_id)
         return false
     end
 
@@ -101,10 +101,10 @@ concommand.Add("nebula_unbox_benchmark", function(ply, cmd, args)
 
     runBenchmark(0)
     local gained = 0
-    MsgN("[NebulaInv] Execution time for x" .. steps .. " unboxes: " .. (SysTime() - now))
-    MsgN("[NebulaInv] Average random number: " .. math.Round(promedio) .. " (%" .. math.Round(100 * (promedio / maxr), 2) .. ")")
-    MsgN("[NebulaInv] Max Items: " .. maxr)
-    MsgN("[NebulaInv] Chances: ")
+    MsgN("[Nebula] Execution time for x" .. steps .. " unboxes: " .. (SysTime() - now))
+    MsgN("[Nebula] Average random number: " .. math.Round(promedio) .. " (%" .. math.Round(100 * (promedio / maxr), 2) .. ")")
+    MsgN("[Nebula] Max Items: " .. maxr)
+    MsgN("[Nebula] Chances: ")
     for k, v in pairs(chances) do
         MsgN("[" .. k .. "]=>\t" .. (100 * math.Round(v / steps, 2)) .. "%\t=> " .. v)
         gained = gained + v
@@ -115,16 +115,16 @@ concommand.Add("nebula_unbox_benchmark", function(ply, cmd, args)
         local luck = args[1] or 50
         
         MsgN("\n")
-        MsgN("[NebulaInv] Execution time for x" .. steps .. " unboxes: " .. (SysTime() - now))
-        MsgN("[NebulaInv] Chances with %" .. luck .. " luck:")
+        MsgN("[Nebula] Execution time for x" .. steps .. " unboxes: " .. (SysTime() - now))
+        MsgN("[Nebula] Chances with %" .. luck .. " luck:")
         runBenchmark(luck)
         for k, v in pairs(chances) do
             MsgN("[" .. k .. "]=>\t" .. (100 * math.Round(v / steps, 2)) .. "%\t=> " .. v)
         end
         MsgN("[X]=>\t" .. (fails .. " fails"))
         MsgN("\n")
-        MsgN("[NebulaInv] Execution time for x" .. steps .. " unboxes: " .. (SysTime() - now))
-        MsgN("[NebulaInv] Chances with -%" .. luck .. " luck:")
+        MsgN("[Nebula] Execution time for x" .. steps .. " unboxes: " .. (SysTime() - now))
+        MsgN("[Nebula] Chances with -%" .. luck .. " luck:")
         runBenchmark(-luck)
         for k, v in pairs(chances) do
             MsgN("[" .. k .. "]=>\t" .. (100 * math.Round(v / steps, 2)) .. "%\t=> " .. v)

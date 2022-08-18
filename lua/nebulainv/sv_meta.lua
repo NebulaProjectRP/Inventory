@@ -3,7 +3,7 @@ local meta = FindMetaTable("Player")
 
 function meta:giveItem(id, am, fields)
     if not NebulaInv.Items[id] then
-        MsgN("[NebulaInv] Item " .. id .. " does not exist!")
+        MsgN("[Nebula] Item " .. id .. " does not exist!")
 
         return false
     end
@@ -446,15 +446,5 @@ function meta:saveInventory(cb)
     timer.Create(timerID, cb and 0 or 1, 1, function()
         if not IsValid(self) then return end
         savePlayerInventory(self, cb)
-    end)
-end
-
-if lan:GetBool() then
-    concommand.Add("neb_giveall", function(ply, cmd, args)
-        local target = p(1)
-
-        for id, data in pairs(NebulaInv.Items) do
-            target:giveItem(id, 1)
-        end
     end)
 end

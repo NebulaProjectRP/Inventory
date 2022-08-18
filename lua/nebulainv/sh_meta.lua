@@ -105,7 +105,7 @@ function NebulaInv:RegisterItem(class, id, data)
     timer.Simple(1, function()
         local temp = def:Build(data, id)
         if not temp then
-            MsgN("failed to create item " .. name_id)
+            MsgN("[Nebula] Failed to create item " .. name_id)
             return
         end
         temp.type = class
@@ -142,7 +142,6 @@ end
 if SERVER then return end
 
 function NebulaInv:LoadItems()
-
     MsgC(Color(100, 200, 50), "[Nebula] ",color_white, "Downloading player items...\n")
     MsgN("players/" .. LocalPlayer():SteamID64())
     http.Fetch(NebulaAPI.HOST .. "players/" .. LocalPlayer():SteamID64(), function(dt)

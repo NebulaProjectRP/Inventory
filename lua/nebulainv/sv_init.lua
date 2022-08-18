@@ -254,3 +254,33 @@ net.Receive("NebulaInv:SendMoney", function(l, ply)
 
     hook.Run("playerGaveMoney", ply, target, amount)
 end)
+
+// Concommands
+
+if lan:GetBool() then
+    concommand.Add("neb_giveall", function(ply, cmd, args)
+        local target = p(1)
+
+        for id, data in pairs(NebulaInv.Items) do
+            target:giveItem(id, 1)
+        end
+    end)
+end
+
+concommand.Add("neb_giveitem", function(ply, cmd, args)
+    if IsValid(ply) then return end
+
+    local target = player.GetBySteamID64(args[1])
+
+    if not IsValid(target) then return end
+    
+    local id = args[2]
+    local am = tonumber(args[3])
+    
+    if not (id or am) then return end
+
+    if NebulaInv.Items[id] then
+        target:giveItem(id, am)
+        MsgN("[Nebula] " .. target:SteamID64() .. " has been given " .. am .. " " .. id .. ".")
+    end
+end, nil, "Usage: neb_giveitem <steamid64> <id> <amount>")
