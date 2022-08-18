@@ -59,15 +59,18 @@ end
 
 function DEF:OnUse(ply, ref, id, item)
     local wep = ply:Give(ref.class)
-    if (ref.rarity != 6) then
+
+    if ref.rarity != 6 then
         wep.ItemData = item
     end
-    if (not table.IsEmpty(item.data)) then
+
+    if not table.IsEmpty(item.data) then
         self:ProcessWeapon(wep, item, ply)
     end
 
     wep.cannotDrop = true
-    if (ref.rarity == 6) then
+
+    if ref.rarity == 6 then
         return false
     end
 
