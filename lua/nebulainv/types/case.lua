@@ -74,7 +74,6 @@ function DEF:CreateEditor(panel, container, data)
     end
 end
 
-local definition = ""
 function DEF:Build(data, id)
     local items = data.items
     if (data.generate) then
