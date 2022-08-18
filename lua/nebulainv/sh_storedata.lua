@@ -20,7 +20,7 @@ NebulaStore.VaultItems = {
     },
     [3] = {
         itemID = "weapon_paladin_3",
-        credits = 500,
+        credits = 1000,
     },
     [4] = {
         itemID = "weapon_diver_1",
