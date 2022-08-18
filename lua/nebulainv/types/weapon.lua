@@ -10,7 +10,7 @@ function DEF:ProcessWeapon(wep, data, ply, slot)
         wep.InvSlot = slot
     end
 
-    if !wep.IsTFA then return end
+    if not wep.IsTFA then return end
     for k, v in pairs(data.data) do
         if (k == "kills") then continue end
         NebulaInv.Mutators[k]:Resolve(wep, v, ply)
@@ -44,6 +44,7 @@ end)
 
 function DEF:OnEquip(ply, ref, id, item, slot)
     local wep = ply:Give(ref.class)
+    //wep.ItemData = item
     if (not table.IsEmpty(item.data)) then
         self:ProcessWeapon(wep, item, ply, slot)
     end
@@ -52,11 +53,35 @@ end
 
 function DEF:OnUse(ply, ref, id, item)
     local wep = ply:Give(ref.class)
+    wep.ItemData = item
     if (not table.IsEmpty(item.data)) then
         self:ProcessWeapon(wep, item, ply)
     end
     return true
 end
+
+local grab = {
+    ["!refundweapons"] = true,
+    ["!refund"] = true,
+    ["!invholster"] = true,
+    ["!holster"] = true,
+    ["/refundweapons"] = true,
+    ["/refund"] = true,
+    ["/invholster"] = true,
+    ["/holster"] = true,
+}
+
+hook.Add("PlayerSay", "NebulaRP.HolsterSwep", function(ply, text)
+    if (grab[text]) then
+        for k, v in ipairs(ply:GetWeapons()) do
+            if (not v.ItemData) then continue end
+            ply:giveItem(v.ItemData.id, 1, v.ItemData.data)
+            ply:StripWeapon(v:GetClass())
+        end
+
+        return ""
+    end
+end)
 
 function DEF:OpenMenu(menu, item, slot)
     local ref = NebulaInv.Items[item.id]
@@ -133,6 +158,7 @@ NebulaInv.Mutators = {
         Resolve = function(mut, wep, level)
             hook.Add("EntityTakeDamage", wep, function(w, ent, dmg)
                 if (dmg:GetInflictor() != w) then return end
+                if (not ent:IsPlayer()) then return end
                 local dice = math.Rand(0, 1)
                 if dice <= mut.Levels[level] then
                     ent:EmitSound("suits/shield_spawn.mp3")
@@ -176,6 +202,7 @@ NebulaInv.Mutators = {
         Resolve = function(mut, wep, level)
             hook.Add("EntityTakeDamage", wep, function(w, ent, dmg)
                 if (dmg:GetInflictor() != w) then return end
+                if (not ent:IsPlayer()) then return end
                 local dice = math.Rand(0, 1)
                 if dice <= mut.Levels[level] then
                     ent:addBuff("weed", 1)
@@ -194,6 +221,7 @@ NebulaInv.Mutators = {
         Resolve = function(mut, wep, level)
             hook.Add("EntityTakeDamage", wep, function(w, ent, dmg)
                 if (dmg:GetInflictor() != w) then return end
+                if (not ent:IsPlayer()) then return end
                 local dice = math.Rand(0, 1)
                 if dice <= mut.Levels[level] then
                     ent:addBuff("ignite", 1, w:GetOwner())
@@ -212,6 +240,7 @@ NebulaInv.Mutators = {
         Resolve = function(mut, wep, level)
             hook.Add("EntityTakeDamage", wep, function(w, ent, dmg)
                 if (dmg:GetInflictor() != w) then return end
+                if (not ent:IsPlayer()) then return end
                 local dice = math.Rand(0, 1)
                 if dice <= mut.Levels[level] then
                     ent:addBuff("ice", 1, w:GetOwner())

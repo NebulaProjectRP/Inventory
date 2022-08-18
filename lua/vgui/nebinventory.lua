@@ -15,11 +15,11 @@ local ShowMode = {
 }
 
 local SortModes = {
-    ["None"] = function(a, b) return a.id < b.id end,
-    ["Name"] = function(a, b) return a.name < b.name end,
-    ["Type"] = function(a, b) return a.type < b.type end,
-    ["Rarity"] = function(a, b) return a.rarity > b.rarity end,
-    ["Amount"] = function(a, b, c, d) return c == d and a.name < b.name or c.am > d.am end,
+    ["None"] = function(a, b) return ((a or {}).id or "") < ((b or {}).id or "") end,
+    ["Name"] = function(a, b) return ((a or {}).name or "") < ((b or {}).name or "") end,
+    ["Type"] = function(a, b) return ((a or {}).type or "") < ((b or {}).type or "") end,
+    ["Rarity"] = function(a, b) return ((a or {}).rarity or 1) > ((b or {}).rarity or 1) end,
+    ["Amount"] = function(a, b, c, d) return c == d and ((a or {}).name or "") < ((b or {}).name or "") or ((c or {}).am or 0) > ((d or {}).am or 0) end,
 }
 
 PANEL.Slots = {}
@@ -183,7 +183,8 @@ function PANEL:PopulateItems()
     end
 
     if orderBy then
-        table.sort(invData, function(a, b) return orderBy(NebulaInv.Items[a.id], NebulaInv.Items[b.id], a, b) end)
+        PrintTable(invData)
+        table.sort(invData, function(a, b) return orderBy(NebulaInv.Items[(a or {}).id or ""], NebulaInv.Items[(b or {}).id or ""], a, b) end)
     end
 
     for k, v in pairs(invData) do

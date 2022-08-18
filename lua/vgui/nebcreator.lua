@@ -205,7 +205,7 @@ function PANEL:SendItem()
             return
         end    
     end
-
+    /*
     net.Start("Nebula.Inv:CreateItem")
     net.WriteBool(self.IsEditing)
     net.WriteUInt(self.ItemID or 0, 32)
@@ -216,6 +216,7 @@ function PANEL:SendItem()
     net.WriteString(class)
     net.WriteTable(self.ExtraData)
     net.SendToServer()
+    */
 end
 
 function PANEL:AddLabel(name)
@@ -230,5 +231,6 @@ end
 vgui.Register("nebula.inventory.creator", PANEL, "nebula.frame")
 
 concommand.Add("nebula_itemcreator", function()
+    if not ply:IsSuperAdmin() then return end
     vgui.Create("nebula.inventory.creator")
 end)
