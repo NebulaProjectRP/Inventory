@@ -1,3 +1,5 @@
+-- Rarity 1
+
 NebulaInv:RegisterItem("case", "puresteel", {
     rarity = 1,
     imgur = "1l7ulVp",
@@ -16,6 +18,8 @@ NebulaInv:RegisterItem("case", "puresteel", {
     }
 })
 
+-- Rarity 2
+
 NebulaInv:RegisterItem("case", "nades", {
     rarity = 2,
     imgur = "yzQ5kYE",
@@ -30,6 +34,8 @@ NebulaInv:RegisterItem("case", "nades", {
         ["weapon_tfa_cso_fragnade"] = 20,
     }
 })
+
+-- Rarity 3
 
 NebulaInv:RegisterItem("case", "red_woopie", {
     rarity = 3,
@@ -62,6 +68,8 @@ NebulaInv:RegisterItem("case", "green_lego", {
     }
 })
 
+-- Rarity 4
+
 NebulaInv:RegisterItem("case", "dual", {
     rarity = 4,
     imgur = "dkKVhtk",
@@ -78,6 +86,8 @@ NebulaInv:RegisterItem("case", "dual", {
     }
 })
 
+-- Rarity 5
+
 NebulaInv:RegisterItem("case", "vulcan", {
     rarity = 5,
     imgur = "yzVzyRg",
@@ -91,3 +101,5 @@ NebulaInv:RegisterItem("case", "vulcan", {
         ["weapon_tfa_cso_vulcanus7"] = 2,
     }
 })
+
+-- Rarity 6 (CASES CAN'T BE PERM!)

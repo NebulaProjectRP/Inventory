@@ -20,7 +20,7 @@ NebulaStore.QueueItems = {
     },
     [3] = {
         itemID = "weapon_paladin_3",
-        credits = 200,
+        credits = 500,
     },
     [4] = {
         itemID = "weapon_diver_1",

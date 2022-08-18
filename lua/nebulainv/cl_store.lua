@@ -84,7 +84,7 @@ function PANEL:Init()
     self.Nebux:SetText("")
     self.Nebux:SetTooltip("Visit our store!")
     self.Nebux.DoClick = function(s)
-        gui.OpenURL("https://nebularp.tebex.io/")
+        gui.OpenURL("https://store.nebularoleplay.com/")
     end
     self.Nebux.Credits = 516800
     self.Nebux.PaintOver = function(s, w, h)
