@@ -53,10 +53,18 @@ end
 
 function DEF:OnUse(ply, ref, id, item)
     local wep = ply:Give(ref.class)
-    wep.ItemData = item
+    if (ref.rarity != 6) then
+        wep.ItemData = item
+    end
     if (not table.IsEmpty(item.data)) then
         self:ProcessWeapon(wep, item, ply)
     end
+
+    wep.cannotDrop = true
+    if (ref.rarity == 6) then
+        return false
+    end
+
     return true
 end
 
@@ -87,12 +95,12 @@ function DEF:OpenMenu(menu, item, slot)
     local ref = NebulaInv.Items[item.id]
     menu:AddOption("Equip Weapon", function()
         if (not ref.basic) then
-            if (ref.rarity >= 4) then
+            if (ref.rarity >= 4 and ref.rarity != 6) then
                 Derma_Message("You cannot use weapons with this rarity, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
                 return
             end
 
-            if (not table.IsEmpty(item.data)) then
+            if (not table.IsEmpty(item.data) and ref.rarity != 6) then
                 Derma_Message("You cannot use weapons with mutators, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
                 return
             end

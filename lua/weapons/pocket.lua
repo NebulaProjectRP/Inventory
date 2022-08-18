@@ -52,11 +52,12 @@ end
 function SWEP:ManageHalos()
     local tr = util.QuickTrace(LocalPlayer():GetShootPos(), LocalPlayer():GetAimVector() * 128, LocalPlayer())
     local ent = tr.Entity
+    if (self:GetOwner() != LocalPlayer()) then return end
     if not IsValid(ent) then return end
     
     local can, col, item = self:EvalEntity(ent)
     if (can) then
-        halo.Add({ent}, col, 4, 4, 1, true, true)
+        halo.Add({ent}, col, 1, 1, 1, true, false)
     end
 end
 
