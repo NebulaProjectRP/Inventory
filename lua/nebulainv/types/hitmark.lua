@@ -1,4 +1,5 @@
 local DEF = {}
+
 DEF.Name = "Hitmark Sound"
 DEF.Help = "Makes a cool sound when you hit and kill someone"
 DEF.Icon = 6

@@ -1,4 +1,5 @@
 local DEF = {}
+
 DEF.Name = "Weapon"
 DEF.Help = "It's a weapon, you kill people with it!"
 DEF.Icon = 1

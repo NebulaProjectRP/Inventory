@@ -1,4 +1,5 @@
 local DEF = {}
+
 DEF.Name = "Suit/Armor"
 DEF.Help = "Equip a powerful armature that will help you to fight"
 DEF.Icon = 2

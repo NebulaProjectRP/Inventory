@@ -162,13 +162,16 @@ net.Receive("Nebula.Inv:UseItem", function(l, ply)
         DarkRP.notify(ply, 1, 4, "This item not longer exists!")
         return
     end
+
     local resolver = NebulaInv.Types[ref.type]
+
     if (not resolver) then
         DarkRP.notify(ply, 1, 4, "This item is not usable!")
         return
     end
 
     local result = resolver:OnUse(ply, ref, id, item)
+
     if (result == true) then
         ply:takeItem(slot, 1)
     end

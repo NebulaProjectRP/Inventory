@@ -425,7 +425,7 @@ hook.Add("canDropWeapon", "Nebula:NODropLoadout", function(ply, wep)
     end
 
     if disallow then
-        DarkRP.notify(ply, 1, 4, "You can't drop equipped weapons weapon!")
+        DarkRP.notify(ply, 1, 4, "You can't drop equipped weapons!")
 
         return false
     end
