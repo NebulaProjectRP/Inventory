@@ -23,26 +23,26 @@ NebulaInv:RegisterItem("suit", "carnage", {
     imgur = "JPlh0PX"
 })
 
-NebulaInv:RegisterItem("suit", "maverick", {
-    rarity = 3,
-    class = "maverick",
-    imgur = "ImgoNDI"
-})
-
 NebulaInv:RegisterItem("suit", "mecha", {
     rarity = 3,
     class = "mecha",
     imgur = "v2kSbYB"
 })
 
-NebulaInv:RegisterItem("suit", "mist", {
+NebulaInv:RegisterItem("suit", "scout", {
     rarity = 2,
+    class = "scout",
+    imgur = "Ou4ZQvZ"
+})
+
+NebulaInv:RegisterItem("suit", "mist", {
+    rarity = 3,
     class = "mist",
     imgur = "dXjqchW"
 })
 
-NebulaInv:RegisterItem("suit", "scout", {
+NebulaInv:RegisterItem("suit", "maverick", {
     rarity = 4,
-    class = "scout",
-    imgur = "Ou4ZQvZ"
+    class = "maverick",
+    imgur = "ImgoNDI"
 })
