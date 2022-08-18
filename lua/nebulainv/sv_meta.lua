@@ -147,6 +147,7 @@ function meta:takeItem(slot, am)
         end
 
         if failed then return false end
+
         local found = true
 
         while found do
