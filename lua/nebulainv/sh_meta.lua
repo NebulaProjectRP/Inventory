@@ -117,6 +117,7 @@ function NebulaInv:RegisterItem(class, id, data)
 end
 
 MsgC(Color(100, 100, 255), "[Nebula] ",color_white, "Loading Type!\n", Color(100, 100, 100))
+
 for k, v in pairs(file.Find("nebulainv/types/*.lua", "LUA")) do
     if SERVER then
         AddCSLuaFile("nebulainv/types/" .. v)
@@ -124,6 +125,7 @@ for k, v in pairs(file.Find("nebulainv/types/*.lua", "LUA")) do
     include("nebulainv/types/" .. v)
     MsgC("\tRegistering " .. string.sub(v, 1, #v - 4) .. "...\n")
 end
+
 MsgC(Color(100, 100, 255), "[Nebula] ",color_white, "Finished loading Items Types!\n")
 
 
