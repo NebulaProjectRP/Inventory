@@ -324,6 +324,8 @@ function meta:equipItem(kind, id, status)
             return false
         end
 
+        if ref.type == "weapon" and ref.rarity == 6 then return end
+
         if not self._loadout then
             self._loadout = {
                 [kind] = {}
