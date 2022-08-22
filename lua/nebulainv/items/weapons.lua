@@ -30,7 +30,7 @@ NebulaInv:RegisterItem("weapon", "nade_fire", {
     classname = "neb_tfa_nadefire",
     rarity = 2,
     imgur = "W7FFjed",
-    basic = true, //Don't accept mutators neither equipping
+    basic = true, -- Don't accept mutators neither equipping
     stack = 10
 })
 
@@ -137,4 +137,10 @@ NebulaInv:RegisterItem("weapon", "paladin_3", {
     classname = "tfa_cso_paladin_v8",
     rarity = 6,
     imgur = "qWpJPil",
+})
+
+NebulaInv:RegisterItem("weapon", "grapple_1", {
+    classname = "weapon_grapplehook",
+    rarity = 6,
+    imgur = "cwlST0V",
 })
