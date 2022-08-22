@@ -142,5 +142,5 @@ NebulaInv:RegisterItem("weapon", "paladin_3", {
 NebulaInv:RegisterItem("weapon", "grapple_1", {
     classname = "weapon_grapplehook",
     rarity = 6,
-    imgur = "cwlST0V",
+    imgur = "LeceHHQ",
 })
