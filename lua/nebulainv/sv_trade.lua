@@ -99,16 +99,24 @@ function NebulaInv.Trade:FinishTrade(ply)
 
             if moneyAmount > 0 then
                 local target = session.Players[id == 1 and 2 or 1]
-                session.Players[id]:addMoney(-moneyAmount)
-                target:addMoney(moneyAmount)
+                if (session.Players[id]:canAfford(moneyAmount)) then
+                    session.Players[id]:addMoney(-moneyAmount)
+                    target:addMoney(moneyAmount)
+                else
+                    DarkRP.notify(session.Players[id], 1, 4, "An error occurred while resolving the trade, money won't be modified.")
+                end
             end
 
             local creditsAmount = session.Credits[id]
 
             if creditsAmount > 0 then
                 local target = session.Players[id == 1 and 2 or 1]
-                session.Players[id]:addCredits(-creditsAmount)
-                target:addCredits(creditsAmount)
+                if (session.Players[id]:getCredits() >= creditsAmount) then
+                    session.Players[id]:addCredits(-creditsAmount)
+                    target:addCredits(creditsAmount)
+                else
+                    DarkRP.notify(session.Players[id], 1, 4, "An error occurred while resolving the trade, credits won't be modified.")
+                end
             end
         end
 
@@ -353,5 +361,11 @@ hook.Add("PlayerDisconnected", "NebulaInv.TradeQuit", function(ply)
         net.Send(target)
         NebulaInv.Trade.Sessions[ply._tradeID] = nil
         target._tradeID = nil
+    end
+end)
+
+hook.Add("canChatCommand" , "Neb.DontDrop", function(ply, cmd, args)
+    if (ply._tradeID) then
+        return false
     end
 end)
