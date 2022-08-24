@@ -153,6 +153,9 @@ function PANEL:PopulateItems()
     local inv = LocalPlayer():getInventory()
     local filter = ShowMode[self.ShowOnly:GetText() or "All"]
     local orderBy = SortModes[self.OrderBy:GetText() or "None"]
+    if (self.OrderBy:GetText() == "None") then
+        orderBy = nil
+    end
     local search = string.lower(self.Search:GetText())
 
     for k, v in pairs(self.ItemSpawned) do
@@ -177,15 +180,23 @@ function PANEL:PopulateItems()
             am = v.am or 1,
             id = v.id,
             slot = k,
+            fav = v.fav,
             type = item.type,
             data = v.data
         })
     end
 
     if orderBy then
-        PrintTable(invData)
-        table.sort(invData, function(a, b) return orderBy(NebulaInv.Items[(a or {}).id or ""], NebulaInv.Items[(b or {}).id or ""], a, b) end)
+        table.sort(invData, function(a, b)
+            local state = orderBy(NebulaInv.Items[(a or {}).id or ""], NebulaInv.Items[(b or {}).id or ""], a, b)
+            return state
+        end)
+    else
+        table.sort(invData, function(a, b)
+            return (a or {}).fav and not (b or {}).fav
+        end)
     end
+
 
     for k, v in pairs(invData) do
         local btn = vgui.Create("nebula.item", self.Layout)
@@ -202,6 +213,20 @@ function PANEL:PopulateItems()
 
         btn.DoClick = function(s)
             local menu = DermaMenu()
+
+            menu:AddOption((LocalPlayer():getInventory()[v.slot].fav and "UnMark" or "Mark") .. " Favorite", function()
+                net.Start("Nebula.Inv:ToggleFavorite")
+                net.WriteUInt(v.slot, 16)
+                net.SendToServer()
+                if (LocalPlayer():getInventory()[v.slot] or {}).fav then
+                    LocalPlayer():getInventory()[v.slot].fav = nil
+                else
+                    LocalPlayer():getInventory()[v.slot].fav = true
+                end
+                s.isFavorite = LocalPlayer():getInventory()[v.slot].fav
+            end)
+
+            menu:AddSpacer()
 
             if NebulaInv.Types[v.type].OpenMenu then
                 NebulaInv.Types[v.type]:OpenMenu(menu, v, s.Slot)

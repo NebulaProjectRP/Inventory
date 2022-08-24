@@ -16,6 +16,7 @@ util.AddNetworkString("Nebula.Inv:DropItem")
 util.AddNetworkString("Nebula.Inv:RemoveEquipment")
 util.AddNetworkString("Nebula.Inv:RemoveSlot")
 util.AddNetworkString("NebulaInv:SendMoney")
+util.AddNetworkString("Nebula.Inv:ToggleFavorite")
 
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
@@ -255,18 +256,31 @@ net.Receive("NebulaInv:SendMoney", function(l, ply)
     hook.Run("playerGaveMoney", ply, target, amount)
 end)
 
+net.Receive("Nebula.Inv:ToggleFavorite", function(l, ply)
+    local slot = net.ReadUInt(16)
+    local inv = ply:getInventory()
+    if (not inv[slot]) then return end
+
+    if (inv[slot].fav) then
+        inv[slot].fav = nil
+    else
+        inv[slot].fav = true
+    end
+
+    ply:saveInventory()
+end)
+
 // Concommands
+/*
+concommand.Add("neb_giveall", function(ply, cmd, args)
+    if (not ply:IsSuperAdmin()) then return end
+    local target = p(1)
 
-if lan:GetBool() then
-    concommand.Add("neb_giveall", function(ply, cmd, args)
-        local target = p(1)
-
-        for id, data in pairs(NebulaInv.Items) do
-            target:giveItem(id, 1)
-        end
-    end)
-end
-
+    for id, data in pairs(NebulaInv.Items) do
+        target:giveItem(id, 1)
+    end
+end)
+*/
 concommand.Add("neb_giveitem", function(ply, cmd, args)
     if IsValid(ply) then return end
 
