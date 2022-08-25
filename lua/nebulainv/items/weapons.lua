@@ -136,7 +136,7 @@ NebulaInv:RegisterItem("weapon", "paladin_2", {
 NebulaInv:RegisterItem("weapon", "paladin_3", {
     classname = "tfa_cso_paladin_v8",
     rarity = 6,
-    imgur = "qWpJPil",
+    imgur = "6mJQSNd",
 })
 
 NebulaInv:RegisterItem("weapon", "grapple_1", {
