@@ -214,6 +214,12 @@ function PANEL:PopulateItems()
         btn.DoClick = function(s)
             local menu = DermaMenu()
 
+            if NebulaInv.Types[v.type].OpenMenu then
+                NebulaInv.Types[v.type]:OpenMenu(menu, v, s.Slot)
+            end
+
+            menu:AddSpacer()
+
             menu:AddOption((LocalPlayer():getInventory()[v.slot].fav and "UnMark" or "Mark") .. " Favorite", function()
                 net.Start("Nebula.Inv:ToggleFavorite")
                 net.WriteUInt(v.slot, 16)
@@ -225,12 +231,6 @@ function PANEL:PopulateItems()
                 end
                 s.isFavorite = LocalPlayer():getInventory()[v.slot].fav
             end)
-
-            menu:AddSpacer()
-
-            if NebulaInv.Types[v.type].OpenMenu then
-                NebulaInv.Types[v.type]:OpenMenu(menu, v, s.Slot)
-            end
 
             menu:AddSpacer()
 
