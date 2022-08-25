@@ -54,9 +54,9 @@ NebulaInv:RegisterItem("suit", "camoguy", {
     imgur = "Hoz6B6J"
 })
 
-NebulaInv:RegisterItem("suit", "confussion", {
+NebulaInv:RegisterItem("suit", "confusion", {
     rarity = 4,
-    class = "confussion",
+    class = "confusion",
     imgur = "T4uDWTg"
 })
 

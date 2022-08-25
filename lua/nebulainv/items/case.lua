@@ -113,7 +113,7 @@ NebulaInv:RegisterItem("case", "tactical", {
         ["weapon_scar_ozce"] = 15,
         ["weapon_tfa_cso_vulcanus3"] = 10,
         ["suit_camoguy"] = 5,
-        ["suit_confussion"] = 5,
+        ["suit_confusion"] = 5,
     }
 })
 
