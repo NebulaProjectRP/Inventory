@@ -232,3 +232,9 @@ NebulaInv:RegisterItem('weapon', 'tfa_cso_vulcanus7', {
 	rarity = 5,
 	icon = 'entities/tfa_cso_vulcanus7.png'
 })
+
+NebulaInv:RegisterItem('weapon', 'scar_ozce', {
+	classname = 'tfa_cso_scar_ozc',
+	rarity = 3,
+	icon = 'entities/tfa_cso_scar_ozc.png'
+})

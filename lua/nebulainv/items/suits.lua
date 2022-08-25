@@ -48,6 +48,18 @@ NebulaInv:RegisterItem("suit", "berserker", {
     imgur = "LKEDuV0"
 })
 
+NebulaInv:RegisterItem("suit", "camoguy", {
+    rarity = 4,
+    class = "camoguy",
+    imgur = "Hoz6B6J"
+})
+
+NebulaInv:RegisterItem("suit", "confussion", {
+    rarity = 4,
+    class = "confussion",
+    imgur = "T4uDWTg"
+})
+
 -- Rarity 5
 
 NebulaInv:RegisterItem("suit", "architect", {

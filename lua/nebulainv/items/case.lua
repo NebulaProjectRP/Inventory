@@ -102,4 +102,19 @@ NebulaInv:RegisterItem("case", "vulcan", {
     }
 })
 
+NebulaInv:RegisterItem("case", "tactical", {
+    rarity = 1,
+    imgur = "HAEu4Lv",
+    name = "Tactical Case",
+    items = {
+        ["weapon_luger_expert"] = 25,
+        ["weapon_tomahawk"] = 20,
+        ["weapon_p90x"] = 20,
+        ["weapon_scar_ozce"] = 15,
+        ["weapon_tfa_cso_vulcanus3"] = 10,
+        ["suit_camoguy"] = 5,
+        ["suit_confussion"] = 5,
+    }
+})
+
 -- Rarity 6 (CASES CAN'T BE PERM!)
