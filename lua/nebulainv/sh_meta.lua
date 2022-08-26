@@ -127,7 +127,9 @@ for k, v in pairs(file.Find("nebulainv/types/*.lua", "LUA")) do
 end
 
 MsgC(Color(100, 100, 255), "[Nebula] ",color_white, "Finished loading Items Types!\n")
-
+timer.Simple(3, function()
+    hook.Run("BU3.ItemsLoaded")
+end)
 
 for k, v in pairs(file.Find("nebulainv/items/*.lua", "LUA")) do
     if SERVER then

@@ -310,6 +310,12 @@ function PANEL:PopulateItems()
                 end, "No", function() end)
             end)
 
+            if LocalPlayer():IsAdmin() then
+                menu:AddOption("Copy ItemID", function()
+                    SetClipboardText(v.id)
+                end)
+            end
+
             menu:AddOption("Cancel")
             menu:Open()
         end

@@ -17,5 +17,4 @@ else
     include("nebulainv/cl_trade.lua")
 end
 
-hook.Run("BU3.ItemsLoaded")
 MsgC(Color(125, 200, 255), "[INV] ", color_white, "Finished inventory system\n")
