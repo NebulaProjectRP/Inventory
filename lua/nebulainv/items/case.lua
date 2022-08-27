@@ -93,12 +93,10 @@ NebulaInv:RegisterItem("case", "vulcan", {
     imgur = "yzVzyRg",
     name = "Vulcanus Collection",
     items = {
-        ["weapon_tfa_cso_vulcanus1_a"] = 35,
-        ["weapon_tfa_cso_vulcanus1_b"] = 30,
-        ["weapon_tfa_cso_vulcanus11"] = 25,
-        ["weapon_tfa_cso_vulcanus3"] = 5,
-        ["weapon_tfa_cso_vulcanus5"] = 3,
-        ["weapon_tfa_cso_vulcanus7"] = 2,
+        ["weapon_tfa_cso_vulcanus11"] = 40,
+        ["weapon_tfa_cso_vulcanus3"] = 30,
+        ["weapon_tfa_cso_vulcanus5"] = 20,
+        ["weapon_tfa_cso_vulcanus7"] = 10,
     }
 })
 
