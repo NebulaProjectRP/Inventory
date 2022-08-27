@@ -271,7 +271,7 @@ net.Receive("Nebula.Inv:ToggleFavorite", function(l, ply)
 end)
 
 // Concommands
-/*
+
 concommand.Add("neb_giveall", function(ply, cmd, args)
     if (not ply:IsSuperAdmin()) then return end
     local target = p(1)
@@ -280,7 +280,7 @@ concommand.Add("neb_giveall", function(ply, cmd, args)
         target:giveItem(id, 1)
     end
 end)
-*/
+
 concommand.Add("neb_giveitem", function(ply, cmd, args)
     if IsValid(ply) then return end
 

@@ -51,6 +51,7 @@ end)
 function DEF:OnEquip(ply, ref, id, item, slot)
     local wep = ply:Give(ref.class)
     //wep.ItemData = item
+    wep.cannotDrop = true
     if (not table.IsEmpty(item.data)) then
         self:ProcessWeapon(wep, item, ply, slot)
     end
