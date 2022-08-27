@@ -233,7 +233,7 @@ net.Receive("NebulaInv.Trade:SetCredits", function(l, ply)
     local amount = net.ReadInt(32)
     if amount < 0 then return end
 
-    if ply:GetStoreCredits() >= amount then
+    if ply:getCredits() >= amount then
         local tradeSession = NebulaInv.Trade.Sessions[ply._tradeID]
         tradeSession.Credits[ply._tradeSlot] = amount
         net.Start("NebulaInv.Trade:SyncStuff")
