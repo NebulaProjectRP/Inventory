@@ -268,9 +268,13 @@ function PANEL:PopulateItems()
 
             menu:AddOption("Sell Item", function()
                 Derma_StringRequest("For how much do you want to sell this item", "Marketplace", "100", function(val)
+                    local amount = tonumber(val)
+
+                    if not amount then return end
+
                     net.Start("NebulaMarket:AddItem")
                     net.WriteUInt(s.Slot, 16)
-                    net.WriteUInt(tonumber(val), 32)
+                    net.WriteUInt(amount, 32)
                     net.SendToServer()
                 end)
             end)
