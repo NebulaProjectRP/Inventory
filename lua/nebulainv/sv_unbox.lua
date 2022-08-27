@@ -56,6 +56,8 @@ function NebulaInv:Unbox(ply, case_id)
         data = NebulaInv.Types.weapon:Generate(winner)
     end
     local could = ply:addItem(winner, 1, data)
+
+    hook.Run("onUnbox", ply, winner, ref)
     if (not could) then
         ply:addItem(case_id, 1)
         return false
