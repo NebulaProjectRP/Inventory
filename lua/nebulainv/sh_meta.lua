@@ -40,7 +40,6 @@ net.Receive("Nebula.Inv:AddItem", function(l, ply)
     local slotID = net.ReadUInt(16)
     local id = net.ReadString()
     local amount = net.ReadUInt(16)
-    MsgN(amount)
 
     local newItem = {
         id = id,
@@ -145,11 +144,9 @@ if SERVER then return end
 
 function NebulaInv:LoadItems()
     MsgC(Color(100, 200, 50), "[Nebula] ",color_white, "Downloading player items...\n")
-    MsgN("players/" .. LocalPlayer():SteamID64())
     http.Fetch(NebulaAPI.HOST .. "players/" .. LocalPlayer():SteamID64(), function(dt)
         MsgC(Color(100, 200, 50), "[Nebula]",color_white, "Finished downloading items!\n")
         local json = util.JSONToTable(dt)
-        MsgN(dt)
         local inv = json.inventory or {}
         NebulaInv.Inventory = util.JSONToTable(inv.items)
         NebulaInv.Loadout = util.JSONToTable(inv.loadout)
