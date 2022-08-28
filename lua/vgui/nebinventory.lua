@@ -489,19 +489,19 @@ function PANEL:CreateSlots()
     self.PlayerSlot = vgui.Create("nebula.item", side)
     self.PlayerSlot:SetSize(72, 72)
     self.PlayerSlot:Dock(BOTTOM)
-    self.PlayerSlot:Allow("model", true)
-    self.Slots["model"] = self.PlayerSlot
+    self.PlayerSlot:Allow("accessory", true)
+    self.Slots["accessory"] = self.PlayerSlot
 
     self.PlayerSlot.DoClick = function(s)
-        if not s.Item then return end
+        if not s.ID then return end
         local menu = DermaMenu()
 
         menu:AddOption("Remove", function()
             net.Start("Nebula.Inv:RemoveSlot")
-            net.WriteString("model")
+            net.WriteString("accessory")
             net.SendToServer()
             s:SetItem(nil)
-            NebulaInv.Loadout["model"] = nil
+            NebulaInv.Loadout["accessory"] = nil
         end)
 
         menu:AddOption("Cancel")
@@ -513,7 +513,7 @@ function PANEL:CreateSlots()
     self.HitSound:Dock(BOTTOM)
     self.HitSound:DockMargin(0, 8, 0, 8)
     self.HitSound:Allow("hitmark", true)
-    self.Slots["hitmark"] = self.PlayerSlot
+    self.Slots["hitmark"] = self.HitSound
 
     self.HitSound.DoClick = function(s)
         if not s.Item then return end
@@ -535,7 +535,7 @@ function PANEL:CreateSlots()
     self.VOX:SetSize(72, 72)
     self.VOX:Dock(BOTTOM)
     self.VOX:Allow("vox", true)
-    self.Slots["vox"] = self.PlayerSlot
+    self.Slots["vox"] = self.VOX
 
     self.VOX.OnMousePressed = function(s)
         if not s.Reference then return end
@@ -556,8 +556,8 @@ function PANEL:CreateSlots()
     local loadout = NebulaInv.Loadout
     if not loadout then return end
 
-    if loadout.model then
-        self.PlayerSlot:SetItem(istable(loadout.model) and loadout.model.id or loadout.model)
+    if loadout.accessory then
+        self.PlayerSlot:SetItem(istable(loadout.accessory) and loadout.accessory.id or loadout.accessory)
     end
 
     if loadout.hitmark then

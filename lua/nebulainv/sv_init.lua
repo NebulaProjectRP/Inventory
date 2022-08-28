@@ -217,8 +217,13 @@ end)
 net.Receive("Nebula.Inv:RemoveSlot", function(l, ply)
     local slot = net.ReadString()
     if (not ply._loadout or not ply._loadout[slot]) then return end
-
-    ply:giveItem(ply._loadout[slot].id, 1, ply._loadout.data or {})
+    local item = ply._loadout[slot]
+    local ref = NebulaInv.Items[item.id]
+    local type = NebulaInv.Types[ref.type]
+    if (type.OnUnequip) then
+        type:OnUnequip(ply, ref, item.id, item)
+    end
+    ply:giveItem(item.id, 1, item.data or {})
     ply._loadout[slot] = nil
 
 end)

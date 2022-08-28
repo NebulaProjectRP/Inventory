@@ -327,9 +327,11 @@ function meta:equipItem(kind, id, status)
         if ref.type == "weapon" and ref.rarity == 6 then return end
 
         if not self._loadout then
-            self._loadout = {
-                [kind] = {}
-            }
+            self._loadout = {}
+        end
+
+        if self._loadout[kind] then
+            self:giveItem(self._loadout[kind].id, 1, istable(self._loadout[kind].data) and self._loadout[kind].data or nil)
         end
 
         self._loadout[kind] = table.Copy(item)

@@ -95,7 +95,11 @@ function PANEL:SetCase(id)
         btn.Paint = function(s, w, h)
             draw.RoundedBox(8, 0, 0, w, h, Color(255, 255, 255, 15))
         draw.RoundedBox(8, 1, 1, w - 2, h - 2, Color(16, 0, 24))
-            draw.SimpleText(NebulaInv.Items[id].name, NebulaUI:Font(20), 58, 4, Color(200, 200, 200))
+            if NebulaInv.Items[id] then
+                draw.SimpleText(NebulaInv.Items[id].name, NebulaUI:Font(20), 58, 4, Color(200, 200, 200))
+            else
+                MsgN(id)
+            end
         end
         btn.Item = vgui.Create("nebula.item", btn)
         btn.Item:SetSize(48, 48)

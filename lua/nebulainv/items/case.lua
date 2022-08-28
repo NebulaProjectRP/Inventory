@@ -116,3 +116,102 @@ NebulaInv:RegisterItem("case", "tactical", {
 })
 
 -- Rarity 6 (CASES CAN'T BE PERM!)
+
+NebulaInv:RegisterItem("case", "cosmetic1", {
+    rarity = 2,
+    imgur = "h2GzNYj",
+    name = "Cosmetic Case #1",
+    items = {
+        ["accessory_hippie"] = 25,
+        ["accessory_wukong"] = 15,
+        ["accessory_bearpanda"] = 15,
+        ["accessory_bluesamurai"] = 10,
+        ["accessory_biker"] = 10,
+        ["accessory_vampire"] = 10,
+        ["accessory_battleshroud"] = 10,
+        ["accessory_octoberfestmale"] = 10,
+        ["accessory_meteorman"] = 10,
+        ["accessory_hornedmaskmale"] = 5,
+    }
+})
+
+NebulaInv:RegisterItem("case", "cosmetic2", {
+    rarity = 2,
+    imgur = "ILeh6B7",
+    name = "Cosmetic Case #2",
+    items = {
+        ["accessory_bearhalloween"] = 20,
+        ["accessory_crestedcape"] = 20,
+        ["accessory_garageband"] = 15,
+        ["accessory_nutcracker"] = 10,
+        ["accessory_exercisemale"] = 10,
+        ["accessory_sniperhood"] = 10,
+        ["accessory_venturioncape"] = 10,
+        ["accessory_waveform"] = 10,
+        ["accessory_streetracer"] = 5,
+    }
+})
+
+NebulaInv:RegisterItem("case", "cosmetic3", {
+    rarity = 3,
+    imgur = "hI5YBqH",
+    name = "Cosmetic Case #3",
+    items = {
+        ["accessory_dieselpunkmale"] = 20,
+        ["accessory_darkeagle"] = 15,
+        ["accessory_alienfish"] = 15,
+        ["accessory_samuraiblue"] = 10,
+        ["accessory_hazmat"] = 10,
+        ["accessory_darkpaintballer"] = 10,
+        ["accessory_hamster"] = 10,
+        ["accessory_sushichef"] = 10,
+        ["accessory_moth"] = 5,
+    }
+})
+
+NebulaInv:RegisterItem("case", "cosmetic4", {
+    rarity = 3,
+    imgur = "yeRs460",
+    name = "Cosmetic Case #4",
+    items = {
+        ["accessory_bearindependence"] = 20,
+        ["accessory_arcticsniper"] = 15,
+        ["accessory_carbide"] = 15,
+        ["accessory_viking"] = 10,
+        ["accessory_britebag"] = 10,
+        ["accessory_hacivat"] = 10,
+        ["accessory_streetracercobra"] = 10,
+        ["accessory_raven"] = 10,
+        ["accessory_darkviking"] = 5,
+    }
+})
+
+NebulaInv:RegisterItem("case", "cosmetic5", {
+    rarity = 4,
+    imgur = "rh87y3V",
+    name = "Cosmetic Case #5",
+    items = {
+        ["accessory_pet"] = 20,
+        ["accessory_detectivemale"] = 15,
+        ["accessory_animalmale"] = 15,
+        ["accessory_burger"] = 10,
+        ["accessory_bikermale"] = 10,
+        ["accessory_hippieguitar"] = 10,
+        ["accessory_clown"] = 10,
+        ["accessory_dino"] = 10,
+        ["accessory_blackwidow"] = 5,
+    }
+})
+
+local items = table.Copy(NebulaInv.Items)
+local rarities = {}
+for k, v in pairs(items) do
+    if v.type != "accessory" then continue end
+    if not rarities[v.rarity] then
+        rarities[v.rarity] = {}
+    end
+
+    table.insert(rarities[v.rarity], v.id)
+end
+
+PrintTable(rarities)
