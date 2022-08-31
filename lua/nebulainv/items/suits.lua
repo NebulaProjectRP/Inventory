@@ -59,7 +59,6 @@ NebulaInv:RegisterItem("suit", "dragonfly", {
     imgur = "kOH4mCK"
 })
 
-
 -- Rarity 4
 
 NebulaInv:RegisterItem("suit", "maverick", {

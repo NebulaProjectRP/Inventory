@@ -11,12 +11,12 @@ NebulaStore.SeasonPass = {
 
 NebulaStore.VaultItems = {
     [1] = {
-        itemID = "weapon_paladin_1",
-        credits = 150,
+        itemID = "case_suits1",
+        credits = 100,
     },
     [2] = {
         itemID = "weapon_paladin_2",
-        credits = 175,
+        credits = 150,
     },
     [3] = {
         itemID = "weapon_paladin_3",
