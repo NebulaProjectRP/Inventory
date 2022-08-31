@@ -203,6 +203,39 @@ NebulaInv:RegisterItem("case", "cosmetic5", {
     }
 })
 
+NebulaInv:RegisterItem("case", "cosmetic5", {
+    rarity = 4,
+    imgur = "rh87y3V",
+    name = "Cosmetic Case #5",
+    items = {
+        ["accessory_pet"] = 20,
+        ["accessory_detectivemale"] = 15,
+        ["accessory_animalmale"] = 15,
+        ["accessory_burger"] = 10,
+        ["accessory_bikermale"] = 10,
+        ["accessory_hippieguitar"] = 10,
+        ["accessory_clown"] = 10,
+        ["accessory_dino"] = 10,
+        ["accessory_blackwidow"] = 5,
+    }
+})
+
+NebulaInv:RegisterItem("case", "suits1", {
+    rarity = 5,
+    imgur = "wdqRSk9",
+    name = "Suit Case #1",
+    items = {
+        ["suit_scout"] = 30,
+        ["suit_berserker"] = 25,
+        ["suit_camo"] = 15,
+        ["suit_aesculapius"] = 14,
+        ["suit_cronosuit"] = 8,
+        ["accessory_simulator"] = 6,
+        ["accessory_dragonfly"] = 2,
+    }
+})
+
+/*
 local items = table.Copy(NebulaInv.Items)
 local rarities = {}
 for k, v in pairs(items) do
@@ -215,3 +248,4 @@ for k, v in pairs(items) do
 end
 
 PrintTable(rarities)
+*/

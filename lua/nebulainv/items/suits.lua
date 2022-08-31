@@ -14,6 +14,19 @@ NebulaInv:RegisterItem("suit", "carnage", {
     imgur = "JPlh0PX"
 })
 
+
+NebulaInv:RegisterItem("suit", "aesculapius", {
+    rarity = 2,
+    class = "aesculapius",
+    imgur = "AY45q4j"
+})
+
+NebulaInv:RegisterItem("suit", "cronosuit", {
+    rarity = 2,
+    class = "cronosuit",
+    imgur = "B6hnUMb"
+})
+
 -- Rarity 3
 
 NebulaInv:RegisterItem("suit", "candle", {
@@ -33,6 +46,19 @@ NebulaInv:RegisterItem("suit", "mist", {
     class = "mist",
     imgur = "dXjqchW"
 })
+
+NebulaInv:RegisterItem("suit", "simulator", {
+    rarity = 3,
+    class = "simulator",
+    imgur = "IXBvz6H"
+})
+
+NebulaInv:RegisterItem("suit", "dragonfly", {
+    rarity = 3,
+    class = "dragonfly",
+    imgur = "kOH4mCK"
+})
+
 
 -- Rarity 4
 
@@ -69,3 +95,4 @@ NebulaInv:RegisterItem("suit", "architect", {
 })
 
 -- Rarity 6 (SUITS CAN'T BE PERM!)
+
