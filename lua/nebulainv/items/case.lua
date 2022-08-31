@@ -227,11 +227,11 @@ NebulaInv:RegisterItem("case", "suits1", {
     items = {
         ["suit_scout"] = 30,
         ["suit_berserker"] = 25,
-        ["suit_camo"] = 15,
+        ["suit_camoguy"] = 15,
         ["suit_aesculapius"] = 14,
         ["suit_cronosuit"] = 8,
-        ["accessory_simulator"] = 6,
-        ["accessory_dragonfly"] = 2,
+        ["suit_simulator"] = 6,
+        ["suit_dragonfly"] = 2,
     }
 })
 
