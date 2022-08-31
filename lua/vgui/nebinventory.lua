@@ -1,18 +1,7 @@
 local PANEL = {}
 local decalCache = {}
 
-local ShowMode = {
-    ["Case"] = function(item) return item.type == "case" end,
-    ["Weapon"] = function(item) return item.type == "weapon" end,
-    ["Suit"] = function(item) return item.type == "suit" end,
-    ["Ammo"] = function(item) return item.type == "ammo" end,
-    ["Tool"] = function(item) return item.type == "tool" end,
-    ["Gobblegum"] = function(item) return item.type == "food" end,
-    ["Drug"] = function(item) return item.type == "drug" end,
-    ["Material"] = function(item) return item.type == "material" end,
-    ["Other"] = function(item) return item.type == "other" end,
-    ["All"] = function() return true end
-}
+local ShowMode = {}
 
 local SortModes = {
     ["None"] = function(a, b) return ((a or {}).id or "") < ((b or {}).id or "") end,
@@ -25,6 +14,13 @@ local SortModes = {
 PANEL.Slots = {}
 
 function PANEL:Init()
+    ShowMode["All"] = function() return true end
+    for k, v in pairs(NebulaInv.Types) do
+        ShowMode[k] = function(item)
+            return item.type == string.lower(k)
+        end
+    end
+    
     NebulaInv.Panel = self
     self:Dock(FILL)
     self:InvalidateLayout(true)
@@ -45,12 +41,12 @@ function PANEL:Init()
     end
 
     for k, v in pairs(ShowMode) do
-        self.ShowOnly:AddChoice(k)
+        self.ShowOnly:AddChoice(string.upper(k[1]) .. string.sub(k, 2))
     end
 
     self.OrderBy = vgui.Create("nebula.combobox", self.Header)
     self.OrderBy:Dock(RIGHT)
-    self.OrderBy:SetText("Sort by:")
+    self.OrderBy:SetText("Type")
     self.OrderBy:SetWide(128)
 
     self.OrderBy.OnSelect = function(s, index, value)
@@ -151,8 +147,8 @@ end
 
 function PANEL:PopulateItems()
     local inv = LocalPlayer():getInventory()
-    local filter = ShowMode[self.ShowOnly:GetText() or "All"]
-    local orderBy = SortModes[self.OrderBy:GetText() or "None"]
+    local filter = ShowMode[string.lower(self.ShowOnly:GetText()) or "All"]
+    local orderBy = SortModes[self.OrderBy:GetText() or "Type"]
     if (self.OrderBy:GetText() == "None") then
         orderBy = nil
     end
