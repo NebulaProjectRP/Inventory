@@ -112,8 +112,8 @@ function NebulaInv.Trade:FinishTrade(ply)
             if creditsAmount > 0 then
                 local target = session.Players[id == 1 and 2 or 1]
                 if (session.Players[id]:getCredits() >= creditsAmount) then
-                    session.Players[id]:addCredits(-creditsAmount)
-                    target:addCredits(creditsAmount)
+                    session.Players[id]:addCredits(-creditsAmount, "Trade with " .. target:Nick())
+                    target:addCredits(creditsAmount, "Trade with " .. session.Players[id]:Nick())
                 else
                     DarkRP.notify(session.Players[id], 1, 4, "An error occurred while resolving the trade, credits won't be modified.")
                 end
