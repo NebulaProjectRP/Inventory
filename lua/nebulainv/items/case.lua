@@ -221,6 +221,7 @@ NebulaInv:RegisterItem("case", "suits1", {
 /*
 local items = table.Copy(NebulaInv.Items)
 local rarities = {}
+
 for k, v in pairs(items) do
     if v.type != "accessory" then continue end
     if not rarities[v.rarity] then
