@@ -203,23 +203,6 @@ NebulaInv:RegisterItem("case", "cosmetic5", {
     }
 })
 
-NebulaInv:RegisterItem("case", "cosmetic5", {
-    rarity = 4,
-    imgur = "rh87y3V",
-    name = "Cosmetic Case #5",
-    items = {
-        ["accessory_pet"] = 20,
-        ["accessory_detectivemale"] = 15,
-        ["accessory_animalmale"] = 15,
-        ["accessory_burger"] = 10,
-        ["accessory_bikermale"] = 10,
-        ["accessory_hippieguitar"] = 10,
-        ["accessory_clown"] = 10,
-        ["accessory_dino"] = 10,
-        ["accessory_blackwidow"] = 5,
-    }
-})
-
 NebulaInv:RegisterItem("case", "suits1", {
     rarity = 5,
     imgur = "wdqRSk9",
