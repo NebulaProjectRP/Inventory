@@ -96,7 +96,7 @@ NebulaInv:RegisterItem("weapon", "ruyi", {
     imgur = "VbtDXJE",
 })
 
-NebulaInv:RegisterItem("weapon", "x90", {
+NebulaInv:RegisterItem("weapon", "p90x", {
     classname = "tfa_cso_x-90",
     rarity = 3,
     imgur = "gr2FxMZ",
