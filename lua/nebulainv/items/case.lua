@@ -107,7 +107,7 @@ NebulaInv:RegisterItem("case", "tactical", {
     items = {
         ["weapon_luger_expert"] = 25,
         ["weapon_tomahawk"] = 20,
-        ["weapon_p90x"] = 20,
+        ["weapon_x90"] = 20,
         ["weapon_scar_ozce"] = 15,
         ["weapon_tfa_cso_vulcanus3"] = 10,
         ["suit_camoguy"] = 5,
