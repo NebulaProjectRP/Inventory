@@ -7,7 +7,7 @@ NebulaInv:RegisterItem("weapon", "diver_1", {
 })
 
 NebulaInv:RegisterItem("weapon", "p90", {
-    classname = "tfa_neb_p90",
+    classname = "tfa_cso_p90",
     rarity = 1,
     imgur = "7o4xMH7",
 })
@@ -55,7 +55,7 @@ NebulaInv:RegisterItem("weapon", "tomahawk", {
 })
 
 NebulaInv:RegisterItem("weapon", "p90lapin", {
-    classname = "tfa_neb_p90chan",
+    classname = "tfa_cso_pchan",
     rarity = 2,
     imgur = "U8f6pJn",
 })
@@ -97,7 +97,7 @@ NebulaInv:RegisterItem("weapon", "ruyi", {
 })
 
 NebulaInv:RegisterItem("weapon", "p90x", {
-    classname = "tfa_neb_p90_x",
+    classname = "tfa_cso_x-90",
     rarity = 3,
     imgur = "gr2FxMZ",
 })
