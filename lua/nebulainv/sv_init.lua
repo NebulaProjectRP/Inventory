@@ -17,6 +17,7 @@ util.AddNetworkString("Nebula.Inv:RemoveEquipment")
 util.AddNetworkString("Nebula.Inv:RemoveSlot")
 util.AddNetworkString("NebulaInv:SendMoney")
 util.AddNetworkString("Nebula.Inv:ToggleFavorite")
+util.AddNetworkString("Nebula.Inv:PickupSuit")
 
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {

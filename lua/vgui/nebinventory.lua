@@ -329,7 +329,7 @@ local off = Color(255, 255, 255, 25)
 function PANEL:CreateSlots()
     local header = vgui.Create("Panel", self.Model)
     header:Dock(BOTTOM)
-    header:SetTall(32)
+    header:SetTall(64)
     header:DockMargin(0, 8, 0, 0)
     local slots = vgui.Create("DIconLayout", self.Model)
     slots:Dock(BOTTOM)
@@ -359,8 +359,24 @@ function PANEL:CreateSlots()
         table.insert(self.WeaponSlots, btn)
     end
 
+    self.HolsterSuit = vgui.Create("nebula.button", header)
+    self.HolsterSuit:Dock(BOTTOM)
+    self.HolsterSuit:SetTall(32)
+    self.HolsterSuit:SetTooltip("Start holstering your suit to your inventory")
+    self.HolsterSuit:SetText("Return your suit")
+
+    self.HolsterSuit.DoClick = function()
+        if not LocalPlayer():hasSuit() then
+            return
+        end
+        net.Start("Nebula.Inv:PickupSuit")
+        net.SendToServer()
+        //RunConsoleCommand("say", "!dropsuit")
+    end
+
     self.Holster = vgui.Create("nebula.button", header)
-    self.Holster:Dock(FILL)
+    self.Holster:Dock(BOTTOM)
+    self.Holster:SetTall(32)
     self.Holster:SetText("Return Weapons to inventory")
     local modify = false
 
