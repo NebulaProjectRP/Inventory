@@ -404,6 +404,13 @@ hook.Add("PlayerDeath", "Nebula:RemoveWeapons", function(ply)
                 continue
             end
             if item.rarity >= 6 then continue end
+
+            if (math.random(1, 100) < 25) then
+                local ent = ents.Create(item.class)
+                ent:SetPos(ply:GetPos())
+                ent.LootResult = true
+                ent:Spawn()
+            end
             ply._loadout[k] = nil
             net.Start("Nebula.Inv:RemoveEquipment")
             net.WriteString(k)
@@ -414,6 +421,10 @@ hook.Add("PlayerDeath", "Nebula:RemoveWeapons", function(ply)
     if (not table.IsEmpty(ply._loadout)) then
         ply:networkLoadout()
     end
+end)
+
+hook.Add("PlayerCanPickupWeapon", "Nebula.NoAutoTakeLoot", function(ply, wep)
+    if (wep.LootResult) then return false end
 end)
 
 hook.Add("canDropWeapon", "Nebula:NODropLoadout", function(ply, wep)
