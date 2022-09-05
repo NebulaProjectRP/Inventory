@@ -382,19 +382,28 @@ local function savePlayerInventory(ply, cb)
     end)
 end
 
-hook.Add("PlayerDisconnected", "NebulaSaveItems", savePlayerInventory)
+hook.Add("PlayerDisconnected", "Nebula.Hooks.Inv:PlayerDisconnect", function(ply)
+    for class, _ in pairs(ply._loadout) do
+        if string.StartWith(class, "weapon") then
+            local item = NebulaInv.Items[v.id]
 
-hook.Add("PlayerDeath", "Nebula:RemoveWeapons", function(ply)
-    if ply.hasFool then
-        ply.hasFool = nil
+            if item.rarity >= 6 then continue end
 
-        return
+            ply._loadout[class] = nil
+        end
     end
+
+    savePlayerInventory(ply)
+end)
+
+hook.Add("PlayerDeath", "Nebula.Hook.Inv:RemoveWeapons", function(ply)
+    if ply.hasFool then ply.hasFool = nil return end
 
     for k, v in pairs(ply._loadout) do
         if string.StartWith(k, "weapon") then
             local item = NebulaInv.Items[v.id]
             local wep = ply:GetWeapon(item.class)
+
             if (wep.livesRemaining and wep.livesRemaining > 1) then
                 wep.livesRemaining = wep.livesRemaining - 1
                 ply._loadout[k].data.lives = wep.livesRemaining
@@ -403,14 +412,16 @@ hook.Add("PlayerDeath", "Nebula:RemoveWeapons", function(ply)
                 ply:SendLua(send)
                 continue
             end
+
             if item.rarity >= 6 then continue end
 
-            if (math.random(1, 100) < 25) then
+            if math.random(1, 100) < 25 then
                 local ent = ents.Create(item.class)
                 ent:SetPos(ply:GetPos())
                 ent.LootResult = true
                 ent:Spawn()
             end
+
             ply._loadout[k] = nil
             net.Start("Nebula.Inv:RemoveEquipment")
             net.WriteString(k)
@@ -418,9 +429,7 @@ hook.Add("PlayerDeath", "Nebula:RemoveWeapons", function(ply)
         end
     end
 
-    if (not table.IsEmpty(ply._loadout)) then
-        ply:networkLoadout()
-    end
+    if not table.IsEmpty(ply._loadout) then ply:networkLoadout() end
 end)
 
 hook.Add("PlayerCanPickupWeapon", "Nebula.NoAutoTakeLoot", function(ply, wep)
