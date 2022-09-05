@@ -641,13 +641,14 @@ end)
 
 net.Receive("Nebula.Inv:RemoveEquipment", function(l, ply)
     local empty = net.ReadString()
+
     for k, v in pairs(NebulaInv.Loadout or {}) do
         if empty ~= k and not string.StartWith(k, "weapon:") then continue end
         local item = NebulaInv.Items[v.id]
 
-        if item.rarity < 6 then
-            NebulaInv.Loadout[k] = nil
-        end
+        if item.rarity >= 6 then continue end
+
+        NebulaInv.Loadout[k] = nil
     end
 end)
 
