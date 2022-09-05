@@ -251,7 +251,7 @@ function meta:loadItems(data)
             self:networkLoadout()
         end
 
-        MsgC(Color(100, 255, 200), "[Inventory]", color_white, " Loaded inventory for " .. self:Nick() .. ":" .. self:SteamID64() .. "\n")
+        MsgC(Color(100, 255, 200), "[Inventory]", color_white, " Loaded inventory for " .. self:Nick() .. ": " .. self:SteamID64() .. "\n")
     else
         NebulaDriver:MySQLInsert("inventories", {
             steamid = self:SteamID64(),
@@ -363,7 +363,7 @@ function meta:saveDecal()
     NebulaDriver:MySQLUpdate("inventories", {
         decals = util.TableToJSON(self._decals)
     }, "steamid = " .. self:SteamID64(), function()
-        MsgN("[Inventory] Saved decals for " .. self:Nick() .. ":" .. self:SteamID64())
+        MsgN("[Inventory] Saved decals for " .. self:Nick() .. ": " .. self:SteamID64())
     end)
 end
 
@@ -374,7 +374,7 @@ local function savePlayerInventory(ply, cb)
         items = util.TableToJSON(ply._inventory),
         loadout = util.TableToJSON(ply._loadout or {})
     }, "steamid = " .. sid, function()
-        MsgN("[Inventory] Saved inventory for " .. nick .. ":" .. sid)
+        MsgN("[Inventory] Saved inventory for " .. nick .. ": " .. sid)
 
         if cb then cb() end
     end)
