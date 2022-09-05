@@ -301,6 +301,28 @@ function PANEL:InitStore()
     end
 end
 
+function PANEL:PerformLayout(w, h)
+    if not IsValid(self.Season) then return end
+    if not IsValid(self.Deals) then return end
+    if not IsValid(self.Help) then return end
+    if not IsValid(self.Main) then return end
+
+    if (w < 850) then
+        self.Season:SetVisible(false)
+        self.Deals:SetVisible(false)
+        self.Help:SetVisible(false)
+        self.Main:SetPosGrid(0, 0, 12, 1)
+    elseif !self.Season:IsVisible() then
+        self.Season:SetVisible(true)
+        self.Deals:SetVisible(true)
+        self.Help:SetVisible(true)
+        self.Main:SetPosGrid(7, 0, 12, 1)
+    end
+
+    self.Nebux:AlignRight(8)
+    self.Nebux:AlignTop(0)
+end
+
 vgui.Register("nebula.store", PANEL, "nebula.frame")
 local newPanel = table.Copy(PANEL)
 newPanel.NoFrame = true
