@@ -384,9 +384,7 @@ hook.Add("PlayerDisconnected", "Nebula.Inventory", function(ply)
     for class, v in pairs(ply._loadout) do
         if string.StartWith(class, "weapon") then
             local item = NebulaInv.Items[v.id]
-
             if item.rarity >= 6 then continue end
-
             ply._loadout[class] = nil
         end
     end
