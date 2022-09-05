@@ -381,7 +381,7 @@ local function savePlayerInventory(ply, cb)
 end
 
 hook.Add("PlayerDisconnected", "Nebula.Inventory", function(ply)
-    for class, _ in pairs(ply._loadout) do
+    for class, v in pairs(ply._loadout) do
         if string.StartWith(class, "weapon") then
             local item = NebulaInv.Items[v.id]
 
