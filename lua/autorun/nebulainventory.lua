@@ -1,4 +1,4 @@
-MsgC(Color(125, 200, 255), "[INV] ", color_white, "Loading inventory system\n")
+MsgC(Color(125, 200, 255), "[Inventory] ", color_white, "Loading inventory system\n")
 AddCSLuaFile("nebulainv/sh_meta.lua")
 AddCSLuaFile("nebulainv/sh_storedata.lua")
 AddCSLuaFile("nebulainv/cl_store.lua")
@@ -17,4 +17,4 @@ else
     include("nebulainv/cl_trade.lua")
 end
 
-MsgC(Color(125, 200, 255), "[INV] ", color_white, "Finished inventory system\n")
+MsgC(Color(125, 200, 255), "[Inventory] ", color_white, "Finished inventory system\n")

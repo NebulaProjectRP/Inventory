@@ -50,7 +50,7 @@ function meta:giveItem(id, am, fields)
     end
 
     net.Send(self)
-    MsgC(Color(0, 183, 255), "[INV] ", Color(255, 255, 255), self:Nick() .. " have received ", Color(255, 0, 0), am, Color(255, 255, 255), "x ", Color(255, 0, 0), id, "\n")
+    MsgC(Color(0, 183, 255), "[Inventory] ", Color(255, 255, 255), self:Nick() .. " have received ", Color(255, 0, 0), am, Color(255, 255, 255), "x ", Color(255, 0, 0), id, "\n")
     self:saveInventory()
 
     return true
@@ -251,7 +251,7 @@ function meta:loadItems(data)
             self:networkLoadout()
         end
 
-        MsgC(Color(100, 255, 200), "[INV]", color_white, " Loaded inventory for " .. self:Nick() .. ":" .. self:SteamID64() .. "\n")
+        MsgC(Color(100, 255, 200), "[Inventory]", color_white, " Loaded inventory for " .. self:Nick() .. ":" .. self:SteamID64() .. "\n")
     else
         NebulaDriver:MySQLInsert("inventories", {
             steamid = self:SteamID64(),
@@ -363,7 +363,7 @@ function meta:saveDecal()
     NebulaDriver:MySQLUpdate("inventories", {
         decals = util.TableToJSON(self._decals)
     }, "steamid = " .. self:SteamID64(), function()
-        MsgN("[INV] Saved decals for " .. self:Nick() .. ":" .. self:SteamID64())
+        MsgN("[Inventory] Saved decals for " .. self:Nick() .. ":" .. self:SteamID64())
     end)
 end
 
@@ -374,15 +374,13 @@ local function savePlayerInventory(ply, cb)
         items = util.TableToJSON(ply._inventory),
         loadout = util.TableToJSON(ply._loadout or {})
     }, "steamid = " .. sid, function()
-        MsgN("[INV] Saved inventory for " .. nick .. ":" .. sid)
+        MsgN("[Inventory] Saved inventory for " .. nick .. ":" .. sid)
 
-        if cb then
-            cb()
-        end
+        if cb then cb() end
     end)
 end
 
-hook.Add("PlayerDisconnected", "Nebula.Hooks.Inv:PlayerDisconnect", function(ply)
+hook.Add("PlayerDisconnected", "Nebula.Inventory", function(ply)
     for class, _ in pairs(ply._loadout) do
         if string.StartWith(class, "weapon") then
             local item = NebulaInv.Items[v.id]
@@ -396,7 +394,7 @@ hook.Add("PlayerDisconnected", "Nebula.Hooks.Inv:PlayerDisconnect", function(ply
     savePlayerInventory(ply)
 end)
 
-hook.Add("PlayerDeath", "Nebula.Hook.Inv:RemoveWeapons", function(ply)
+hook.Add("PlayerDeath", "Nebula.Inventory", function(ply)
     if ply.hasFool then ply.hasFool = nil return end
 
     for k, v in pairs(ply._loadout) do
@@ -432,11 +430,11 @@ hook.Add("PlayerDeath", "Nebula.Hook.Inv:RemoveWeapons", function(ply)
     if not table.IsEmpty(ply._loadout) then ply:networkLoadout() end
 end)
 
-hook.Add("PlayerCanPickupWeapon", "Nebula.NoAutoTakeLoot", function(ply, wep)
+hook.Add("PlayerCanPickupWeapon", "Nebula.Inventory", function(ply, wep)
     if (wep.LootResult) then return false end
 end)
 
-hook.Add("canDropWeapon", "Nebula:NODropLoadout", function(ply, wep)
+hook.Add("canDropWeapon", "Nebula.Inventory", function(ply, wep)
     if not IsValid(wep) then return end
     if wep.cannotDrop then return false end
     local class = wep:GetClass()
@@ -456,7 +454,7 @@ hook.Add("canDropWeapon", "Nebula:NODropLoadout", function(ply, wep)
     end
 end)
 
-hook.Add("PlayerSpawn", "NebulaReturnWeapons", function(ply)
+hook.Add("PlayerSpawn", "Nebula.Inventory", function(ply)
     if (not ply._loadout or table.IsEmpty(ply._loadout)) then
         return
     end
