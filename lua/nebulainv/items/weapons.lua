@@ -1,5 +1,4 @@
 -- Rarity 1
-
 NebulaInv:RegisterItem("weapon", "diver_1", {
     classname = "nebula_diver",
     rarity = 1,
@@ -25,12 +24,11 @@ NebulaInv:RegisterItem("weapon", "sealknife", {
 })
 
 -- Rarity 2
-
 NebulaInv:RegisterItem("weapon", "nade_fire", {
     classname = "neb_tfa_nadefire",
     rarity = 2,
     imgur = "W7FFjed",
-    basic = true, -- Don't accept mutators neither equipping
+    basic = true,
     stack = 10
 })
 
@@ -61,7 +59,6 @@ NebulaInv:RegisterItem("weapon", "p90lapin", {
 })
 
 -- Rarity 3
-
 NebulaInv:RegisterItem("weapon", "diver_2", {
     classname = "nebula_diver_1",
     rarity = 3,
@@ -96,14 +93,25 @@ NebulaInv:RegisterItem("weapon", "ruyi", {
     imgur = "VbtDXJE",
 })
 
+NebulaInv:RegisterItem("weapon", "magnumdrill", {
+    classname = "tfa_cso_magnumdrill",
+    rarity = 3,
+    icon = "entities/tfa_cso_magnumdrill.png",
+})
+
 NebulaInv:RegisterItem("weapon", "p90x", {
     classname = "tfa_cso_x-90",
     rarity = 3,
     imgur = "gr2FxMZ",
 })
 
--- Rarity 4
+NebulaInv:RegisterItem("weapon", "nebula_mag_shooter", {
+    classname = "nebula_mag_shooter",
+    rarity = 3,
+    icon = "entities/tfa_cso_magnum_shooter.png"
+})
 
+-- Rarity 4
 NebulaInv:RegisterItem("weapon", "tpsniper", {
     classname = "nebula_tpsniper",
     rarity = 4,
@@ -123,16 +131,38 @@ NebulaInv:RegisterItem("weapon", "paladin_1", {
     imgur = "ioB2AEg",
 })
 
--- Rarity 5
+NebulaInv:RegisterItem("weapon", "magnumdrill_expert", {
+    classname = "tfa_cso_magnumdrill_expert",
+    rarity = 4,
+    icon = "entities/tfa_cso_magnumdrill_expert.png",
+})
 
+NebulaInv:RegisterItem("weapon", "nebula_maglauncher", {
+    classname = "nebula_maglauncher",
+    rarity = 4,
+    icon = "entities/tfa_cso_magnum_lancer.png"
+})
+
+-- Rarity 5
 NebulaInv:RegisterItem("weapon", "paladin_2", {
     classname = "tfa_cso_paladin_v6",
     rarity = 5,
     imgur = "TC0oOlE",
 })
 
--- Rarity 6
+NebulaInv:RegisterItem("weapon", "nebula_mag_expert", {
+    classname = "nebula_mag_expert",
+    rarity = 5,
+    icon = "entities/tfa_cso_magnumlauncher_gs18.png"
+})
 
+NebulaInv:RegisterItem("weapon", "tfa_cso_magnumdrillg", {
+    classname = "tfa_cso_magnumdrillg",
+    rarity = 5,
+    icon = "entities/tfa_cso_magnumdrillg.png",
+})
+
+-- Rarity 6
 NebulaInv:RegisterItem("weapon", "paladin_3", {
     classname = "tfa_cso_paladin_v8",
     rarity = 6,
