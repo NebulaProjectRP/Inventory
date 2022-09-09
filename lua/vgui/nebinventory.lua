@@ -1,12 +1,10 @@
 local PANEL = {}
 local decalCache = {}
-
 local ShowMode = {}
 
 local SortModes = {
     ["None"] = function(a, b) return ((a or {}).id or "") < ((b or {}).id or "") end,
     ["Name"] = function(a, b) return ((a or {}).name or "") < ((b or {}).name or "") end,
-    ["Type"] = function(a, b) return ((a or {}).type or "") < ((b or {}).type or "") end,
     ["Rarity"] = function(a, b) return ((a or {}).rarity or 1) > ((b or {}).rarity or 1) end,
     ["Amount"] = function(a, b, c, d) return c == d and ((a or {}).name or "") < ((b or {}).name or "") or ((c or {}).am or 0) > ((d or {}).am or 0) end,
 }
@@ -15,75 +13,14 @@ PANEL.Slots = {}
 
 function PANEL:Init()
     ShowMode["All"] = function() return true end
-    for k, v in pairs(NebulaInv.Types) do
-        ShowMode[k] = function(item)
-            return item.type == string.lower(k)
-        end
-    end
-    
+
     NebulaInv.Panel = self
     self:Dock(FILL)
     self:InvalidateLayout(true)
     self.Preview = vgui.Create("Panel", self)
     self.Preview:Dock(RIGHT)
     self.Preview:SetWide(352)
-    self.Header = vgui.Create("Panel", self)
-    self.Header:Dock(TOP)
-    self.Header:SetTall(32)
-    self.Header:DockMargin(0, 0, 16, 16)
-    self.ShowOnly = vgui.Create("nebula.combobox", self.Header)
-    self.ShowOnly:Dock(LEFT)
-    self.ShowOnly:SetWide(128)
-    self.ShowOnly:SetText("Show only:")
-
-    self.ShowOnly.OnSelect = function(s, index, value)
-        self:PopulateItems()
-    end
-
-    for k, v in pairs(ShowMode) do
-        self.ShowOnly:AddChoice(string.upper(k[1]) .. string.sub(k, 2))
-    end
-
-    self.OrderBy = vgui.Create("nebula.combobox", self.Header)
-    self.OrderBy:Dock(RIGHT)
-    self.OrderBy:SetText("Type")
-    self.OrderBy:SetWide(128)
-
-    self.OrderBy.OnSelect = function(s, index, value)
-        self:PopulateItems()
-    end
-
-    for k, v in pairs(SortModes) do
-        self.OrderBy:AddChoice(k)
-    end
-
-    self.TradeButton = vgui.Create("nebula.button", self.Header)
-    self.TradeButton:Dock(RIGHT)
-    self.TradeButton:DockMargin(0, 0, 16, 0)
-    self.TradeButton:SetWide(128)
-    self.TradeButton:SetText("Trade")
-
-    self.TradeButton.DoClick = function()
-        local selector = PlayerSelector()
-
-        selector.OnSelect = function(s, ply)
-            net.Start("NebulaInv.Trade:SendInvitation")
-            net.WriteEntity(ply)
-            net.SendToServer()
-        end
-
-        selector:Open()
-    end
-
-    self.Search = vgui.Create("nebula.textentry", self.Header)
-    self.Search:Dock(FILL)
-    self.Search:DockMargin(16, 0, 16, 0)
-    self.Search:SetPlaceholderText("Search...")
-    self.Search:SetUpdateOnType(true)
-
-    self.Search.OnValueChange = function(s)
-        self:PopulateItems()
-    end
+    self:CreateHeader()
 
     self.LastPaint = SysTime()
     self.Model = vgui.Create("DModelPanel", self.Preview)
@@ -130,11 +67,57 @@ function PANEL:Init()
     end
 
     self.Layout = vgui.Create("DIconLayout", self.Content)
-    self.Layout:SetSpaceX(8)
-    self.Layout:SetSpaceY(8)
     self.Layout:Dock(FILL)
     self.ItemSpawned = {}
     self:PopulateItems()
+end
+
+function PANEL:CreateHeader()
+    self.Header = vgui.Create("Panel", self)
+    self.Header:Dock(TOP)
+    self.Header:SetTall(32)
+    self.Header:DockMargin(0, 0, 16, 16)
+
+    self.OrderBy = vgui.Create("nebula.combobox", self.Header)
+    self.OrderBy:Dock(RIGHT)
+    self.OrderBy:SetText("Rarity")
+    self.OrderBy:SetWide(128)
+
+    self.OrderBy.OnSelect = function(s, index, value)
+        self:PopulateItems()
+    end
+
+    for k, v in pairs(SortModes) do
+        self.OrderBy:AddChoice(k)
+    end
+
+    self.TradeButton = vgui.Create("nebula.button", self.Header)
+    self.TradeButton:Dock(RIGHT)
+    self.TradeButton:DockMargin(0, 0, 16, 0)
+    self.TradeButton:SetWide(128)
+    self.TradeButton:SetText("Trade")
+
+    self.TradeButton.DoClick = function()
+        local selector = PlayerSelector()
+
+        selector.OnSelect = function(s, ply)
+            net.Start("NebulaInv.Trade:SendInvitation")
+            net.WriteEntity(ply)
+            net.SendToServer()
+        end
+
+        selector:Open()
+    end
+
+    self.Search = vgui.Create("nebula.textentry", self.Header)
+    self.Search:Dock(FILL)
+    self.Search:DockMargin(0, 0, 16, 0)
+    self.Search:SetPlaceholderText("Search...")
+    self.Search:SetUpdateOnType(true)
+
+    self.Search.OnValueChange = function(s)
+        self:PopulateItems()
+    end
 end
 
 function PANEL:ManipulateModel(ent)
@@ -145,26 +128,38 @@ function PANEL:ManipulateModel(ent)
     ent:ManipulateBoneAngles(boneID, Angle(0, -20 - my * 20, -25 + mx * 20))
 end
 
+PANEL.Categories = {}
 function PANEL:PopulateItems()
     local inv = LocalPlayer():getInventory()
-    local filter = ShowMode[string.lower(self.ShowOnly:GetText()) or "All"]
-    local orderBy = SortModes[self.OrderBy:GetText() or "Type"]
-    if (self.OrderBy:GetText() == "None") then
+    local orderBy = SortModes[self.OrderBy:GetText() or "Rarity"]
+
+    if self.OrderBy:GetText() == "None" then
         orderBy = nil
     end
+
     local search = string.lower(self.Search:GetText())
 
-    for k, v in pairs(self.ItemSpawned) do
-        v:Remove()
+    for k, v in pairs(self.Categories) do
+        if IsValid(v) then
+            v:Remove()
+        end
     end
 
     self.ItemSpawned = {}
     local invData = {}
-
+    local typesFound = 0
     for k = 1, table.Count(inv) do
         local v = inv[k] or {}
         local item = NebulaInv.Items[v.id]
         if not item then continue end
+        if not invData[item.type] then
+            typesFound = typesFound + 1
+            invData[item.type] = {
+                Definition = NebulaInv.Types[item.type],
+                Items = {},
+                Index = cookie.GetNumber("NebulaInv.SortIndex." .. item.type, typesFound),
+            }
+        end
 
         if item and not item.name then
             PrintTable(item)
@@ -172,7 +167,15 @@ function PANEL:PopulateItems()
 
         if filter and not filter(item) or (search ~= "" and not string.find(string.lower(item.name), search, 0, true)) then continue end
 
-        table.insert(invData, k, {
+        if not IsValid(self.Categories[item.type]) then
+            self.Categories[item.type] = vgui.Create("nebula.f4.inventory.kind", self.Layout)
+            self.Categories[item.type]:Dock(TOP)
+            self.Categories[item.type]:Setup(NebulaInv.Types[item.type])
+            self.Categories[item.type].Type = item.type
+            self.Categories[item.type].Index = invData[item.type].Index
+        end
+
+        table.insert(invData[item.type].Items, k, {
             am = v.am or 1,
             id = v.id,
             slot = k,
@@ -183,144 +186,148 @@ function PANEL:PopulateItems()
     end
 
     if orderBy then
-        table.sort(invData, function(a, b)
-            local state = orderBy(NebulaInv.Items[(a or {}).id or ""], NebulaInv.Items[(b or {}).id or ""], a, b)
-            return state
-        end)
+        for type, data in pairs(invData) do
+            table.sort(data.Items, function(a, b)
+                local state = orderBy(NebulaInv.Items[(a or {}).id or ""], NebulaInv.Items[(b or {}).id or ""], a, b)
+
+                return state
+            end)
+        end
     else
-        table.sort(invData, function(a, b)
-            return (a or {}).fav and not (b or {}).fav
-        end)
+        for type, data in pairs(invData) do
+            table.sort(data.Items, function(a, b) return (a or {}).fav and not (b or {}).fav end)
+        end
     end
 
+    for kind, inv in SortedPairsByMemberValue(invData, "Index") do
+        for k, v in pairs(inv.Items) do
+            local btn = vgui.Create("nebula.item", self.Categories[kind])
+            local res = btn:SetItem(v.id, v.slot)
 
-    for k, v in pairs(invData) do
-        local btn = vgui.Create("nebula.item", self.Layout)
-        local res = btn:SetItem(v.id, v.slot)
-
-        if not res then
-            btn:Remove()
-            continue
-        end
-
-        btn:SetSize(96, 96)
-        btn:Droppable("Receiver." .. v.type)
-        btn.Slot = v.slot
-
-        btn.DoClick = function(s)
-            local menu = DermaMenu()
-
-            if NebulaInv.Types[v.type].OpenMenu then
-                NebulaInv.Types[v.type]:OpenMenu(menu, v, s.Slot)
+            if not res then
+                btn:Remove()
+                continue
             end
 
-            menu:AddSpacer()
+            btn:SetSize(112, 112)
+            btn:Droppable("Receiver." .. v.type)
+            btn.Slot = v.slot
 
-            menu:AddOption((LocalPlayer():getInventory()[v.slot].fav and "UnMark" or "Mark") .. " Favorite", function()
-                net.Start("Nebula.Inv:ToggleFavorite")
-                net.WriteUInt(v.slot, 16)
-                net.SendToServer()
-                if (LocalPlayer():getInventory()[v.slot] or {}).fav then
-                    LocalPlayer():getInventory()[v.slot].fav = nil
-                else
-                    LocalPlayer():getInventory()[v.slot].fav = true
+            btn.DoClick = function(s)
+                local menu = DermaMenu()
+
+                if NebulaInv.Types[v.type].OpenMenu then
+                    NebulaInv.Types[v.type]:OpenMenu(menu, v, s.Slot)
                 end
-                s.isFavorite = LocalPlayer():getInventory()[v.slot].fav
-            end)
 
-            menu:AddSpacer()
+                menu:AddSpacer()
 
-            menu:AddOption("Gift Item", function()
-                local selector = PlayerSelector()
-
-                selector.OnSelect = function(s, ply)
-                    if v.am > 1 then
-                        Derma_StringRequest("Gift", "How many do you want to send", "1", function(text)
-                            local amount = tonumber(text)
-
-                            if amount and amount > 0 and amount <= v.am then
-                                net.Start("Nebula.Inv:GiftItem")
-                                net.WriteUInt(v.slot, 16)
-                                net.WriteEntity(ply)
-                                net.WriteUInt(amount, 16)
-                                net.SendToServer()
-                            else
-                                Derma_Message("Invalid amount.", "Error", "OK")
-                            end
-                        end)
-
-                        return
-                    end
-
-                    net.Start("Nebula.Inv:GiftItem")
+                menu:AddOption((LocalPlayer():getInventory()[v.slot].fav and "UnMark" or "Mark") .. " Favorite", function()
+                    net.Start("Nebula.Inv:ToggleFavorite")
                     net.WriteUInt(v.slot, 16)
-                    net.WriteEntity(ply)
-                    net.WriteUInt(1, 16)
                     net.SendToServer()
-                end
 
-                selector:Open()
-            end)
-
-            menu:AddOption("Sell Item", function()
-                Derma_StringRequest("For how much do you want to sell this item", "Marketplace", "100", function(val)
-                    local amount = tonumber(val)
-
-                    if not amount then return end
-
-                    net.Start("NebulaMarket:AddItem")
-                    net.WriteUInt(s.Slot, 16)
-                    net.WriteUInt(amount, 32)
-                    net.SendToServer()
-                end)
-            end)
-
-            menu:AddSpacer()
-
-            menu:AddOption("Delete Item", function()
-                Derma_Query("Are you sure do you want to delete this item?", "Delete Item", "Yes", function()
-                    net.Start("Nebula.Inv:DeleteItem")
-                    net.WriteUInt(s.Slot, 16)
-                    net.WriteBool(false)
-                    net.SendToServer()
-                end, "Delete all", function()
-                    if v.am > 1 then
-                        Derma_StringRequest("Delete amount", "How many do you want to delete", "1", function(text)
-                            local amount = tonumber(text)
-
-                            if amount and amount > 0 and amount <= v.am then
-                                net.Start("Nebula.Inv:DeleteItem")
-                                net.WriteUInt(s.Slot, 16)
-                                net.WriteBool(true)
-                                net.WriteUInt(amount, 16)
-                                net.SendToServer()
-                            else
-                                Derma_Message("Invalid amount.", "Error", "OK")
-                            end
-                        end)
-
-                        return
+                    if (LocalPlayer():getInventory()[v.slot] or {}).fav then
+                        LocalPlayer():getInventory()[v.slot].fav = nil
+                    else
+                        LocalPlayer():getInventory()[v.slot].fav = true
                     end
 
-                    net.Start("Nebula.Inv:DeleteItem")
-                    net.WriteUInt(s.Slot, 16)
-                    net.WriteBool(true)
-                    net.WriteUInt(0, 16)
-                    net.SendToServer()
-                end, "No", function() end)
-            end)
-
-            if LocalPlayer():IsAdmin() then
-                menu:AddOption("Copy ItemID", function()
-                    SetClipboardText(v.id)
+                    s.isFavorite = LocalPlayer():getInventory()[v.slot].fav
                 end)
+
+                menu:AddSpacer()
+
+                menu:AddOption("Gift Item", function()
+                    local selector = PlayerSelector()
+
+                    selector.OnSelect = function(s, ply)
+                        if v.am > 1 then
+                            Derma_StringRequest("Gift", "How many do you want to send", "1", function(text)
+                                local amount = tonumber(text)
+
+                                if amount and amount > 0 and amount <= v.am then
+                                    net.Start("Nebula.Inv:GiftItem")
+                                    net.WriteUInt(v.slot, 16)
+                                    net.WriteEntity(ply)
+                                    net.WriteUInt(amount, 16)
+                                    net.SendToServer()
+                                else
+                                    Derma_Message("Invalid amount.", "Error", "OK")
+                                end
+                            end)
+
+                            return
+                        end
+
+                        net.Start("Nebula.Inv:GiftItem")
+                        net.WriteUInt(v.slot, 16)
+                        net.WriteEntity(ply)
+                        net.WriteUInt(1, 16)
+                        net.SendToServer()
+                    end
+
+                    selector:Open()
+                end)
+
+                menu:AddOption("Sell Item", function()
+                    Derma_StringRequest("For how much do you want to sell this item", "Marketplace", "100", function(val)
+                        local amount = tonumber(val)
+                        if not amount then return end
+                        net.Start("NebulaMarket:AddItem")
+                        net.WriteUInt(s.Slot, 16)
+                        net.WriteUInt(amount, 32)
+                        net.SendToServer()
+                    end)
+                end)
+
+                menu:AddSpacer()
+
+                menu:AddOption("Delete Item", function()
+                    Derma_Query("Are you sure do you want to delete this item?", "Delete Item", "Yes", function()
+                        net.Start("Nebula.Inv:DeleteItem")
+                        net.WriteUInt(s.Slot, 16)
+                        net.WriteBool(false)
+                        net.SendToServer()
+                    end, "Delete all", function()
+                        if v.am > 1 then
+                            Derma_StringRequest("Delete amount", "How many do you want to delete", "1", function(text)
+                                local amount = tonumber(text)
+
+                                if amount and amount > 0 and amount <= v.am then
+                                    net.Start("Nebula.Inv:DeleteItem")
+                                    net.WriteUInt(s.Slot, 16)
+                                    net.WriteBool(true)
+                                    net.WriteUInt(amount, 16)
+                                    net.SendToServer()
+                                else
+                                    Derma_Message("Invalid amount.", "Error", "OK")
+                                end
+                            end)
+
+                            return
+                        end
+
+                        net.Start("Nebula.Inv:DeleteItem")
+                        net.WriteUInt(s.Slot, 16)
+                        net.WriteBool(true)
+                        net.WriteUInt(0, 16)
+                        net.SendToServer()
+                    end, "No", function() end)
+                end)
+
+                if LocalPlayer():IsAdmin() then
+                    menu:AddOption("Copy ItemID", function()
+                        SetClipboardText(v.id)
+                    end)
+                end
+
+                menu:AddOption("Cancel")
+                menu:Open()
             end
 
-            menu:AddOption("Cancel")
-            menu:Open()
+            table.insert(self.ItemSpawned, btn)
         end
-
-        table.insert(self.ItemSpawned, btn)
     end
 end
 
@@ -366,14 +373,12 @@ function PANEL:CreateSlots()
     self.HolsterSuit:SetText("Return your suit")
 
     self.HolsterSuit.DoClick = function()
-        if not LocalPlayer():hasSuit() then
-            return
-        end
+        if not LocalPlayer():hasSuit() then return end
         net.Start("Nebula.Inv:PickupSuit")
         net.SendToServer()
-        //RunConsoleCommand("say", "!dropsuit")
     end
 
+    --RunConsoleCommand("say", "!dropsuit")
     self.Holster = vgui.Create("nebula.button", header)
     self.Holster:Dock(BOTTOM)
     self.Holster:SetTall(32)
@@ -587,10 +592,70 @@ function PANEL:CreateSlots()
     end
 end
 
-function PANEL:PerformLayout(w, h)
+vgui.Register("nebula.f4.inventory", PANEL, "Panel")
+
+local KIND = {}
+KIND.CanAdd = false
+KIND.Items = {}
+function KIND:Init()
+    self:SetTall(148)
+    self.CanAdd = false
+    self.Label = Label("", self)
+    self.Label:SetFont(NebulaUI:Font(24))
+    self.Label:Dock(TOP)
+    self.Label:SetTall(24)
+    self.Label:SetTextColor(color_white)
+    self.Label:SetMouseInputEnabled(true)
+    self.Label:DockMargin(0, 0, 0, 16)
+    self.Items = {}
 end
 
-vgui.Register("nebula.f4.inventory", PANEL, "Panel")
+function KIND:OnChildAdded(child)
+    table.insert(self.Items, child)
+end
+
+KIND.NoReloop = false
+function KIND:PerformLayout(w, h)
+    if (self.NoReloop) then return end
+    local x, y = 4, 32
+    local largestH = 0
+    local totalHeight = 0
+    for i, child in pairs(self.Items) do
+        if (not IsValid(child)) then
+            table.remove(self.Items, i)
+            continue
+        end
+        largestH = math.max(largestH, child:GetTall())
+        child:SetPos(x, y)
+        x = x + child:GetWide() + 8
+        if (x + child:GetWide() > w) then
+            x = 4
+            y = y + largestH + 8
+            totalHeight = totalHeight + largestH + 8
+            largestH = 0
+        end
+    end
+    self.NoReloop = true
+    self:SetTall(totalHeight + 156)
+    self:InvalidateParent(true)
+    self.NoReloop = false
+end
+
+function KIND:Setup(ref)
+    self.Label:SetText(ref.Name)
+    self.Help = ref.Help
+end
+
+function KIND:Paint(w, h)
+    surface.SetDrawColor(255, 255, 255, 75)
+    surface.DrawRect(0, 26, w - 4, 1)
+
+    if (self.Help) then
+        draw.SimpleText(self.Help, NebulaUI:Font(18), w - 8, 14, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+    end
+end
+
+vgui.Register("nebula.f4.inventory.kind", KIND, "Panel")
 
 net.Receive("Nebula.Inv:SyncItem", function()
     local slot = net.ReadUInt(16)
@@ -644,10 +709,8 @@ net.Receive("Nebula.Inv:RemoveEquipment", function(l, ply)
 
     for k, v in pairs(NebulaInv.Loadout or {}) do
         if empty ~= k and not string.StartWith(k, "weapon:") then continue end
-
         local item = NebulaInv.Items[v.id]
         if item.rarity >= 6 then continue end
-
         NebulaInv.Loadout[k] = nil
     end
 end)
