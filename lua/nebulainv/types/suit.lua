@@ -10,7 +10,6 @@ function DEF:OnUse(ply, item)
         return false
     end
 
-    PrintTable(item)
     ply:applySuit(item.class)
     return true
 end

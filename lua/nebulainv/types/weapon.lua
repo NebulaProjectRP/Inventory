@@ -105,12 +105,26 @@ function DEF:OpenMenu(menu, item, slot)
     local ref = NebulaInv.Items[item.id]
     menu:AddOption("Equip Weapon", function()
         if (not ref.basic) then
+            if (ref.rarity != 6) then
+                for k = 1, 3 do
+                    if (NebulaInv.Loadout["weapon:" .. k]) then continue end
+                    if IsValid(NebulaInv.Panel) and IsValid(NebulaInv.Panel.WeaponSlots[k]) then
+                        NebulaInv.Panel.WeaponSlots[k]:SetItem(item.id)
+                    end
+                    net.Start("Nebula.Inv:EquipItem")
+                    net.WriteString("weapon:" .. k)
+                    net.WriteUInt(slot, 16)
+                    net.WriteBool(true)
+                    net.SendToServer()
+                    return
+                end
+            end
             if (ref.rarity >= 4 and ref.rarity != 6) then
                 Derma_Message("You cannot use weapons with this rarity, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
                 return
             end
 
-            if (not table.IsEmpty(item.data) and ref.rarity != 6) then
+            if (not table.IsEmpty(item.data or {}) and ref.rarity != 6) then
                 Derma_Message("You cannot use weapons with mutators, you have to equip it in your weapon slots!", "NebulaRP", "Ok")
                 return
             end
