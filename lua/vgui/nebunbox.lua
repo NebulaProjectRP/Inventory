@@ -155,11 +155,11 @@ function PANEL:SpawnParticle(id)
 
     surface.PlaySound("ui/achievement_earned.wav")
     if id then
-        self.OpenParticle = CreateParticleSystem(self.Model, "fireworks_" .. id, 0, 0, Vector(0, 0, 16))
+        self.OpenParticle = CreateParticleSystem(self.Model, "fireworks_" .. id - 1, 0, 0, Vector(0, 0, 16))
         self.OpenParticle:SetShouldDraw(false)
     end
 
-    self:AlphaTo(0, .1, 1.5, function()
+    self:AlphaTo(0, .1, id >= 5 and 2.5 or 1.5, function()
         self:Remove()
     end)
 end

@@ -95,3 +95,9 @@ NebulaInv:RegisterItem("suit", "architect", {
 
 -- Rarity 6 (SUITS CAN'T BE PERM!)
 
+NebulaInv:RegisterItem("suit", "bp1", {
+    rarity = 6,
+    class = "bp1",
+    imgur = "6uNhH7L"
+})
+

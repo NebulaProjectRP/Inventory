@@ -218,6 +218,27 @@ NebulaInv:RegisterItem("case", "suits1", {
 
 -- Rarity 6 (CASES CAN'T BE PERM!)
 
+NebulaInv:RegisterItem("case", "bp1", {
+    rarity = 6,
+    imgur = "dXB31lz",
+    name = "BP1 Case",
+    items = {
+        ["suit_bp1"] = 5,
+        ["weapon_nebula_mag_expert"] = 6,
+        ["weapon_magnumdrill_expert"] = 6,
+        ["weapon_nebula_maglauncher"] = 8,
+        ["weapon_magnumdrill"] = 10,
+        ["weapon_tfa_cso_rainbowkata"] = 11,
+        ["accessory_blackwidow"] = 8,
+        ["accessory_moth"] = 8,
+        ["accessory_darkviking"] = 6,
+        ["accessory_streetracer"] = 8,
+        ["weapon_tfa_cso_m4a1gs"] = 8,
+        ["weapon_tfa_cso_m3shark"] = 8,
+        ["weapon_tfa_cso_balrog11"] = 8,
+    }
+})
+
 /*
 local items = table.Copy(NebulaInv.Items)
 local rarities = {}
