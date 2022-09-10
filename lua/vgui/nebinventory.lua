@@ -283,15 +283,16 @@ function PANEL:PopulateItems()
 
                 menu:AddSpacer()
 
-                menu:AddOption("Delete Item", function()
-                    Derma_Query("Are you sure do you want to delete this item?", "Delete Item", "Yes", function()
+                menu:AddOption("Deconstruct Item", function()
+                    local amount = NebulaInv.Items[v.id].rarity * 25
+                    Derma_Query("Are you sure do you want to decontruct this item? You will get x" .. amount .. " gobblegum credits for each item", "Delete Item", "Yes", function()
                         net.Start("Nebula.Inv:DeleteItem")
                         net.WriteUInt(s.Slot, 16)
                         net.WriteBool(false)
                         net.SendToServer()
-                    end, "Delete all", function()
+                    end, "Delete some", function()
                         if v.am > 1 then
-                            Derma_StringRequest("Delete amount", "How many do you want to delete", "1", function(text)
+                            Derma_StringRequest("Delete amount", "How many do you want to delete (Max " .. v.am .. ")", "1", function(text)
                                 local amount = tonumber(text)
 
                                 if amount and amount > 0 and amount <= v.am then

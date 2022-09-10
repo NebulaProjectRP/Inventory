@@ -200,7 +200,7 @@ net.Receive("Nebula.Inv:DeleteItem", function(l, ply)
     local slot = net.ReadUInt(16)
     local isAll = net.ReadBool()
     local amount = net.ReadUInt(16)
-    ply:takeItem(slot, isAll and (amount > 0 and amount or -1) or 1)
+    ply:takeItem(slot, isAll and (amount > 0 and amount or -1) or 1, true)
 end)
 
 net.Receive("Nebula.Inv:GiftItem", function(l, ply)
