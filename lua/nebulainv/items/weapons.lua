@@ -174,3 +174,4 @@ NebulaInv:RegisterItem("weapon", "grapple_1", {
     rarity = 6,
     imgur = "LeceHHQ",
 })
+
