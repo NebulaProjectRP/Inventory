@@ -201,7 +201,20 @@ net.Receive("Nebula.Inv:DeleteItem", function(l, ply)
     local slot = net.ReadUInt(16)
     local isAll = net.ReadBool()
     local amount = net.ReadUInt(16)
-    ply:takeItem(slot, isAll and (amount > 0 and amount or -1) or 1, true)
+    local total = isAll and (amount > 0 and amount or -1) or 1
+
+    if (ply:getInventory()[slot]) then
+        local lam = total == -1 and ply:getInventory()[slot].am or total
+        if (ply:getInventory()[slot].am < lam) then
+            return
+        end
+        local rarity = NebulaInv.Items[ply:getInventory()[slot].id].rarity
+        local credits = lam * rarity
+        ply:GiveCredits(credits * 25)
+        ply:AddXP(credits * 10, "<rainbow=4>+" .. (credits * 25) .. "</rainbow> credits.")
+    end
+
+    ply:takeItem(slot, total, true)
 end)
 
 net.Receive("Nebula.Inv:GiftItem", function(l, ply)
@@ -296,6 +309,8 @@ net.Receive("Nebula.Inv:UnboxGobblegums", function(len, ply)
         net.WriteUInt(v, 6)
     end
     net.Send(ply)
+
+    ply:takeItem(slot, 1)
 end)
 
 // Concommands

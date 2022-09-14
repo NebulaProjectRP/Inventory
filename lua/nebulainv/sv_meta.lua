@@ -120,7 +120,7 @@ function meta:giftItem(slot, target, amount)
     hook.Run("onUnboxGift", self, target, item.id)
 end
 
-function meta:takeItem(slot, am, decontruct)
+function meta:takeItem(slot, am)
     if istable(slot) then
         local failed = false
 
@@ -187,12 +187,6 @@ function meta:takeItem(slot, am, decontruct)
     end
 
     item.am = (item.am or 1) - am
-
-    local rarity = NebulaInv.Items[item.id].rarity
-    local credits = am * rarity * 25
-    self:GiveCredits(credits)
-    self:AddXP(credits, "You've deconstructed item/s")
-
     self:syncInvSlot(slot)
 
     if item.am <= 0 then
