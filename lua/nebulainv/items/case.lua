@@ -72,6 +72,17 @@ NebulaInv:RegisterItem("case", "cosmetic2", {
 
 -- Rarity 3
 
+NebulaInv:RegisterItem("case", "gobblegums", {
+    rarity = 3,
+    imgur = "JsqoDA1",
+    name = "Gobblegums bag",
+    onOpen = function(item, slot)
+        net.Start("Nebula.Inv:UnboxGobblegums")
+        net.WriteUInt(slot, 16)
+        net.SendToServer()
+    end,
+})
+
 NebulaInv:RegisterItem("case", "red_woopie", {
     rarity = 3,
     imgur = "CVtvhB5",

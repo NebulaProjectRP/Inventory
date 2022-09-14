@@ -60,12 +60,30 @@ function PANEL:Init()
         net.Start("Nebula.Inv:OpenCase")
         net.WriteString(self.caseID, 32)
         net.SendToServer()
+        self:CreateMoveParticle()
     end
 
     self.Cards = {}
     self.Offset = 0
     --self:SetCase(8)
     --self:GenerateDummy()
+
+    self.opaint = self.Paint
+    self.Paint = function(s, w, h)
+        self:opaint(w, h)
+        if (self.MoveParticle) then
+            local x, y = self:LocalToScreen(0, 0)
+            cam.Start3D(Vector(0, -40, 32), Angle(-0, 90, 0), 140, x, y, w, h, 5, self.FarZ)
+
+            DisableClipping(true)
+            cam.IgnoreZ(true)
+            self.MoveParticle:Render()
+            cam.IgnoreZ(false)
+            DisableClipping(false)
+
+            cam.End3D()
+        end
+    end
 end
 
 function PANEL:SetCase(id)
@@ -87,14 +105,16 @@ function PANEL:SetCase(id)
         btn:SetTall(56)
         btn:DockMargin(4, 4, 4, 0)
 
+        btn.owned = LocalPlayer():hasItem(id)
         btn.Paint = function(s, w, h)
             draw.RoundedBox(8, 0, 0, w, h, Color(255, 255, 255, 15))
             draw.RoundedBox(8, 1, 1, w - 2, h - 2, Color(16, 0, 24))
 
             if NebulaInv.Items[id] then
                 draw.SimpleText(NebulaInv.Items[id].name, NebulaUI:Font(20), 58, 4, Color(200, 200, 200))
-            else
-                MsgN(id)
+                if (s.owned) then
+                    draw.SimpleText("OWNED", NebulaUI:Font(20), 58, 24, Color(74, 177, 33))
+                end
             end
         end
 
@@ -134,6 +154,10 @@ function PANEL:GenerateDummy()
         card.Origin = offset
 
         if k ~= 58 then
+            if not randomItems[k][2].id then
+                error("Missing item at slot " .. k)
+                continue
+            end
             card:SetItem(randomItems[k][2].id)
         end
 
@@ -146,6 +170,16 @@ end
 
 for k = 1, 5 do
     PrecacheParticleSystem("fireworks_" .. k)
+end
+PrecacheParticleSystem("unbox_drag")
+function PANEL:CreateMoveParticle()
+    if self.MoveParticle then
+        self.MoveParticle:StopEmission(true, true)
+        self.MoveParticle = nil
+    end
+
+    self.MoveParticle = CreateParticleSystem(self.Model, "unbox_drag", 0, 0, Vector(0, 0, 16))
+    self.MoveParticle:SetShouldDraw(false)
 end
 
 function PANEL:SpawnParticle(id)

@@ -18,6 +18,7 @@ util.AddNetworkString("Nebula.Inv:RemoveSlot")
 util.AddNetworkString("NebulaInv:SendMoney")
 util.AddNetworkString("Nebula.Inv:ToggleFavorite")
 util.AddNetworkString("Nebula.Inv:PickupSuit")
+util.AddNetworkString("Nebula.Inv:UnboxGobblegums")
 
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
@@ -274,6 +275,27 @@ net.Receive("Nebula.Inv:ToggleFavorite", function(l, ply)
     end
 
     ply:saveInventory()
+end)
+
+net.Receive("Nebula.Inv:UnboxGobblegums", function(len, ply)
+    local slot = net.ReadUInt(16)
+    local item = ply:getInventory()[slot]
+    if not slot then return end
+
+    local amount = 4
+
+    local ref = NebulaInv.Items[item.id]
+    if (ref.type ~= "case") then return end
+
+    local gobbles = NebulaInv:UnboxGobble(amount)
+    if not gobbles then return end
+
+    net.Start("Nebula.Inv:UnboxGobblegums")
+    net.WriteUInt(amount, 6)
+    for k ,v in pairs(gobbles) do
+        net.WriteUInt(v, 6)
+    end
+    net.Send(ply)
 end)
 
 // Concommands

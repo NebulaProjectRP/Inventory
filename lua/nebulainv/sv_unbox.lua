@@ -65,6 +65,24 @@ function NebulaInv:Unbox(ply, case_id)
     return winner, ran, self.TotalCache[case_id]
 end
 
+function NebulaInv:UnboxGobble(am, last)
+    local win = math.random(3, ASAP_GOBBLEGUMS.MaxGum)
+    while (not ASAP_GOBBLEGUMS.Gumballs[win] or ASAP_GOBBLEGUMS.Gumballs[win].Unobtainable) do
+        win = math.random(3, ASAP_GOBBLEGUMS.MaxGum)
+    end
+
+    if not last then
+        last = {}
+    end
+
+    table.insert(last, win)
+    if (am > 1) then
+        return self:UnboxGobble(am - 1, last)
+    end
+
+    return last
+end
+
 concommand.Add("nebula_unbox_benchmark", function(ply, cmd, args)
     if (IsValid(ply)) then return end
 
