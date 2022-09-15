@@ -335,6 +335,23 @@ end
 local off = Color(255, 255, 255, 25)
 
 function PANEL:CreateSlots()
+
+    local default = NebulaRanks.Ranks.Default
+    local rankData = NebulaRanks.Ranks[LocalPlayer():getTitle()] or default
+    self.Titles = vgui.Create("nebula.combobox", self.Model)
+    self.Titles:Dock(TOP)
+    self.Titles:SetTall(32)
+    self.Titles:DockMargin(0, 32, 0, 0)
+    self.Titles:SetText(rankData.Name)
+    for k, v in pairs(LocalPlayer():getTitles()) do
+        local subRank = NebulaRanks.Ranks[v] or default
+        self.Titles:AddChoice(subRank.Name, v)
+    end
+    self.Titles.OnSelect = function(s, id, a, b)
+        net.Start("NebulaRP.Credits:ChangeTitle")
+        net.WriteString(b)
+        net.SendToServer()
+    end
     local header = vgui.Create("Panel", self.Model)
     header:Dock(BOTTOM)
     header:SetTall(64)

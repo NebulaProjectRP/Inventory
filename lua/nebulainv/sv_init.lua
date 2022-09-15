@@ -20,6 +20,7 @@ util.AddNetworkString("Nebula.Inv:ToggleFavorite")
 util.AddNetworkString("Nebula.Inv:PickupSuit")
 util.AddNetworkString("Nebula.Inv:UnboxGobblegums")
 
+
 hook.Add("DatabaseCreateTables", "NebulaInventory", function()
     NebulaDriver:MySQLCreateTable("inventories", {
         items = "TEXT NOT NULL",
