@@ -338,8 +338,21 @@ function PANEL:CreateSlots()
 
     local default = NebulaRanks.Ranks.Default
     local rankData = NebulaRanks.Ranks[LocalPlayer():getTitle()] or default
-    self.Titles = vgui.Create("nebula.combobox", self.Model)
-    self.Titles:Dock(TOP)
+
+    local titles = vgui.Create("Panel", self.Model)
+    titles:Dock(TOP)
+    titles:SetTall(32)
+
+    local cosmeticButton = vgui.Create("nebula.button", titles)
+    cosmeticButton:SetText("Edit Title")
+    cosmeticButton:Dock(RIGHT)
+    cosmeticButton:SetWide(72)
+    cosmeticButton.DoClick = function()
+        vgui.Create("nebula.cosmeticTitle")
+    end
+
+    self.Titles = vgui.Create("nebula.combobox", titles)
+    self.Titles:Dock(FILL)
     self.Titles:SetTall(32)
     self.Titles:DockMargin(0, 32, 0, 0)
     self.Titles:SetText(rankData.Name)
@@ -348,9 +361,17 @@ function PANEL:CreateSlots()
         self.Titles:AddChoice(subRank.Name, v)
     end
     self.Titles.OnSelect = function(s, id, a, b)
-        net.Start("NebulaRP.Credits:ChangeTitle")
-        net.WriteString(b)
-        net.SendToServer()
+        Derma_Query("Do you want to update your cosmetic title to " .. a .. "?", "Update Title", "Yes", function()
+            net.Start("NebulaRP.Credits:ChangeTitle")
+            net.WriteString(b)
+            net.WriteBool(true)
+            net.SendToServer()
+        end, "No", function()
+            net.Start("NebulaRP.Credits:ChangeTitle")
+            net.WriteString(b)
+            net.WriteBool(true)
+            net.SendToServer()
+        end)
     end
     local header = vgui.Create("Panel", self.Model)
     header:Dock(BOTTOM)
