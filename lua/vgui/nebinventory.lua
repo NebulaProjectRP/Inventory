@@ -27,7 +27,7 @@ function PANEL:Init()
     self.Model:Dock(FILL)
     self.Model:SetModel(LocalPlayer():GetModel())
     self.Model:GetEntity():ResetSequence("menu_combine")
-    self.Model:SetFOV(35)
+    self.Model:SetFOV(30)
 
     self.Model.PreDrawModel = function(s, ent)
         if self:GetAlpha() ~= 255 then return false end
@@ -353,8 +353,7 @@ function PANEL:CreateSlots()
 
     self.Titles = vgui.Create("nebula.combobox", titles)
     self.Titles:Dock(FILL)
-    self.Titles:SetTall(32)
-    self.Titles:DockMargin(0, 32, 0, 0)
+    self.Titles:DockMargin(0, 0, 16, 0)
     self.Titles:SetText(rankData.Name)
     for k, v in pairs(LocalPlayer():getTitles()) do
         local subRank = NebulaRanks.Ranks[v] or default
