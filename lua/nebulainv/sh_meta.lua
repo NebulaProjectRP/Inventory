@@ -60,6 +60,9 @@ net.Receive("Nebula.Inv:AddItem", function(l, ply)
     if IsValid(NebulaInv.Panel) then
         NebulaInv.Panel:PopulateItems()
     end
+
+    local itemRef = NebulaInv.Items[id]
+    chat.AddText(Color(50, 200, 20), "[INV] ", Color(255, 255, 255), "You have received " .. amount .. "x ", NebulaInv.Rarities[itemRef.rarity],itemRef.name .. "!")
 end)
 
 net.Receive("Nebula.Inv:NetworkItem", function()

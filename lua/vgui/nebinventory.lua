@@ -13,7 +13,6 @@ PANEL.Slots = {}
 
 function PANEL:Init()
     ShowMode["All"] = function() return true end
-
     NebulaInv.Panel = self
     self:Dock(FILL)
     self:InvalidateLayout(true)
@@ -21,7 +20,6 @@ function PANEL:Init()
     self.Preview:Dock(RIGHT)
     self.Preview:SetWide(352)
     self:CreateHeader()
-
     self.LastPaint = SysTime()
     self.Model = vgui.Create("DModelPanel", self.Preview)
     self.Model:Dock(FILL)
@@ -77,7 +75,6 @@ function PANEL:CreateHeader()
     self.Header:Dock(TOP)
     self.Header:SetTall(32)
     self.Header:DockMargin(0, 0, 16, 16)
-
     self.OrderBy = vgui.Create("nebula.combobox", self.Header)
     self.OrderBy:Dock(RIGHT)
     self.OrderBy:SetText("Rarity")
@@ -129,9 +126,10 @@ function PANEL:ManipulateModel(ent)
 end
 
 PANEL.Categories = {}
+
 function PANEL:PopulateItems()
     local inv = LocalPlayer():getInventory()
-    local orderBy = SortModes[self.OrderBy:GetText() or "Rarity"]
+    local orderBy = SortModes[self.OrderBy:GetText() or "None"]
 
     if self.OrderBy:GetText() == "None" then
         orderBy = nil
@@ -148,12 +146,15 @@ function PANEL:PopulateItems()
     self.ItemSpawned = {}
     local invData = {}
     local typesFound = 0
+
     for k = 1, table.Count(inv) do
         local v = inv[k] or {}
         local item = NebulaInv.Items[v.id]
         if not item then continue end
+
         if not invData[item.type] then
             typesFound = typesFound + 1
+
             invData[item.type] = {
                 Definition = NebulaInv.Types[item.type],
                 Items = {},
@@ -175,7 +176,7 @@ function PANEL:PopulateItems()
             self.Categories[item.type].Index = invData[item.type].Index
         end
 
-        table.insert(invData[item.type].Items, k, {
+        table.insert(invData[item.type].Items, {
             am = v.am or 1,
             id = v.id,
             slot = k,
@@ -185,21 +186,37 @@ function PANEL:PopulateItems()
         })
     end
 
-    if orderBy then
-        for type, data in pairs(invData) do
-            table.sort(data.Items, function(a, b)
+    for kind, inv in SortedPairsByMemberValue(invData, "Index") do
+        if orderBy then
+            table.sort(inv.Items, function(a, b)
                 local state = orderBy(NebulaInv.Items[(a or {}).id or ""], NebulaInv.Items[(b or {}).id or ""], a, b)
 
                 return state
             end)
-        end
-    else
-        for type, data in pairs(invData) do
-            table.sort(data.Items, function(a, b) return (a or {}).fav and not (b or {}).fav end)
-        end
-    end
+        else
+            table.sort(inv.Items, function(a, b)
+                local aref, bref = NebulaInv.Items[a.id], NebulaInv.Items[b.id]
+                local ca, cb = table.Count(a.data), table.Count(b.data)
+                local generic = nil
 
-    for kind, inv in SortedPairsByMemberValue(invData, "Index") do
+                if a.fav ~= b.fav then
+                    generic = a.fav ~= nil
+                elseif bref.rarity == 6 or aref.rarity == 6 then
+                    generic = bref.rarity < aref.rarity
+                elseif ca ~= cb then
+                    generic = ca > cb
+                elseif bref.rarity ~= aref.rarity then
+                    generic = bref.rarity < aref.rarity
+                elseif aref.name ~= bref.name then
+                    generic = bref.name > aref.name
+                else
+                    generic = a.slot < b.slot
+                end
+
+                return generic
+            end)
+        end
+
         for k, v in pairs(inv.Items) do
             local btn = vgui.Create("nebula.item", self.Categories[kind])
             local res = btn:SetItem(v.id, v.slot)
@@ -242,29 +259,28 @@ function PANEL:PopulateItems()
                     local selector = PlayerSelector()
 
                     selector.OnSelect = function(s, ply)
-                        if v.am > 1 then
-                            Derma_StringRequest("Gift", "How many do you want to send", "1", function(text)
-                                local amount = tonumber(text)
-
-                                if amount and amount > 0 and amount <= v.am then
-                                    net.Start("Nebula.Inv:GiftItem")
-                                    net.WriteUInt(v.slot, 16)
-                                    net.WriteEntity(ply)
-                                    net.WriteUInt(amount, 16)
-                                    net.SendToServer()
-                                else
-                                    Derma_Message("Invalid amount.", "Error", "OK")
-                                end
-                            end)
-
+                        if v.am == 1 then
+                            net.Start("Nebula.Inv:GiftItem")
+                            net.WriteUInt(v.slot, 16)
+                            net.WriteEntity(ply)
+                            net.WriteUInt(1, 16)
+                            net.SendToServer()
                             return
                         end
+                        Derma_StringRequest("Gift", "How many do you want to send", "1", function(text)
+                            local amount = tonumber(text)
 
-                        net.Start("Nebula.Inv:GiftItem")
-                        net.WriteUInt(v.slot, 16)
-                        net.WriteEntity(ply)
-                        net.WriteUInt(1, 16)
-                        net.SendToServer()
+                            if amount and amount > 0 and amount <= v.am then
+                                net.Start("Nebula.Inv:GiftItem")
+                                net.WriteUInt(v.slot, 16)
+                                net.WriteEntity(ply)
+                                net.WriteUInt(amount, 16)
+                                net.SendToServer()
+                                return
+                            end
+                            Derma_Message("Invalid amount.", "Error", "OK")
+
+                        end)
                     end
 
                     selector:Open()
@@ -285,6 +301,7 @@ function PANEL:PopulateItems()
 
                 menu:AddOption("Deconstruct Item", function()
                     local amount = NebulaInv.Items[v.id].rarity * 25
+
                     Derma_Query("Are you sure do you want to decontruct this item? You will get x" .. amount .. " gobblegum credits for each item", "Delete Item", "Yes", function()
                         net.Start("Nebula.Inv:DeleteItem")
                         net.WriteUInt(s.Slot, 16)
@@ -335,18 +352,16 @@ end
 local off = Color(255, 255, 255, 25)
 
 function PANEL:CreateSlots()
-
     local default = NebulaRanks.Ranks.Default
     local rankData = NebulaRanks.Ranks[LocalPlayer():getTitle()] or default
-
     local titles = vgui.Create("Panel", self.Model)
     titles:Dock(TOP)
     titles:SetTall(32)
-
     local cosmeticButton = vgui.Create("nebula.button", titles)
     cosmeticButton:SetText("Edit Title")
     cosmeticButton:Dock(RIGHT)
     cosmeticButton:SetWide(72)
+
     cosmeticButton.DoClick = function()
         vgui.Create("nebula.cosmeticTitle")
     end
@@ -355,10 +370,12 @@ function PANEL:CreateSlots()
     self.Titles:Dock(FILL)
     self.Titles:DockMargin(0, 0, 16, 0)
     self.Titles:SetText(rankData.Name)
+
     for k, v in pairs(LocalPlayer():getTitles()) do
         local subRank = NebulaRanks.Ranks[v] or default
         self.Titles:AddChoice(subRank.Name, v)
     end
+
     self.Titles.OnSelect = function(s, id, a, b)
         Derma_Query("Do you want to update your cosmetic title to " .. a .. "?", "Update Title", "Yes", function()
             net.Start("NebulaRP.Credits:ChangeTitle")
@@ -372,6 +389,7 @@ function PANEL:CreateSlots()
             net.SendToServer()
         end)
     end
+
     local header = vgui.Create("Panel", self.Model)
     header:Dock(BOTTOM)
     header:SetTall(64)
@@ -631,10 +649,10 @@ function PANEL:CreateSlots()
 end
 
 vgui.Register("nebula.f4.inventory", PANEL, "Panel")
-
 local KIND = {}
 KIND.CanAdd = false
 KIND.Items = {}
+
 function KIND:Init()
     self:SetTall(148)
     self.CanAdd = false
@@ -653,26 +671,31 @@ function KIND:OnChildAdded(child)
 end
 
 KIND.NoReloop = false
+
 function KIND:PerformLayout(w, h)
-    if (self.NoReloop) then return end
+    if self.NoReloop then return end
     local x, y = 4, 32
     local largestH = 0
     local totalHeight = 0
+
     for i, child in pairs(self.Items) do
-        if (not IsValid(child)) then
+        if not IsValid(child) then
             table.remove(self.Items, i)
             continue
         end
+
         largestH = math.max(largestH, child:GetTall())
         child:SetPos(x, y)
         x = x + child:GetWide() + 8
-        if (x + child:GetWide() > w) then
+
+        if x + child:GetWide() > w then
             x = 4
             y = y + largestH + 8
             totalHeight = totalHeight + largestH + 8
             largestH = 0
         end
     end
+
     self.NoReloop = true
     self:SetTall(totalHeight + 156)
     self:InvalidateParent(true)
@@ -688,7 +711,7 @@ function KIND:Paint(w, h)
     surface.SetDrawColor(255, 255, 255, 75)
     surface.DrawRect(0, 26, w - 4, 1)
 
-    if (self.Help) then
+    if self.Help then
         draw.SimpleText(self.Help, NebulaUI:Font(18), w - 8, 14, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
     end
 end

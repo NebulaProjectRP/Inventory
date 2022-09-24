@@ -133,6 +133,28 @@ function DEF:OpenMenu(menu, item, slot)
         net.WriteUInt(slot, 16)
         net.SendToServer()
     end)
+
+    local item_inv = LocalPlayer():getInventory()[slot]
+    local muts = item_inv.data
+    local canCreate = false
+    if (table.IsEmpty(muts)) then return end
+    for k, v in pairs(item_inv.data) do
+        if isstring(v) and tonumber(v) then
+            v = tonumber(v)
+            LocalPlayer():getInventory()[slot].data[k] = v
+        end
+        if (k != "kills" and k != "lives" and v < 5) then
+            canCreate = true
+            break
+        end
+    end
+
+    if canCreate then
+        menu:AddOption("Transmutate Weapon", function()
+            local tr = vgui.Create("nebula.transmutator")
+            tr:SetItem(slot)
+        end)
+    end
 end
 
 if SERVER then

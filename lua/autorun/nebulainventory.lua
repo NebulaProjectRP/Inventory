@@ -13,6 +13,7 @@ if SERVER then
     include("nebulainv/sv_unbox.lua")
     include("nebulainv/sv_store.lua")
     include("nebulainv/sv_trade.lua")
+    include("nebulainv/sv_alchemy.lua")
 else
     include("nebulainv/cl_store.lua")
     include("nebulainv/cl_trade.lua")

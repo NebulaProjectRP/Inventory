@@ -51,6 +51,18 @@ function DEF:OpenMenu(menu, item, slot)
         net.WriteUInt(slot, 16)
         net.SendToServer()
     end)
+
+    local ref = NebulaInv.Items[item.id]
+    local suit = NebulaSuits:getSuit(ref.class)
+    if (not suit.Abilities or table.IsEmpty(suit.Abilities)) then return end
+    menu:AddOption("See Abilities", function()
+        local info = ""
+        for k, v in SortedPairs(suit.Abilities) do
+            info = info .. k .. ") " .. v.Help .. "\n"
+        end
+        info = info:sub(1, #info - 1)
+        Derma_Message(suit.Name .. "'s Abilities:\n" .. info, "Abilities")
+    end)
 end
 
 function DEF:DropItem(ply, item, slot, amount)

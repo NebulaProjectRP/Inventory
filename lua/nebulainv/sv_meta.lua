@@ -125,7 +125,7 @@ function meta:takeItem(slot, am)
         local failed = false
 
         for _, data in SortedPairs(slot) do
-            local temp = table.Copy(self:getInventory()[data[1]])
+            local temp = table.Copy(self:getInventory()[data])
 
             if not temp then
                 failed = true
