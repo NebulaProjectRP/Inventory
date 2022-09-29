@@ -156,6 +156,9 @@ function NebulaInv:LoadItems()
         NebulaInv.Decals = util.JSONToTable(inv.decals)
         LocalPlayer():loadMining(json.mining or {})
         LocalPlayer()._trinkets = util.JSONToTable(json.trinkets.inventory)
+        if (NebulaEternals) then
+            NebulaEternals.Local = json.eternals
+        end
     end, function(err)
         MsgN(err)
     end)

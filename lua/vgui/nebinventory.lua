@@ -359,13 +359,13 @@ function PANEL:CreateSlots()
     titles:SetTall(32)
     local cosmeticButton = vgui.Create("nebula.button", titles)
     cosmeticButton:SetText("Edit Title")
-    cosmeticButton:Dock(RIGHT)
+    cosmeticButton:Dock(FILL)
     cosmeticButton:SetWide(72)
 
     cosmeticButton.DoClick = function()
         vgui.Create("nebula.cosmeticTitle")
     end
-
+/*
     self.Titles = vgui.Create("nebula.combobox", titles)
     self.Titles:Dock(FILL)
     self.Titles:DockMargin(0, 0, 16, 0)
@@ -389,7 +389,7 @@ function PANEL:CreateSlots()
             net.SendToServer()
         end)
     end
-
+*/
     local header = vgui.Create("Panel", self.Model)
     header:Dock(BOTTOM)
     header:SetTall(64)
